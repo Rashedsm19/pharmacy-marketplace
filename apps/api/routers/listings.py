@@ -83,6 +83,18 @@ async def create_listing(
     return ListingOut.model_validate(listing)
 
 
+@router.get("/eligibility-check", response_model=EligibilityResult)
+async def check_eligibility_for_batch(
+    batch_id: uuid.UUID,
+    db: DbSession,
+    current_user: CurrentUser,
+):
+    """Check whether a batch passes all marketplace listing eligibility rules."""
+    org_id = await _get_org_id(current_user, db)
+    svc = EligibilityService(db)
+    return await svc.check_listing_eligibility(batch_id, org_id)
+
+
 @router.get("/{listing_id}/eligibility", response_model=EligibilityResult)
 async def check_eligibility(
     listing_id: uuid.UUID,
