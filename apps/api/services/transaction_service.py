@@ -105,6 +105,7 @@ class TransactionService:
             organization_id=seller_org_id,
             ip_address=ip_address,
         )
+        await self.db.refresh(tx)
         return tx
 
     async def confirm_receipt(
@@ -169,4 +170,5 @@ class TransactionService:
             organization_id=buyer_org_id,
             ip_address=ip_address,
         )
+        await self.db.refresh(tx)
         return tx
