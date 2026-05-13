@@ -130,22 +130,28 @@ _scheduler = None
 
 
 async def _run_migrations_if_requested() -> None:
-    """Run `alembic upgrade head` on startup if RUN_MIGRATIONS_ON_STARTUP=true."""
+    """Run `alembic upgrade head` on startup if RUN_MIGRATIONS_ON_STARTUP=true.
+
+    Run via subprocess so alembic's own asyncio.run() doesn't collide with the
+    server's running event loop.
+    """
     if os.getenv("RUN_MIGRATIONS_ON_STARTUP", "").lower() not in {"1", "true", "yes"}:
         return
-    try:
-        from alembic import command
-        from alembic.config import Config
+    import asyncio as _asyncio
 
-        cfg = Config(os.path.join(os.path.dirname(__file__), "alembic.ini"))
-        cfg.set_main_option("script_location", os.path.join(os.path.dirname(__file__), "alembic"))
-        cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-        logger.info("Running database migrations on startup")
-        command.upgrade(cfg, "head")
-        logger.info("Migrations complete")
-    except Exception as exc:
-        logger.error("Migration failed on startup: %s", exc)
-        raise
+    api_dir = os.path.dirname(os.path.abspath(__file__))
+    logger.info("Running database migrations on startup")
+    proc = await _asyncio.create_subprocess_exec(
+        sys.executable, "-m", "alembic", "upgrade", "head",
+        cwd=api_dir,
+        stdout=_asyncio.subprocess.PIPE,
+        stderr=_asyncio.subprocess.STDOUT,
+    )
+    out, _ = await proc.communicate()
+    if proc.returncode != 0:
+        logger.error("Migration failed (exit %d):\n%s", proc.returncode, out.decode(errors="replace"))
+        raise RuntimeError(f"alembic upgrade failed with code {proc.returncode}")
+    logger.info("Migrations complete:\n%s", out.decode(errors="replace")[-500:])
 
 
 async def _seed_if_requested() -> None:
