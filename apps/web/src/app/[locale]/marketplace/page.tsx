@@ -5,10 +5,21 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import Shell from "@/components/layout/shell";
 import { listingsApi, productsApi } from "@/lib/api";
-import { formatCurrency, getExpiryZone, expiryZoneColors } from "@/lib/utils";
+import { formatCurrency, getExpiryZone } from "@/lib/utils";
 import Link from "next/link";
-import { Search, Filter, Package, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Search, Package, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ExpiryBadge } from "@/components/ui/expiry-badge";
+import { EmptyState } from "@/components/ui/empty-state";
+
+const zoneStripeGradient: Record<string, string> = {
+  green: "from-emerald-400 to-emerald-500",
+  yellow: "from-yellow-400 to-yellow-500",
+  orange: "from-orange-400 to-orange-500",
+  red: "from-rose-400 to-rose-500",
+};
 
 export default function MarketplacePage() {
   const locale = useLocale();
@@ -37,59 +48,68 @@ export default function MarketplacePage() {
   return (
     <Shell>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">السوق</h1>
-          <Link
-            href={`/${locale}/marketplace/create`}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm"
-          >
-            <Plus className="h-4 w-4" />
-            إنشاء إعلان
-          </Link>
-        </div>
+        <PageHeader
+          title="السوق"
+          subtitle="اكتشف الدفعات المعروضة من صيدليات معتمدة"
+          actions={
+            <Link href={`/${locale}/marketplace/create`}>
+              <Button variant="gold">
+                <Plus className="h-4 w-4" />
+                إنشاء إعلان
+              </Button>
+            </Link>
+          }
+        />
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-          <div className="relative w-full md:flex-1 md:min-w-48">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="بحث في الإعلانات..."
-              className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <Card className="p-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            <div className="relative w-full md:flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="بحث في الإعلانات..."
+                className="w-full h-10 pr-10 pl-4 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full md:w-auto h-10 px-3 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="">كل الفئات</option>
+              {(categories ?? []).map((c: { id: string; name_ar: string }) => (
+                <option key={c.id} value={c.id}>
+                  {c.name_ar}
+                </option>
+              ))}
+            </select>
           </div>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full md:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">كل الفئات</option>
-            {(categories ?? []).map((c: { id: string; name_ar: string }) => (
-              <option key={c.id} value={c.id}>
-                {c.name_ar}
-              </option>
-            ))}
-          </select>
-        </div>
+        </Card>
 
         {/* Listings Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/2 mb-4" />
-                <div className="h-8 bg-gray-200 rounded" />
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-5 ring-1 ring-slate-200/70 shadow-soft animate-pulse"
+              >
+                <div className="h-4 bg-slate-100 rounded w-3/4 mb-2" />
+                <div className="h-3 bg-slate-100 rounded w-1/2 mb-5" />
+                <div className="h-8 bg-slate-100 rounded" />
               </div>
             ))}
           </div>
         ) : !listings?.items?.length ? (
-          <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
-            <Package className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-1">لا توجد إعلانات</h3>
-            <p className="text-gray-400 text-sm">لم يتم العثور على إعلانات مطابقة لبحثك</p>
-          </div>
+          <Card>
+            <EmptyState
+              icon={Package}
+              title="لا توجد إعلانات"
+              description="لم يتم العثور على إعلانات مطابقة لبحثك"
+            />
+          </Card>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -104,34 +124,48 @@ export default function MarketplacePage() {
                   expiry_zone?: string;
                   seller_org_name?: string;
                 }) => {
-                  const zone = l.expiry_zone ?? (l.days_until_expiry !== undefined ? getExpiryZone(l.days_until_expiry) : "green");
+                  const zone =
+                    l.expiry_zone ??
+                    (l.days_until_expiry !== undefined
+                      ? getExpiryZone(l.days_until_expiry)
+                      : "green");
                   return (
                     <Link
                       key={l.id}
                       href={`/${locale}/marketplace/${l.id}`}
-                      className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all"
+                      className="group relative bg-white rounded-2xl ring-1 ring-slate-200/70 shadow-soft hover:ring-brand-300 hover:shadow-lift transition-all duration-200 overflow-hidden"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
-                          {l.title_ar ?? l.title}
-                        </h3>
-                        <span
-                          className={cn(
-                            "text-xs px-2 py-0.5 rounded-full border ml-2 flex-shrink-0",
-                            expiryZoneColors[zone as keyof typeof expiryZoneColors]
+                      <div
+                        className={`h-1 bg-gradient-to-r ${zoneStripeGradient[zone] ?? zoneStripeGradient.green}`}
+                      />
+                      <div className="p-5">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <h3 className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2 group-hover:text-brand-700 transition-colors">
+                            {l.title_ar ?? l.title}
+                          </h3>
+                          {l.days_until_expiry !== undefined && (
+                            <ExpiryBadge
+                              daysUntilExpiry={l.days_until_expiry}
+                              className="flex-shrink-0"
+                            />
                           )}
-                        >
-                          {l.days_until_expiry} يوم
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mb-3">{l.seller_org_name ?? "—"}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-blue-600">
-                          {formatCurrency(l.asking_price)}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          كمية: {l.quantity_available}
-                        </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mb-4 truncate">
+                          {l.seller_org_name ?? "—"}
+                        </p>
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">
+                              السعر المطلوب
+                            </p>
+                            <span className="text-lg font-bold text-slate-900 tabular-nums">
+                              {formatCurrency(l.asking_price)}
+                            </span>
+                          </div>
+                          <span className="text-xs text-slate-500 tabular-nums">
+                            متوفر: {l.quantity_available}
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   );
@@ -141,23 +175,25 @@ export default function MarketplacePage() {
 
             {/* Pagination */}
             {(listings.pages ?? 0) > 1 && (
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center items-center gap-1.5">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50"
+                  aria-label="السابق"
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
                 >
-                  السابق
+                  <ChevronRight className="h-4 w-4" />
                 </button>
-                <span className="px-4 py-2 text-sm text-gray-600">
+                <span className="px-3 py-2 text-sm text-slate-600 tabular-nums">
                   {page} من {listings.pages}
                 </span>
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={page >= listings.pages}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50"
+                  aria-label="التالي"
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
                 >
-                  التالي
+                  <ChevronLeft className="h-4 w-4" />
                 </button>
               </div>
             )}

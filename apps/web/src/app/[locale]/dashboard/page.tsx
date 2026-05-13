@@ -4,21 +4,40 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import Shell from "@/components/layout/shell";
 import { inventoryApi, listingsApi, offersApi, reportsApi } from "@/lib/api";
-import { formatCurrency, expiryZoneColors, getExpiryZone } from "@/lib/utils";
-import { Package, ShoppingCart, Bell, TrendingUp, AlertTriangle } from "lucide-react";
+import { formatCurrency, getExpiryZone } from "@/lib/utils";
+import { Package, ShoppingCart, Bell, TrendingUp, AlertTriangle, ArrowLeft } from "lucide-react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   Legend,
+  Tooltip,
 } from "recharts";
 import Link from "next/link";
+import { KpiCard } from "@/components/ui/kpi-card";
+import { SectionCard } from "@/components/ui/section-card";
+import { ExpiryBadge } from "@/components/ui/expiry-badge";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+
+const statusBadgeMap: Record<string, "warning" | "success" | "default" | "danger"> = {
+  pending: "warning",
+  accepted: "success",
+  rejected: "danger",
+  cancelled: "default",
+  expired: "default",
+};
+
+const statusLabelMap: Record<string, string> = {
+  pending: "بانتظار الرد",
+  accepted: "مقبول",
+  rejected: "مرفوض",
+  cancelled: "ملغي",
+  expired: "منتهي",
+};
 
 export default function DashboardPage() {
   const locale = useLocale();
@@ -46,41 +65,13 @@ export default function DashboardPage() {
 
   const urgentBatches = (nearExpiry || [])
     .filter((b: { days_until_expiry?: number }) => (b.days_until_expiry ?? 999) <= 90)
-    .slice(0, 10);
+    .slice(0, 8);
 
   const totalRecovered = (recoverableData || []).reduce(
     (sum: number, r: { estimated_value?: number }) => sum + (r.estimated_value ?? 0),
     0
   );
 
-  const kpis = [
-    {
-      label: t("activeListings"),
-      value: listings?.total ?? "—",
-      icon: ShoppingCart,
-      color: "text-blue-600 bg-blue-50",
-    },
-    {
-      label: t("nearExpiryBatches"),
-      value: nearExpiry?.length ?? "—",
-      icon: AlertTriangle,
-      color: "text-amber-600 bg-amber-50",
-    },
-    {
-      label: t("pendingOffers"),
-      value: incomingOffers?.total ?? "—",
-      icon: Bell,
-      color: "text-purple-600 bg-purple-50",
-    },
-    {
-      label: t("recoveredValue"),
-      value: formatCurrency(totalRecovered),
-      icon: TrendingUp,
-      color: "text-green-600 bg-green-50",
-    },
-  ];
-
-  // Chart data
   const pieData = (recoverableData || []).map(
     (r: { expiry_zone: string; batch_count: number }) => ({
       name: r.expiry_zone,
@@ -88,207 +79,268 @@ export default function DashboardPage() {
     })
   );
 
-  const pieColors = {
-    green: "#16a34a",
-    yellow: "#ca8a04",
-    orange: "#ea580c",
-    red: "#dc2626",
+  const pieColors: Record<string, string> = {
+    green: "#10b981",
+    yellow: "#eab308",
+    orange: "#f97316",
+    red: "#f43f5e",
+  };
+  const zoneLabels: Record<string, string> = {
+    green: "صالح",
+    yellow: "تنبيه",
+    orange: "تحذير",
+    red: "حرج",
   };
 
   return (
     <Shell>
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+        <PageHeader
+          title={t("title")}
+          subtitle="نظرة عامة على المخزون والصفقات النشطة"
+          actions={
+            <Link href={`/${locale}/marketplace/create`}>
+              <Button variant="gold">
+                <ShoppingCart className="h-4 w-4" />
+                إنشاء إعلان جديد
+              </Button>
+            </Link>
+          }
+        />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpis.map((kpi) => (
-            <div
-              key={kpi.label}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center gap-4"
-            >
-              <div className={`p-3 rounded-xl ${kpi.color}`}>
-                <kpi.icon className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
-                <p className="text-sm text-gray-500">{kpi.label}</p>
-              </div>
-            </div>
-          ))}
+          <KpiCard
+            icon={ShoppingCart}
+            label={t("activeListings")}
+            value={listings?.total ?? "—"}
+            tone="brand"
+            hint="إعلان نشط"
+          />
+          <KpiCard
+            icon={AlertTriangle}
+            label={t("nearExpiryBatches")}
+            value={nearExpiry?.length ?? "—"}
+            tone="warning"
+            hint="دفعة قاربة الانتهاء"
+          />
+          <KpiCard
+            icon={Bell}
+            label={t("pendingOffers")}
+            value={incomingOffers?.total ?? "—"}
+            tone="gold"
+            hint="عرض بانتظار الرد"
+          />
+          <KpiCard
+            icon={TrendingUp}
+            label={t("recoveredValue")}
+            value={formatCurrency(totalRecovered)}
+            tone="safe"
+            hint="قيمة قابلة للاسترجاع"
+          />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Near-Expiry Table */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">{t("nearExpiryTable")}</h2>
+        {/* Near-Expiry + Donut */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <SectionCard
+            title={t("nearExpiryTable")}
+            subtitle="الدفعات الأكثر إلحاحاً (≤ 90 يوم)"
+            action={
               <Link
                 href={`/${locale}/inventory/near-expiry`}
-                className="text-sm text-blue-600 hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
               >
                 عرض الكل
+                <ArrowLeft className="h-3.5 w-3.5" />
               </Link>
-            </div>
-            <div className="overflow-x-auto">
-              {urgentBatches.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
-                  <Package className="h-12 w-12 mx-auto mb-2 opacity-30" />
-                  <p>لا توجد دفعات قرب الانتهاء</p>
-                </div>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
+            }
+            className="lg:col-span-2"
+            noPadding
+          >
+            {urgentBatches.length === 0 ? (
+              <EmptyState
+                icon={Package}
+                title="لا توجد دفعات قرب الانتهاء"
+                description="كل المخزون في المنطقة الآمنة"
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm tabular-nums min-w-[520px]">
+                  <thead className="bg-slate-50/60 border-b border-slate-100">
                     <tr>
-                      <th className="px-4 py-3 text-right font-medium text-gray-600">المنتج</th>
-                      <th className="px-4 py-3 text-right font-medium text-gray-600">الفرع</th>
-                      <th className="px-4 py-3 text-right font-medium text-gray-600">الأيام المتبقية</th>
-                      <th className="px-4 py-3 text-right font-medium text-gray-600">الكمية</th>
+                      <th className="px-5 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500">المنتج</th>
+                      <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500 hidden sm:table-cell">الفرع</th>
+                      <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500">الحالة</th>
+                      <th className="px-5 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500">الكمية</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {urgentBatches.map((b: { id: string; product_name?: string; branch_name?: string; days_until_expiry?: number; quantity?: number }) => {
-                      const zone = getExpiryZone(b.days_until_expiry ?? 999);
-                      return (
-                        <tr key={b.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 font-medium text-gray-900">
-                            {b.product_name ?? "—"}
-                          </td>
-                          <td className="px-4 py-3 text-gray-600">{b.branch_name ?? "—"}</td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${expiryZoneColors[zone]}`}
-                            >
-                              {b.days_until_expiry ?? "—"} يوم
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-gray-600">{b.quantity}</td>
-                        </tr>
-                      );
-                    })}
+                  <tbody className="divide-y divide-slate-100/80">
+                    {urgentBatches.map((b: { id: string; product_name?: string; branch_name?: string; days_until_expiry?: number; quantity?: number }) => (
+                      <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="px-5 py-3 font-medium text-slate-900">
+                          {b.product_name ?? "—"}
+                        </td>
+                        <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{b.branch_name ?? "—"}</td>
+                        <td className="px-4 py-3">
+                          <ExpiryBadge daysUntilExpiry={b.days_until_expiry ?? 999} />
+                        </td>
+                        <td className="px-5 py-3 text-slate-700">{b.quantity}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-              )}
-            </div>
-          </div>
-
-          {/* Inventory Health Donut */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-            <h2 className="font-semibold text-gray-900 mb-4">{t("inventoryHealth")}</h2>
-            {pieData.length > 0 ? (
-              <div className="h-56 sm:h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
-                    {pieData.map((entry: { name: string }, i: number) => (
-                      <Cell
-                        key={i}
-                        fill={pieColors[entry.name as keyof typeof pieColors] ?? "#94a3b8"}
-                      />
-                    ))}
-                  </Pie>
-                  <Legend />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-40 flex items-center justify-center text-gray-400 text-sm">
-                لا توجد بيانات
               </div>
             )}
-          </div>
+          </SectionCard>
+
+          <SectionCard
+            title={t("inventoryHealth")}
+            subtitle="توزيع الدفعات حسب المنطقة"
+          >
+            {pieData.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={84}
+                      innerRadius={44}
+                      paddingAngle={2}
+                      stroke="#ffffff"
+                      strokeWidth={2}
+                    >
+                      {pieData.map((entry: { name: string }, i: number) => (
+                        <Cell
+                          key={i}
+                          fill={pieColors[entry.name as keyof typeof pieColors] ?? "#94a3b8"}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number, _name, props: { payload?: { name?: string } }) => {
+                        const key = props?.payload?.name as string;
+                        return [`${value} دفعة`, zoneLabels[key] ?? key];
+                      }}
+                      contentStyle={{
+                        background: "white",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 10,
+                        fontSize: 12,
+                        boxShadow: "0 4px 12px -2px rgba(15,23,42,0.08)",
+                      }}
+                    />
+                    <Legend
+                      formatter={(v) => (
+                        <span className="text-xs text-slate-600">
+                          {zoneLabels[v as string] ?? v}
+                        </span>
+                      )}
+                      iconType="circle"
+                      iconSize={8}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <EmptyState title="لا توجد بيانات" />
+            )}
+          </SectionCard>
         </div>
 
         {/* Active Listings + Incoming Offers */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Active Listings */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">{t("activeListingsSummary")}</h2>
-              <Link href={`/${locale}/my/listings`} className="text-sm text-blue-600 hover:underline">
-                عرض الكل
-              </Link>
-            </div>
-            <div className="p-4">
-              {!listings?.items?.length ? (
-                <div className="py-6 text-center text-gray-400 text-sm">
-                  <ShoppingCart className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                  <p>لا توجد إعلانات نشطة</p>
-                  <Link
-                    href={`/${locale}/marketplace/create`}
-                    className="text-blue-600 text-xs hover:underline mt-1 inline-block"
-                  >
-                    إنشاء إعلان جديد
-                  </Link>
-                </div>
-              ) : (
-                <ul className="space-y-2">
-                  {listings.items.map((l: { id: string; title: string; asking_price: number; quantity_available: number }) => (
-                    <li
-                      key={l.id}
-                      className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-48">{l.title}</p>
-                        <p className="text-xs text-gray-500">الكمية: {l.quantity_available}</p>
-                      </div>
-                      <span className="text-sm font-semibold text-gray-800">
-                        {formatCurrency(l.asking_price)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          {/* Incoming Offers */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">{t("incomingOffersWidget")}</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <SectionCard
+            title={t("activeListingsSummary")}
+            subtitle="آخر إعلاناتك المنشورة"
+            action={
               <Link
-                href={`/${locale}/my/incoming-offers`}
-                className="text-sm text-blue-600 hover:underline"
+                href={`/${locale}/my/listings`}
+                className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
               >
                 عرض الكل
+                <ArrowLeft className="h-3.5 w-3.5" />
               </Link>
-            </div>
-            <div className="p-4">
-              {!incomingOffers?.items?.length ? (
-                <div className="py-6 text-center text-gray-400 text-sm">
-                  <Bell className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                  <p>لا توجد عروض واردة</p>
-                </div>
-              ) : (
-                <ul className="space-y-2">
-                  {incomingOffers.items.map((o: { id: string; offered_price: number; quantity: number; status: string }) => (
-                    <li
-                      key={o.id}
-                      className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
-                    >
-                      <span className="text-sm font-medium text-gray-900">
-                        {formatCurrency(o.offered_price)} × {o.quantity}
-                      </span>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          o.status === "pending"
-                            ? "bg-amber-100 text-amber-700"
-                            : o.status === "accepted"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {o.status}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
+            }
+          >
+            {!listings?.items?.length ? (
+              <EmptyState
+                icon={ShoppingCart}
+                title="لا توجد إعلانات نشطة"
+                description="ابدأ بنشر دفعتك الأولى الآن"
+                action={
+                  <Link href={`/${locale}/marketplace/create`}>
+                    <Button variant="primary" size="sm">إنشاء إعلان جديد</Button>
+                  </Link>
+                }
+              />
+            ) : (
+              <ul className="space-y-1">
+                {listings.items.map((l: { id: string; title: string; asking_price: number; quantity_available: number }) => (
+                  <li
+                    key={l.id}
+                    className="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-900 truncate">{l.title}</p>
+                      <p className="text-xs text-slate-500 tabular-nums">
+                        الكمية المتاحة: {l.quantity_available}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-slate-900 tabular-nums whitespace-nowrap">
+                      {formatCurrency(l.asking_price)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
+
+          <SectionCard
+            title={t("incomingOffersWidget")}
+            subtitle="عروض شراء واردة من صيدليات أخرى"
+            action={
+              <Link
+                href={`/${locale}/my/incoming-offers`}
+                className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+              >
+                عرض الكل
+                <ArrowLeft className="h-3.5 w-3.5" />
+              </Link>
+            }
+          >
+            {!incomingOffers?.items?.length ? (
+              <EmptyState
+                icon={Bell}
+                title="لا توجد عروض واردة"
+                description="ستظهر هنا فور وصول عرض على أحد إعلاناتك"
+              />
+            ) : (
+              <ul className="space-y-1">
+                {incomingOffers.items.map((o: { id: string; offered_price: number; quantity: number; status: string }) => (
+                  <li
+                    key={o.id}
+                    className="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-0"
+                  >
+                    <span className="text-sm font-medium text-slate-900 tabular-nums">
+                      {formatCurrency(o.offered_price)} × {o.quantity}
+                    </span>
+                    <Badge variant={statusBadgeMap[o.status] ?? "default"} size="sm">
+                      {statusLabelMap[o.status] ?? o.status}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
         </div>
       </div>
     </Shell>
   );
 }
+
+// Suppress unused warning for zone helper if not used
+void getExpiryZone;

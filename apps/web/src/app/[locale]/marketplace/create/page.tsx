@@ -10,10 +10,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Shell from "@/components/layout/shell";
 import { listingsApi, inventoryApi } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { ExpiryBadge } from "@/components/ui/expiry-badge";
-import { CheckCircle, XCircle, Loader2, ChevronRight } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { SectionCard } from "@/components/ui/section-card";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 
 const listingSchema = z.object({
   batch_id: z.string().min(1, "يجب اختيار دفعة"),
@@ -28,6 +31,9 @@ const listingSchema = z.object({
 
 type ListingFormData = z.infer<typeof listingSchema>;
 
+const inputCls =
+  "w-full h-10 px-3 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors";
+
 export default function CreateListingPage() {
   const locale = useLocale();
   const router = useRouter();
@@ -37,7 +43,13 @@ export default function CreateListingPage() {
   } | null>(null);
   const [checkingEligibility, setCheckingEligibility] = useState(false);
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<ListingFormData>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ListingFormData>({
     resolver: zodResolver(listingSchema),
     defaultValues: { allow_offers: true, allow_direct_purchase: false },
   });
@@ -46,7 +58,10 @@ export default function CreateListingPage() {
 
   const { data: batches, isLoading: batchesLoading } = useQuery({
     queryKey: ["batches-for-listing"],
-    queryFn: () => inventoryApi.listBatches({ status: "active", page: 1, page_size: 100 }).then((r) => r.data),
+    queryFn: () =>
+      inventoryApi
+        .listBatches({ status: "active", page: 1, page_size: 100 })
+        .then((r) => r.data),
   });
 
   const { data: selectedBatch } = useQuery({
@@ -87,221 +102,291 @@ export default function CreateListingPage() {
 
   return (
     <Shell>
-      <div className="max-w-3xl space-y-6">
-        <div className="flex items-center gap-3">
-          <Link href={`/${locale}/my/listings`} className="text-gray-500 hover:text-gray-700">
-            <ChevronRight className="h-5 w-5" />
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900">إنشاء إعلان جديد</h1>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Batch Selection */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <h2 className="font-semibold text-gray-900">اختيار الدفعة</h2>
-
-            <div>
-              <label className="text-sm text-gray-600 block mb-1">الدفعة المراد إدراجها</label>
-              <select
-                {...register("batch_id")}
-                onChange={(e) => {
-                  setValue("batch_id", e.target.value);
-                  setEligibilityResult(null);
-                  if (e.target.value) checkEligibility(e.target.value);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">اختر دفعة...</option>
-                {batchesLoading && <option disabled>جاري التحميل...</option>}
-                {batches?.items?.map((b: {
-                  id: string;
-                  product_name_ar?: string;
-                  product_name: string;
-                  batch_number: string;
-                  expiry_date: string;
-                  quantity_on_hand: number;
-                }) => (
-                  <option key={b.id} value={b.id}>
-                    {b.product_name_ar ?? b.product_name} — {b.batch_number} (
-                    {b.quantity_on_hand} وحدة — ينتهي {formatDate(b.expiry_date, "ar-SA")})
-                  </option>
-                ))}
-              </select>
-              {errors.batch_id && <p className="text-red-500 text-xs mt-0.5">{errors.batch_id.message}</p>}
-            </div>
-
-            {/* Batch preview */}
-            {selectedBatch && (
-              <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-gray-500 text-xs">المنتج</p>
-                  <p className="font-medium">{selectedBatch.product_name_ar ?? selectedBatch.product_name}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">الكمية المتاحة</p>
-                  <p className="font-medium">{selectedBatch.quantity_on_hand} وحدة</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">تاريخ الانتهاء</p>
-                  <p className="font-medium">{formatDate(selectedBatch.expiry_date, "ar-SA")}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">حالة الانتهاء</p>
-                  {selectedBatch.days_until_expiry !== undefined && (
-                    <ExpiryBadge daysUntilExpiry={selectedBatch.days_until_expiry} />
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Eligibility check result */}
-            {checkingEligibility && (
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>جاري فحص الأهلية...</span>
-              </div>
-            )}
-
-            {eligibilityResult && (
-              <div className={`rounded-lg border p-4 ${eligibilityResult.all_passed ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  {eligibilityResult.all_passed ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
-                  )}
-                  <span className={`font-semibold text-sm ${eligibilityResult.all_passed ? "text-green-800" : "text-red-800"}`}>
-                    {eligibilityResult.all_passed ? "الدفعة مؤهلة للإدراج" : "الدفعة غير مؤهلة للإدراج"}
-                  </span>
-                </div>
-                <ul className="space-y-1.5">
-                  {eligibilityResult.rules.map((r) => (
-                    <li key={r.rule_number} className="flex items-start gap-2 text-xs">
-                      {r.passed ? (
-                        <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <XCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />
-                      )}
-                      <span className={r.passed ? "text-gray-600" : "text-red-700"}>
-                        {r.rule_name}
-                        {!r.passed && r.reason && (
-                          <span className="block text-gray-500 mt-0.5">{r.reason}</span>
-                        )}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Listing Details */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <h2 className="font-semibold text-gray-900">تفاصيل الإعلان</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-gray-600 block mb-1">السعر المطلوب (ر.س) *</label>
-                <input
-                  {...register("asking_price")}
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {errors.asking_price && <p className="text-red-500 text-xs mt-0.5">{errors.asking_price.message}</p>}
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-600 block mb-1">الكمية المعروضة *</label>
-                <input
-                  {...register("quantity_available")}
-                  type="number"
-                  min="1"
-                  max={selectedBatch?.quantity_on_hand}
-                  dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {errors.quantity_available && <p className="text-red-500 text-xs mt-0.5">{errors.quantity_available.message}</p>}
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-600 block mb-1">أقل سعر مقبول (ر.س)</label>
-                <input
-                  {...register("minimum_offer_price")}
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-600 block mb-1">تاريخ انتهاء الإعلان</label>
-                <input
-                  {...register("expires_at")}
-                  type="date"
-                  dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-600 block mb-1">وصف إضافي</label>
-              <textarea
-                {...register("description")}
-                rows={3}
-                placeholder="أضف وصفاً للإعلان..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  {...register("allow_offers")}
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 rounded"
-                />
-                <span className="text-sm text-gray-700">قبول العروض</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  {...register("allow_direct_purchase")}
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 rounded"
-                />
-                <span className="text-sm text-gray-700">السماح بالشراء المباشر</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Submit */}
-          <div className="flex flex-col sm:flex-row gap-3">
+      <div className="space-y-6">
+        <PageHeader
+          title="إنشاء إعلان جديد"
+          subtitle="اختر دفعة وعدّل تفاصيل العرض — النظام يفحص الأهلية تلقائياً"
+          back={
             <Link
               href={`/${locale}/my/listings`}
-              className="flex-1 text-center border border-gray-300 text-gray-600 py-2.5 rounded-lg text-sm hover:bg-gray-50"
+              className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900"
             >
-              إلغاء
+              <ArrowRight className="h-3.5 w-3.5" />
+              العودة لإعلاناتي
             </Link>
-            <button
-              type="submit"
-              disabled={isSubmitting || !eligibilityResult?.all_passed}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              نشر الإعلان
-            </button>
-          </div>
+          }
+        />
 
-          {eligibilityResult && !eligibilityResult.all_passed && (
-            <p className="text-center text-sm text-red-600">
-              لا يمكن نشر الإعلان حتى تجتاز جميع شروط الأهلية
-            </p>
-          )}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* LEFT — main form */}
+            <div className="lg:col-span-2 space-y-5">
+              <SectionCard title="اختيار الدفعة">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                      الدفعة المراد إدراجها <span className="text-rose-500">*</span>
+                    </label>
+                    <select
+                      {...register("batch_id")}
+                      onChange={(e) => {
+                        setValue("batch_id", e.target.value);
+                        setEligibilityResult(null);
+                        if (e.target.value) checkEligibility(e.target.value);
+                      }}
+                      className={inputCls}
+                    >
+                      <option value="">اختر دفعة...</option>
+                      {batchesLoading && <option disabled>جاري التحميل...</option>}
+                      {batches?.items?.map(
+                        (b: {
+                          id: string;
+                          product_name_ar?: string;
+                          product_name: string;
+                          batch_number: string;
+                          expiry_date: string;
+                          quantity_on_hand: number;
+                        }) => (
+                          <option key={b.id} value={b.id}>
+                            {b.product_name_ar ?? b.product_name} — {b.batch_number} (
+                            {b.quantity_on_hand} وحدة — ينتهي {formatDate(b.expiry_date, "ar-SA")})
+                          </option>
+                        )
+                      )}
+                    </select>
+                    {errors.batch_id && (
+                      <p className="text-rose-600 text-xs mt-1">{errors.batch_id.message}</p>
+                    )}
+                  </div>
+
+                  {selectedBatch && (
+                    <div className="bg-slate-50/60 ring-1 ring-slate-200/60 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">المنتج</p>
+                        <p className="font-semibold text-slate-900">
+                          {selectedBatch.product_name_ar ?? selectedBatch.product_name}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">الكمية المتاحة</p>
+                        <p className="font-semibold text-slate-900 tabular-nums">
+                          {selectedBatch.quantity_on_hand} وحدة
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">تاريخ الانتهاء</p>
+                        <p className="font-semibold text-slate-900 tabular-nums">
+                          {formatDate(selectedBatch.expiry_date, "ar-SA")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">حالة الانتهاء</p>
+                        {selectedBatch.days_until_expiry !== undefined && (
+                          <ExpiryBadge daysUntilExpiry={selectedBatch.days_until_expiry} />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </SectionCard>
+
+              <SectionCard title="تفاصيل الإعلان">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                        السعر المطلوب (ر.س) <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        {...register("asking_price")}
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        dir="ltr"
+                        className={inputCls}
+                      />
+                      {errors.asking_price && (
+                        <p className="text-rose-600 text-xs mt-1">{errors.asking_price.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                        الكمية المعروضة <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        {...register("quantity_available")}
+                        type="number"
+                        min="1"
+                        max={selectedBatch?.quantity_on_hand}
+                        dir="ltr"
+                        className={inputCls}
+                      />
+                      {errors.quantity_available && (
+                        <p className="text-rose-600 text-xs mt-1">
+                          {errors.quantity_available.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                        أقل سعر مقبول (ر.س)
+                      </label>
+                      <input
+                        {...register("minimum_offer_price")}
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        dir="ltr"
+                        className={inputCls}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                        تاريخ انتهاء الإعلان
+                      </label>
+                      <input
+                        {...register("expires_at")}
+                        type="date"
+                        dir="ltr"
+                        className={inputCls}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                      وصف إضافي
+                    </label>
+                    <textarea
+                      {...register("description")}
+                      rows={3}
+                      placeholder="أضف وصفاً للإعلان..."
+                      className="w-full px-3 py-2 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-6 gap-y-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        {...register("allow_offers")}
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                      />
+                      <span className="text-sm text-slate-700">قبول العروض</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        {...register("allow_direct_purchase")}
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                      />
+                      <span className="text-sm text-slate-700">السماح بالشراء المباشر</span>
+                    </label>
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* Submit */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href={`/${locale}/my/listings`}
+                  className="flex-1 inline-flex items-center justify-center h-11 rounded-lg ring-1 ring-inset ring-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  إلغاء
+                </Link>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
+                  loading={isSubmitting}
+                  disabled={!eligibilityResult?.all_passed}
+                >
+                  نشر الإعلان
+                </Button>
+              </div>
+            </div>
+
+            {/* RIGHT — sticky eligibility panel */}
+            <div className="lg:col-span-1">
+              <div className="lg:sticky lg:top-[88px]">
+                <SectionCard
+                  title={
+                    <span className="inline-flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-brand-600" />
+                      فحص الأهلية
+                    </span>
+                  }
+                  subtitle="10 قواعد امتثال يجب اجتيازها"
+                >
+                  {!eligibilityResult && !checkingEligibility && (
+                    <div className="text-center py-8 text-sm text-slate-500">
+                      اختر دفعة لبدء فحص الأهلية
+                    </div>
+                  )}
+
+                  {checkingEligibility && (
+                    <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-500">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>جاري الفحص...</span>
+                    </div>
+                  )}
+
+                  {eligibilityResult && (
+                    <>
+                      <div
+                        className={`rounded-xl p-3 mb-3 flex items-center gap-2.5 ring-1 ${
+                          eligibilityResult.all_passed
+                            ? "bg-emerald-50 ring-emerald-200 text-emerald-800"
+                            : "bg-rose-50 ring-rose-200 text-rose-800"
+                        }`}
+                      >
+                        {eligibilityResult.all_passed ? (
+                          <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-rose-600 flex-shrink-0" />
+                        )}
+                        <span className="font-semibold text-sm">
+                          {eligibilityResult.all_passed
+                            ? "الدفعة مؤهلة للإدراج"
+                            : "الدفعة غير مؤهلة"}
+                        </span>
+                      </div>
+                      <ul className="space-y-2.5">
+                        {eligibilityResult.rules.map((r) => (
+                          <li key={r.rule_number} className="flex items-start gap-2.5">
+                            {r.passed ? (
+                              <div className="h-5 w-5 rounded-full bg-emerald-50 ring-1 ring-emerald-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <CheckCircle className="h-3 w-3 text-emerald-600" />
+                              </div>
+                            ) : (
+                              <div className="h-5 w-5 rounded-full bg-rose-50 ring-1 ring-rose-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <XCircle className="h-3 w-3 text-rose-600" />
+                              </div>
+                            )}
+                            <div className="min-w-0 text-xs">
+                              <p
+                                className={
+                                  r.passed
+                                    ? "text-slate-700 font-medium"
+                                    : "text-rose-700 font-semibold"
+                                }
+                              >
+                                {r.rule_name}
+                              </p>
+                              {!r.passed && r.reason && (
+                                <p className="text-slate-500 mt-0.5">{r.reason}</p>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </SectionCard>
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     </Shell>

@@ -16,11 +16,20 @@ export function getExpiryZone(daysUntilExpiry: number): "green" | "yellow" | "or
   return "red";
 }
 
+// Refined soft-tint scheme for expiry zones with ring (Linear/Stripe style)
 export const expiryZoneColors = {
-  green: "bg-green-100 text-green-800 border-green-200",
-  yellow: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  orange: "bg-orange-100 text-orange-800 border-orange-200",
-  red: "bg-red-100 text-red-800 border-red-200",
+  green: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+  yellow: "bg-yellow-50 text-yellow-800 ring-1 ring-inset ring-yellow-200",
+  orange: "bg-orange-50 text-orange-800 ring-1 ring-inset ring-orange-200",
+  red: "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200",
+} as const;
+
+// Hex codes for charts / inline styles (preserved for recharts)
+export const expiryZoneHex = {
+  green: "#16a34a",
+  yellow: "#ca8a04",
+  orange: "#ea580c",
+  red: "#dc2626",
 } as const;
 
 export const expiryZoneLabels = {

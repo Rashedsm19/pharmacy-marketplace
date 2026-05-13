@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronRight, ChevronLeft, ChevronUp, ChevronDown } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface Column<T> {
@@ -9,6 +9,8 @@ export interface Column<T> {
   header: string;
   render?: (row: T) => React.ReactNode;
   sortable?: boolean;
+  hiddenOnMobile?: boolean;
+  align?: "right" | "left" | "center";
 }
 
 interface DataTableProps<T> {
@@ -24,6 +26,7 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   rowKey: (row: T) => string;
   actions?: (row: T) => React.ReactNode;
+  minWidthClass?: string;
 }
 
 export function DataTable<T>({
@@ -39,6 +42,7 @@ export function DataTable<T>({
   emptyMessage = "لا توجد بيانات",
   rowKey,
   actions,
+  minWidthClass = "min-w-[640px]",
 }: DataTableProps<T>) {
   const [searchVal, setSearchVal] = useState("");
   const totalPages = Math.ceil(total / pageSize);
@@ -48,18 +52,21 @@ export function DataTable<T>({
     onSearch?.(e.target.value);
   };
 
+  const alignClass = (a?: Column<T>["align"]) =>
+    a === "left" ? "text-left" : a === "center" ? "text-center" : "text-right";
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white ring-1 ring-slate-200/70 shadow-soft rounded-2xl overflow-hidden">
       {/* Search bar */}
       {onSearch && (
-        <div className="p-4 border-b border-gray-100">
+        <div className="p-4 border-b border-slate-100">
           <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               value={searchVal}
               onChange={handleSearch}
               placeholder={searchPlaceholder}
-              className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pr-10 pl-4 h-10 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
             />
           </div>
         </div>
@@ -67,34 +74,46 @@ export function DataTable<T>({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+        <table className={cn("w-full text-sm tabular-nums", minWidthClass)}>
+          <thead className="bg-slate-50/60 border-b border-slate-100">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-right font-medium text-gray-600 whitespace-nowrap"
+                  className={cn(
+                    "px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500 whitespace-nowrap",
+                    alignClass(col.align),
+                    col.hiddenOnMobile && "hidden md:table-cell"
+                  )}
                 >
                   {col.header}
                 </th>
               ))}
               {actions && (
-                <th className="px-4 py-3 text-right font-medium text-gray-600">الإجراءات</th>
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500 text-right">
+                  الإجراءات
+                </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-slate-100/80">
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3">
-                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <td
+                      key={col.key}
+                      className={cn(
+                        "px-4 py-3",
+                        col.hiddenOnMobile && "hidden md:table-cell"
+                      )}
+                    >
+                      <div className="h-4 bg-slate-100 rounded w-3/4" />
                     </td>
                   ))}
                   {actions && (
                     <td className="px-4 py-3">
-                      <div className="h-4 bg-gray-200 rounded w-1/2" />
+                      <div className="h-4 bg-slate-100 rounded w-1/2" />
                     </td>
                   )}
                 </tr>
@@ -103,16 +122,26 @@ export function DataTable<T>({
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
-                  className="px-4 py-12 text-center text-gray-400"
+                  className="px-4 py-12 text-center text-slate-400"
                 >
                   {emptyMessage}
                 </td>
               </tr>
             ) : (
               data.map((row) => (
-                <tr key={rowKey(row)} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={rowKey(row)}
+                  className="hover:bg-slate-50/60 transition-colors"
+                >
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3 text-gray-700">
+                    <td
+                      key={col.key}
+                      className={cn(
+                        "px-4 py-3 text-slate-700",
+                        alignClass(col.align),
+                        col.hiddenOnMobile && "hidden md:table-cell"
+                      )}
+                    >
                       {col.render
                         ? col.render(row)
                         : String((row as Record<string, unknown>)[col.key] ?? "—")}
@@ -120,7 +149,9 @@ export function DataTable<T>({
                   ))}
                   {actions && (
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 justify-end">{actions(row)}</div>
+                      <div className="flex items-center gap-1.5 justify-end">
+                        {actions(row)}
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -132,15 +163,16 @@ export function DataTable<T>({
 
       {/* Pagination */}
       {totalPages > 1 && onPageChange && (
-        <div className="p-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <p className="text-xs sm:text-sm text-gray-500">
-            {total} نتيجة — صفحة {page} من {totalPages}
+        <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-xs sm:text-sm text-slate-500 tabular-nums">
+            {total.toLocaleString("ar-SA")} نتيجة — صفحة {page} من {totalPages}
           </p>
           <div className="flex items-center gap-1 self-end sm:self-auto">
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-40"
+              aria-label="الصفحة السابقة"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -151,10 +183,10 @@ export function DataTable<T>({
                   key={p}
                   onClick={() => onPageChange(p)}
                   className={cn(
-                    "w-8 h-8 rounded text-sm font-medium",
+                    "h-8 w-8 rounded-lg text-xs font-semibold tabular-nums transition-colors",
                     p === page
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-brand-600 text-white shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100"
                   )}
                 >
                   {p}
@@ -164,7 +196,8 @@ export function DataTable<T>({
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-40"
+              aria-label="الصفحة التالية"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>

@@ -1,24 +1,47 @@
 import { cn } from "@/lib/utils";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "success" | "warning" | "danger" | "info" | "secondary";
+  variant?: "default" | "success" | "warning" | "danger" | "info" | "secondary" | "brand" | "gold";
+  size?: "sm" | "md";
 }
 
 const variants = {
-  default: "bg-gray-100 text-gray-800 border-gray-200",
-  success: "bg-green-100 text-green-800 border-green-200",
-  warning: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  danger: "bg-red-100 text-red-800 border-red-200",
-  info: "bg-blue-100 text-blue-800 border-blue-200",
-  secondary: "bg-purple-100 text-purple-800 border-purple-200",
+  default:
+    "bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-200",
+  success:
+    "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+  warning:
+    "bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-200",
+  danger:
+    "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200",
+  info:
+    "bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200",
+  secondary:
+    "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200",
+  brand:
+    "bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200",
+  gold:
+    "bg-gold-50 text-gold-700 ring-1 ring-inset ring-gold-200",
 };
 
-export function Badge({ className, variant = "default", children, ...props }: BadgeProps) {
+const sizes = {
+  sm: "px-2 py-0.5 text-[11px]",
+  md: "px-2.5 py-0.5 text-xs",
+};
+
+export function Badge({
+  className,
+  variant = "default",
+  size = "md",
+  children,
+  ...props
+}: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border",
+        "inline-flex items-center gap-1 rounded-full font-medium",
         variants[variant],
+        sizes[size],
         className
       )}
       {...props}

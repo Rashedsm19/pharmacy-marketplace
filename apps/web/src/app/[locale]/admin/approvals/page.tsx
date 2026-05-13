@@ -7,7 +7,10 @@ import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { adminApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
-import { CheckCircle, XCircle, Loader2, Building2, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Building2, ChevronRight, ChevronLeft } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function AdminApprovalsPage() {
   const qc = useQueryClient();
@@ -48,28 +51,36 @@ export default function AdminApprovalsPage() {
   return (
     <Shell>
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Building2 className="h-6 w-6 text-purple-600" />
-          <h1 className="text-2xl font-bold text-gray-900">طلبات الموافقة</h1>
-          {data?.total ? (
-            <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-              {data.total} طلب
+        <PageHeader
+          title={
+            <span className="inline-flex items-center gap-3">
+              <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-violet-600" />
+              طلبات الموافقة
+              {data?.total ? (
+                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200 text-xs font-semibold rounded-full tabular-nums">
+                  {data.total}
+                </span>
+              ) : null}
             </span>
-          ) : null}
-        </div>
+          }
+          subtitle="مراجعة طلبات الصيدليات الجديدة قبل تفعيلها على المنصة"
+        />
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white ring-1 ring-slate-200/70 shadow-soft rounded-2xl overflow-hidden">
           {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <div className="p-5 space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-20 bg-slate-50 rounded-lg animate-pulse" />
+              ))}
             </div>
           ) : orgs.length === 0 ? (
-            <div className="text-center py-16">
-              <CheckCircle className="h-12 w-12 text-green-300 mx-auto mb-3" />
-              <p className="text-gray-500">لا توجد طلبات معلقة</p>
-            </div>
+            <EmptyState
+              icon={CheckCircle}
+              title="لا توجد طلبات معلقة"
+              description="جميع طلبات الانضمام تمت معالجتها"
+            />
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-slate-100">
               {orgs.map((org: {
                 id: string;
                 name_ar?: string;
@@ -85,70 +96,104 @@ export default function AdminApprovalsPage() {
                 <div key={org.id} className="p-5">
                   {rejectingId === org.id ? (
                     <div className="space-y-3">
-                      <p className="font-medium text-gray-900">سبب الرفض لـ {org.name_ar ?? org.name}</p>
+                      <p className="font-medium text-slate-900">
+                        سبب الرفض لـ <span className="text-rose-700">{org.name_ar ?? org.name}</span>
+                      </p>
                       <textarea
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                         rows={3}
                         placeholder="اذكر سبب الرفض..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-full px-3 py-2 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-rose-500"
                       />
-                      <div className="flex gap-2">
-                        <button
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => { setRejectingId(null); setRejectReason(""); }}
-                          className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
                         >
                           إلغاء
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
                           onClick={() => reject.mutate({ id: org.id, reason: rejectReason })}
-                          disabled={!rejectReason.trim() || reject.isPending}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium disabled:opacity-60"
+                          disabled={!rejectReason.trim()}
+                          loading={reject.isPending}
                         >
-                          {reject.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                           تأكيد الرفض
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-4 flex-wrap sm:flex-nowrap">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-gray-900">{org.name_ar ?? org.name}</h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-slate-900">
+                            {org.name_ar ?? org.name}
+                          </h3>
                           <Badge variant="warning">قيد المراجعة</Badge>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-500 mt-2">
-                          {org.license_number && <span>الترخيص: {org.license_number}</span>}
-                          {org.tax_number && <span>الرقم الضريبي: {org.tax_number}</span>}
-                          {org.phone && <span dir="ltr">{org.phone}</span>}
-                          {org.email && <span dir="ltr">{org.email}</span>}
-                          <span>تاريخ التسجيل: {formatDate(org.created_at, "ar-SA")}</span>
-                          {org.branch_count !== undefined && <span>{org.branch_count} فرع</span>}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-slate-600">
+                          {org.license_number && (
+                            <div>
+                              <span className="text-slate-400">الترخيص: </span>
+                              <span className="font-medium tabular-nums">{org.license_number}</span>
+                            </div>
+                          )}
+                          {org.tax_number && (
+                            <div>
+                              <span className="text-slate-400">الرقم الضريبي: </span>
+                              <span className="font-medium tabular-nums">{org.tax_number}</span>
+                            </div>
+                          )}
+                          {org.phone && (
+                            <div dir="ltr" className="text-right">
+                              <span className="text-slate-400">📞 </span>
+                              <span className="font-medium">{org.phone}</span>
+                            </div>
+                          )}
+                          {org.email && (
+                            <div dir="ltr" className="text-right truncate">
+                              <span className="text-slate-400">✉ </span>
+                              <span className="font-medium">{org.email}</span>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-slate-400">التسجيل: </span>
+                            <span className="font-medium">{formatDate(org.created_at, "ar-SA")}</span>
+                          </div>
+                          {org.branch_count !== undefined && (
+                            <div>
+                              <span className="text-slate-400">الفروع: </span>
+                              <span className="font-medium tabular-nums">{org.branch_count}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <button
+                        <Button
+                          variant="primary"
+                          size="sm"
                           onClick={() => {
                             setProcessingId(org.id);
                             approve.mutate(org.id);
                           }}
-                          disabled={processingId === org.id && approve.isPending}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium disabled:opacity-60"
+                          loading={processingId === org.id && approve.isPending}
+                          className="bg-emerald-600 hover:bg-emerald-700"
                         >
-                          {processingId === org.id && approve.isPending ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <CheckCircle className="h-3.5 w-3.5" />
-                          )}
+                          <CheckCircle className="h-3.5 w-3.5" />
                           قبول
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => setRejectingId(org.id)}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-medium"
+                          className="text-rose-600 ring-rose-200 hover:bg-rose-50"
                         >
                           <XCircle className="h-3.5 w-3.5" />
                           رفض
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -159,10 +204,26 @@ export default function AdminApprovalsPage() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm disabled:opacity-50">السابق</button>
-            <span className="text-sm text-gray-600">صفحة {page} من {totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm disabled:opacity-50">التالي</button>
+          <div className="flex items-center justify-center gap-1.5">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="السابق"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <span className="text-sm text-slate-600 px-3 tabular-nums">
+              صفحة {page} من {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              aria-label="التالي"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
           </div>
         )}
       </div>

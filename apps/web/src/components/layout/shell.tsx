@@ -7,7 +7,6 @@ import Navbar from "./navbar";
 export default function Shell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Open sidebar by default on desktop, closed on mobile
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(min-width: 768px)");
@@ -21,11 +20,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const close = () => setSidebarOpen(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden" dir="rtl">
-      {/* Backdrop on mobile when drawer is open */}
+    <div className="flex h-screen overflow-hidden bg-app-shell" dir="rtl">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-30 md:hidden animate-fade-in"
           onClick={close}
           aria-hidden
         />
@@ -33,7 +31,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <Sidebar open={sidebarOpen} onToggle={toggle} onNavigate={close} />
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Navbar onMenuToggle={toggle} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 sm:py-7">
+          <div className="mx-auto max-w-[1400px] w-full">{children}</div>
+        </main>
       </div>
     </div>
   );

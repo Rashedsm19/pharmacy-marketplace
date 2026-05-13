@@ -9,7 +9,9 @@ import { ExpiryBadge } from "@/components/ui/expiry-badge";
 import { inventoryApi } from "@/lib/api";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
-import { Eye } from "lucide-react";
+import { Eye, AlertTriangle, AlertOctagon, BellRing } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { KpiCard } from "@/components/ui/kpi-card";
 
 export default function NearExpiryPage() {
   const locale = useLocale();
@@ -20,40 +22,55 @@ export default function NearExpiryPage() {
     queryFn: () => inventoryApi.listNearExpiry(days).then((r) => r.data),
   });
 
+  const redCount = data.filter((b: { expiry_zone?: string }) => b.expiry_zone === "red").length;
+  const orangeCount = data.filter((b: { expiry_zone?: string }) => b.expiry_zone === "orange").length;
+  const yellowCount = data.filter((b: { expiry_zone?: string }) => b.expiry_zone === "yellow").length;
+
   return (
     <Shell>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">الدفعات قرب انتهاء الصلاحية</h1>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">عرض الدفعات خلال</label>
-            <select
-              value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value={30}>30 يوم</option>
-              <option value={90}>90 يوم</option>
-              <option value={180}>180 يوم</option>
-            </select>
-          </div>
-        </div>
+        <PageHeader
+          title="الدفعات قرب انتهاء الصلاحية"
+          subtitle="ركّز على الدفعات الأكثر إلحاحاً قبل أن تنتهي"
+          actions={
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-slate-600">عرض خلال</label>
+              <select
+                value={days}
+                onChange={(e) => setDays(Number(e.target.value))}
+                className="h-9 px-3 bg-white ring-1 ring-inset ring-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value={30}>30 يوم</option>
+                <option value={90}>90 يوم</option>
+                <option value={180}>180 يوم</option>
+              </select>
+            </div>
+          }
+        />
 
-        {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { zone: "red", label: "حرج (< 30 يوم)", cls: "bg-red-50 border-red-200" },
-            { zone: "orange", label: "تحذير (30-90 يوم)", cls: "bg-orange-50 border-orange-200" },
-            { zone: "yellow", label: "تنبيه (90-180 يوم)", cls: "bg-yellow-50 border-yellow-200" },
-          ].map(({ zone, label, cls }) => {
-            const count = data.filter((b: { expiry_zone?: string }) => b.expiry_zone === zone).length;
-            return (
-              <div key={zone} className={`rounded-xl p-4 border ${cls}`}>
-                <p className="text-2xl font-bold">{count}</p>
-                <p className="text-sm text-gray-600">{label}</p>
-              </div>
-            );
-          })}
+        {/* Summary KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <KpiCard
+            icon={AlertOctagon}
+            label="حرج (< 30 يوم)"
+            value={redCount}
+            tone="critical"
+            hint="دفعة"
+          />
+          <KpiCard
+            icon={AlertTriangle}
+            label="تحذير (30-90 يوم)"
+            value={orangeCount}
+            tone="warning"
+            hint="دفعة"
+          />
+          <KpiCard
+            icon={BellRing}
+            label="تنبيه (90-180 يوم)"
+            value={yellowCount}
+            tone="notice"
+            hint="دفعة"
+          />
         </div>
 
         <DataTable
@@ -62,23 +79,27 @@ export default function NearExpiryPage() {
           data={data}
           total={data.length}
           emptyMessage="لا توجد دفعات قرب الانتهاء"
+          minWidthClass="min-w-[820px]"
           columns={[
             {
               key: "product_name_ar",
               header: "المنتج",
-              render: (r: { product_name_ar?: string }) => r.product_name_ar ?? "—",
+              render: (r: { product_name_ar?: string }) => (
+                <span className="font-medium text-slate-900">{r.product_name_ar ?? "—"}</span>
+              ),
             },
-            { key: "branch_name", header: "الفرع" },
-            { key: "batch_number", header: "رقم الدفعة" },
+            { key: "branch_name", header: "الفرع", hiddenOnMobile: true },
+            { key: "batch_number", header: "رقم الدفعة", hiddenOnMobile: true },
             {
               key: "expiry_date",
               header: "تاريخ الانتهاء",
+              hiddenOnMobile: true,
               render: (r: { expiry_date?: string }) =>
                 r.expiry_date ? formatDate(r.expiry_date, "ar-SA") : "—",
             },
             {
               key: "days_until_expiry",
-              header: "الأيام المتبقية",
+              header: "الحالة",
               render: (r: { days_until_expiry?: number }) =>
                 r.days_until_expiry !== undefined ? (
                   <ExpiryBadge daysUntilExpiry={r.days_until_expiry} />
@@ -87,17 +108,19 @@ export default function NearExpiryPage() {
             { key: "quantity_available", header: "الكمية" },
             {
               key: "unit_cost",
-              header: "القيمة المقدرة",
+              header: "القيمة",
+              hiddenOnMobile: true,
               render: (r: { unit_cost?: number; quantity_available?: number }) =>
                 r.unit_cost
-                  ? formatCurrency((r.unit_cost ?? 0) * (r.quantity_available ?? 0))
+                  ? <span className="text-slate-700 tabular-nums">{formatCurrency((r.unit_cost ?? 0) * (r.quantity_available ?? 0))}</span>
                   : "—",
             },
           ]}
           actions={(r: { id: string }) => (
             <Link
               href={`/${locale}/inventory/batches/${r.id}`}
-              className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-blue-600"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-brand-600"
+              title="عرض"
             >
               <Eye className="h-4 w-4" />
             </Link>
