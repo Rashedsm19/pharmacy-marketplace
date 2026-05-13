@@ -46,8 +46,9 @@ class TransactionService:
             )
 
         listing = await self.listing_repo.get(reservation.listing_id)
-        total = reservation.quantity * reservation.agreed_price
-        platform_fee = round(total * 0.02, 2)  # 2% platform fee
+        from decimal import Decimal
+        total = Decimal(reservation.quantity) * Decimal(reservation.agreed_price)
+        platform_fee = (total * Decimal("0.02")).quantize(Decimal("0.01"))
 
         tx = Transaction(
             id=uuid.uuid4(),
