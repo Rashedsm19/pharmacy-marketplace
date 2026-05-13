@@ -1,0 +1,72 @@
+databases:
+  - name: pharmacy-db
+    databaseName: pharmacy_marketplace
+    user: pharmacy
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+    ipAllowList: []
+
+services:
+  - type: web
+    name: pharmacy-api
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: apps/api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: HOST
+        value: 0.0.0.0
+      - key: WORKERS
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pharmacy-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: REQUIRE_CLOUDFLARE
+        value: "false"
+      - key: REQUIRE_APPCHECK
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: RUN_MIGRATIONS_ON_STARTUP
+        value: "true"
+      - key: SEED_ON_STARTUP
+        value: "true"
+      - key: NEAR_EXPIRY_SCAN_INTERVAL_HOURS
+        value: "6"
+      - key: NEAR_EXPIRY_THRESHOLDS_DAYS
+        value: 180,90,30
+      - key: EMAIL_BACKEND
+        value: stub
+      - key: WHATSAPP_BACKEND
+        value: stub
+
+  - type: web
+    name: pharmacy-web
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: apps/web
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

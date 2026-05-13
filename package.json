@@ -1,0 +1,14 @@
+{
+  "name": "pharmacy-nearexpiry-marketplace",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "packages/types"
+  ],
+  "scripts": {
+    "dev:web": "cd apps/web && npm run dev",
+    "build:web": "cd apps/web && npm run build",
+    "lint": "cd apps/web && npm run lint",
+    "type-check": "cd apps/web && npm run type-check"
+  }
+}
