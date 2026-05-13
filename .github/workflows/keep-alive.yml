@@ -1,0 +1,28 @@
+name: Keep Render free services awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://pharmacy-api-w1vu.onrender.com/health || echo "fail")
+            echo "API ping attempt $i: $code"
+            if [ "$code" = "200" ]; then break; fi
+            sleep 20
+          done
+
+      - name: Ping Web
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://pharmacy-web-yx8a.onrender.com/ar/login || echo "fail")
+            echo "Web ping attempt $i: $code"
+            if [ "$code" = "200" ]; then break; fi
+            sleep 20
+          done
