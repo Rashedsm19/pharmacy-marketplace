@@ -33,11 +33,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm">
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuToggle}
           className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 md:hidden"
+          aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -75,12 +76,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               <User className="h-4 w-4 text-white" />
             </div>
             {user && (
-              <span className="text-sm font-medium text-gray-700">{user.full_name}</span>
+              <span className="hidden sm:inline text-sm font-medium text-gray-700">{user.full_name}</span>
             )}
           </button>
 
           {userMenuOpen && (
-            <div className="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+            <div className="absolute left-0 mt-1 w-48 max-w-[calc(100vw-1rem)] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"

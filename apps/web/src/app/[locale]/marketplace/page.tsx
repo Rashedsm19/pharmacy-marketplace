@@ -49,8 +49,8 @@ export default function MarketplacePage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-4 items-center flex-wrap">
-          <div className="relative flex-1 min-w-48">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+          <div className="relative w-full md:flex-1 md:min-w-48">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               value={search}
@@ -62,7 +62,7 @@ export default function MarketplacePage() {
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full md:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">كل الفئات</option>
             {(categories ?? []).map((c: { id: string; name_ar: string }) => (
@@ -75,7 +75,7 @@ export default function MarketplacePage() {
 
         {/* Listings Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
@@ -92,7 +92,7 @@ export default function MarketplacePage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {listings.items.map(
                 (l: {
                   id: string;

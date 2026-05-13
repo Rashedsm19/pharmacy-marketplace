@@ -16,14 +16,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Pill,
+  X,
 } from "lucide-react";
 
 interface SidebarProps {
   open: boolean;
   onToggle: () => void;
+  onNavigate?: () => void;
 }
 
-export default function Sidebar({ open, onToggle }: SidebarProps) {
+export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("nav");
@@ -42,11 +44,19 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     { href: `/${locale}/admin/approvals`, icon: Shield, label: t("admin") },
   ];
 
+  const handleNavClick = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) onNavigate?.();
+  };
+
   return (
     <aside
       className={cn(
-        "flex flex-col bg-white border-l border-gray-200 transition-all duration-300 shadow-sm",
-        open ? "w-64" : "w-16"
+        "flex flex-col bg-white border-l border-gray-200 shadow-sm",
+        // mobile: slide-over drawer; desktop: in-flow with collapse
+        "fixed inset-y-0 right-0 z-40 transition-transform duration-300 md:static md:translate-x-0 md:transition-all",
+        open ? "translate-x-0 w-72" : "translate-x-full md:translate-x-0",
+        "md:w-64",
+        !open && "md:w-16"
       )}
     >
       {/* Logo */}
@@ -62,8 +72,13 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500"
+          aria-label="Toggle sidebar"
         >
-          {open ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {/* Show close X on mobile, chevrons on desktop */}
+          <X className="h-4 w-4 md:hidden" />
+          <span className="hidden md:inline">
+            {open ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </span>
         </button>
       </div>
 
@@ -75,6 +90,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={handleNavClick}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 active
@@ -95,6 +111,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={handleNavClick}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                   active
@@ -114,6 +131,7 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
       <div className="border-t border-gray-200 p-2">
         <Link
           href={`/${locale}/org/profile`}
+          onClick={handleNavClick}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
           <Settings className="h-5 w-5 flex-shrink-0" />

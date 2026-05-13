@@ -101,7 +101,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpis.map((kpi) => (
             <div
               key={kpi.label}
@@ -118,9 +118,9 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Near-Expiry Table */}
-          <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="p-5 border-b border-gray-100 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900">{t("nearExpiryTable")}</h2>
               <Link
@@ -176,7 +176,8 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
             <h2 className="font-semibold text-gray-900 mb-4">{t("inventoryHealth")}</h2>
             {pieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <div className="h-56 sm:h-64">
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
                     {pieData.map((entry: { name: string }, i: number) => (
@@ -190,6 +191,7 @@ export default function DashboardPage() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+              </div>
             ) : (
               <div className="h-40 flex items-center justify-center text-gray-400 text-sm">
                 لا توجد بيانات
@@ -199,7 +201,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Active Listings + Incoming Offers */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Active Listings */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="p-5 border-b border-gray-100 flex items-center justify-between">

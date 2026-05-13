@@ -48,7 +48,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="h-12 w-12 bg-blue-600 rounded-xl flex items-center justify-center">

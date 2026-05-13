@@ -84,7 +84,8 @@ export default function IncomingOffersPage() {
               <p className="text-gray-500">لا توجد عروض واردة</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[760px]">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">الإعلان</th>
@@ -182,6 +183,7 @@ export default function IncomingOffersPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

@@ -132,7 +132,7 @@ export default function CreateListingPage() {
 
             {/* Batch preview */}
             {selectedBatch && (
-              <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div>
                   <p className="text-gray-500 text-xs">المنتج</p>
                   <p className="font-medium">{selectedBatch.product_name_ar ?? selectedBatch.product_name}</p>
@@ -280,7 +280,7 @@ export default function CreateListingPage() {
           </div>
 
           {/* Submit */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href={`/${locale}/my/listings`}
               className="flex-1 text-center border border-gray-300 text-gray-600 py-2.5 rounded-lg text-sm hover:bg-gray-50"
