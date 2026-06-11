@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove, SuperAdmin
 from models.user import UserRole
 from repositories.organization import OrganizationRepository
-from schemas.common import MessageResponse, PaginatedResponse
+from schemas.common import PaginatedResponse
 from schemas.organization import (
     OrganizationApprove,
     OrganizationOut,

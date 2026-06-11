@@ -7,7 +7,6 @@ import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Download, BarChart2 } from "lucide-react";
 import {
-  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
 
@@ -32,14 +31,6 @@ export default function BranchComparisonReportPage() {
     "معاملات مكتملة": b.completed_transactions,
     "قريب الانتهاء": b.near_expiry_count,
   }));
-
-  const radarData = [
-    { metric: "العروض", fullMark: 100 },
-    { metric: "المعاملات", fullMark: 100 },
-    { metric: "الاسترداد", fullMark: 100 },
-    { metric: "الدفعات", fullMark: 100 },
-    { metric: "الامتثال", fullMark: 100 },
-  ];
 
   return (
     <Shell>

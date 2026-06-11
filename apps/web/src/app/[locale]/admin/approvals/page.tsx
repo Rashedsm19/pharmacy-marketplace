@@ -7,7 +7,7 @@ import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { adminApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
-import { CheckCircle, XCircle, Loader2, Building2, ChevronRight, ChevronLeft } from "lucide-react";
+import { CheckCircle, XCircle, Building2, ChevronRight, ChevronLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";

@@ -48,7 +48,7 @@ async def logout(current_user: CurrentUser):
 @router.post("/forgot-password", response_model=MessageResponse)
 async def forgot_password(data: ForgotPasswordRequest, db: DbSession, request: Request):
     svc = AuthService(db)
-    token = await svc.forgot_password(data.email)
+    await svc.forgot_password(data.email)
     # Always return success to prevent email enumeration
     return MessageResponse(message="If the email exists, a password reset link has been sent.")
 

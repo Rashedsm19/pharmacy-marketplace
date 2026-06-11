@@ -41,7 +41,7 @@ async def _seed_all(db) -> None:
     )
     from models.branch import PharmacyBranch, StorageConditionStatus
     from models.product import ProductCategory, Product
-    from models.inventory import InventoryBatch, BatchStatus, NearExpiryRule, InventoryMovement, MovementType
+    from models.inventory import InventoryBatch, BatchStatus, NearExpiryRule
     from models.marketplace import (
         MarketplaceListing, ListingStatus, ListingOffer, OfferStatus,
         Reservation, ReservationStatus,
@@ -454,7 +454,7 @@ async def _seed_all(db) -> None:
         ))
     await db.flush()
 
-    print(f"  ✔ 1 super admin, 3 users, 3 orgs, 5 branches created")
+    print("  ✔ 1 super admin, 3 users, 3 orgs, 5 branches created")
     print(f"  ✔ 30 products, {len(batches)} inventory batches created")
     print(f"  ✔ {len(listings)} listings, {len(offers)} offers, 5 transactions created")
 

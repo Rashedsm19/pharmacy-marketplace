@@ -20,7 +20,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    bind = op.get_bind()
     # Note: models use plain String columns for status fields, so the migration
     # uses VARCHAR(50) instead of native postgres ENUM types to avoid type
     # mismatch with the async driver.

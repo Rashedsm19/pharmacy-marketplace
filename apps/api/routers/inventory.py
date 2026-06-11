@@ -19,7 +19,6 @@ from schemas.inventory import (
     MovementOut,
     NearExpiryRuleCreate,
     NearExpiryRuleOut,
-    NearExpiryRuleUpdate,
 )
 from services.inventory_service import InventoryService
 
@@ -61,7 +60,6 @@ async def list_batches(
 
     expiry_before = None
     if near_expiry_only:
-        from datetime import timedelta
         expiry_before = date.today() + __import__("datetime").timedelta(days=180)
 
     rows, total = await repo.list_by_org(

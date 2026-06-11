@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import uuid
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
 from repositories.organization import MembershipRepository

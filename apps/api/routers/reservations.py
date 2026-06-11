@@ -3,16 +3,15 @@ from __future__ import annotations
 
 import math
 import uuid
-from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
 from models.marketplace import ReservationStatus
 from repositories.marketplace import ReservationRepository
 from repositories.organization import MembershipRepository
 from schemas.common import PaginatedResponse
-from schemas.marketplace import ReservationCreate, ReservationOut
+from schemas.marketplace import ReservationOut
 
 router = APIRouter(prefix="/reservations", tags=["Reservations"])
 

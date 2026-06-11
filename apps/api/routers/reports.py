@@ -37,7 +37,7 @@ async def report_near_expiry(
     days: int = 180,
     branch_id: uuid.UUID | None = None,
 ):
-    from sqlalchemy import select, and_
+    from sqlalchemy import select
     from models.inventory import InventoryBatch, BatchStatus
     from models.product import Product
     from models.branch import PharmacyBranch
@@ -92,7 +92,7 @@ async def report_expired_loss(
     end_date: date | None = None,
 ):
     from sqlalchemy import select
-    from models.inventory import InventoryBatch, BatchStatus
+    from models.inventory import InventoryBatch
     from models.product import Product
     from models.branch import PharmacyBranch
 
@@ -135,7 +135,7 @@ async def report_expired_loss(
 
 @router.get("/recoverable-value", response_model=list[RecoverableValueRow])
 async def report_recoverable_value(db: DbSession, current_user: CurrentUser):
-    from sqlalchemy import select, and_
+    from sqlalchemy import select
     from models.inventory import InventoryBatch, BatchStatus
 
     org_id = await _get_org_id(current_user, db)
@@ -181,12 +181,11 @@ async def report_top_products(
     limit: int = 10,
 ):
     from sqlalchemy import func, select
-    from models.marketplace import MarketplaceListing, ListingOffer
-    from models.transaction import Transaction
+    from models.marketplace import MarketplaceListing
     from models.inventory import InventoryBatch
     from models.product import Product
 
-    org_id = await _get_org_id(current_user, db)
+    await _get_org_id(current_user, db)
 
     q = (
         select(
@@ -223,7 +222,7 @@ async def report_top_products(
 async def report_branch_comparison(db: DbSession, current_user: CurrentUser):
     from sqlalchemy import func, select
     from models.branch import PharmacyBranch
-    from models.inventory import InventoryBatch, BatchStatus
+    from models.inventory import InventoryBatch
     from models.marketplace import MarketplaceListing, ListingStatus
     from models.transaction import Transaction, TransactionStatus
 

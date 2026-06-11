@@ -5,7 +5,7 @@ import uuid
 from datetime import date
 from typing import Sequence
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.inventory import BatchStatus, InventoryBatch, InventoryMovement, NearExpiryRule

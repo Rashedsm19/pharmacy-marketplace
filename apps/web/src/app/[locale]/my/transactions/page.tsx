@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +26,6 @@ const STATUS_VARIANTS: Record<string, "success" | "default" | "danger" | "warnin
 };
 
 export default function MyTransactionsPage() {
-  const locale = useLocale();
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<"" | "seller" | "buyer">("");

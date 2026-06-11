@@ -11,7 +11,7 @@ from models.inventory import BatchStatus, InventoryBatch, InventoryMovement, Mov
 from repositories.inventory import InventoryBatchRepository, InventoryMovementRepository, NearExpiryRuleRepository
 from repositories.branch import BranchRepository
 from repositories.product import ProductRepository
-from schemas.inventory import BatchCreate, BatchUpdate
+from schemas.inventory import BatchCreate
 
 
 class InventoryService:

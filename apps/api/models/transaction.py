@@ -6,12 +6,18 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+
+if TYPE_CHECKING:
+    from models.marketplace import MarketplaceListing, Reservation
+    from models.organization import PharmacyOrganization
+    from models.user import User
 
 
 class TransactionStatus(str, enum.Enum):

@@ -113,7 +113,7 @@ class OfferService:
         offer.responded_at = datetime.now(timezone.utc)
 
         # Reject all other pending offers on this listing
-        from sqlalchemy import select, update
+        from sqlalchemy import update
         await self.db.execute(
             update(ListingOffer).where(
                 ListingOffer.listing_id == offer.listing_id,

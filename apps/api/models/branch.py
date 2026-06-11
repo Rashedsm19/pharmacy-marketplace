@@ -5,12 +5,18 @@ from __future__ import annotations
 
 import enum
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
+
+if TYPE_CHECKING:
+    from models.inventory import InventoryBatch
+    from models.marketplace import MarketplaceListing
+    from models.organization import PharmacyOrganization
 
 
 class StorageConditionStatus(str, enum.Enum):

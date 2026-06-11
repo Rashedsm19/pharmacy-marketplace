@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -40,7 +40,6 @@ const STEPS = [
 ];
 
 export default function RegisterPage() {
-  const t = useTranslations("auth");
   const locale = useLocale();
   const router = useRouter();
   const [step, setStep] = useState(1);

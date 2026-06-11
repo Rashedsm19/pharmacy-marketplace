@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import uuid
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
 from repositories.marketplace import OfferRepository
@@ -67,7 +67,7 @@ async def list_incoming_offers(
     page: int = 1,
     page_size: int = 20,
 ):
-    org_id = await _get_org_id(current_user, db)
+    await _get_org_id(current_user, db)
     repo = OfferRepository(db)
     if listing_id:
         rows, total = await repo.list_by_listing(listing_id, offset=(page-1)*page_size, limit=page_size)

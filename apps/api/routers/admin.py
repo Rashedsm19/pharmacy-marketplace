@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import uuid
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from dependencies import DbSession, SuperAdmin
 from models.organization import OrganizationStatus
@@ -47,7 +47,6 @@ async def list_compliance_review(
 ):
     from sqlalchemy import select
     from models.organization import PharmacyOrganization
-    from models.branch import PharmacyBranch, StorageConditionStatus
 
     result = await db.execute(
         select(PharmacyOrganization).where(

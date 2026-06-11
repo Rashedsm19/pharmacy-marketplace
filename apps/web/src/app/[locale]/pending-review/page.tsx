@@ -1,5 +1,6 @@
 import { Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import BrandLogo from "@/components/brand-logo";
 
 export default async function PendingReviewPage({
   params,
@@ -11,6 +12,9 @@ export default async function PendingReviewPage({
   return (
     <div className="min-h-screen bg-app-shell flex items-center justify-center overflow-x-hidden p-4" dir="rtl">
       <div className="w-[calc(100vw-2rem)] max-w-md min-w-0 bg-[#fffdf9]/95 rounded-3xl shadow-lift ring-1 ring-[#e2d4bf] p-10 text-center">
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <BrandLogo size="md" />
+        </div>
         <div className="flex justify-center mb-6">
           <div className="h-20 w-20 bg-[#f4eadf] rounded-full flex items-center justify-center ring-1 ring-[#e2d4bf]">
             <Clock className="h-10 w-10 text-gold-600" />

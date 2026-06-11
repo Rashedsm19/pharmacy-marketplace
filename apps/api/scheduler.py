@@ -4,7 +4,7 @@ APScheduler setup — near-expiry scan job runs every 6 hours.
 from __future__ import annotations
 
 import logging
-from datetime import date, timedelta
+from datetime import date
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -23,9 +23,7 @@ async def scan_near_expiry_batches() -> None:
     logger.info("Starting near-expiry scan...")
     from database import get_db_context
     from repositories.inventory import InventoryBatchRepository
-    from repositories.organization import MembershipRepository
     from services.notification_service import NotificationService
-    from services.listing_service import ListingService
 
     async with get_db_context() as db:
         try:

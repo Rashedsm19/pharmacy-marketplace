@@ -9,6 +9,7 @@ import { useAuthStore } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import BrandLogo from "@/components/brand-logo";
 
 interface NavbarProps {
   onMenuToggle: () => void;
@@ -56,7 +57,15 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
   return (
     <header className="h-16 bg-[#fffdf9]/88 backdrop-blur supports-[backdrop-filter]:bg-[#fffdf9]/76 border-b border-[#e2d4bf] flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20">
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <Link
+          href={`/${locale}/dashboard`}
+          className="min-w-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf9]"
+          aria-label="MedSave"
+        >
+          <BrandLogo compact size="sm" className="sm:hidden" />
+          <BrandLogo size="sm" className="hidden sm:flex" />
+        </Link>
         <button
           onClick={onMenuToggle}
           className="p-2 rounded-full hover:bg-[#f4eadf] text-[#5f665f] md:hidden"

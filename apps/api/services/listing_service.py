@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,11 +11,9 @@ from models.inventory import BatchStatus
 from models.marketplace import ListingStatus, MarketplaceListing
 from repositories.inventory import InventoryBatchRepository
 from repositories.marketplace import ListingRepository
-from schemas.marketplace import ListingCreate, ListingUpdate
+from schemas.marketplace import ListingCreate
 from services.audit_service import AuditService
 from services.eligibility_service import EligibilityService
-from services.notification_service import NotificationService
-from models.notification import NotificationType
 
 
 class ListingService:

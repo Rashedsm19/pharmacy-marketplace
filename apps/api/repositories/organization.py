@@ -8,7 +8,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.organization import (
-    MembershipRole,
     OrganizationStatus,
     PharmacyOrganization,
     UserOrganizationMembership,
