@@ -24,7 +24,7 @@ export function Card({ className, variant = "default", ...props }: CardProps) {
   return <div className={cn(variants[variant], className)} {...props} />;
 }
 
-interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+interface CardHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: ReactNode;
   subtitle?: ReactNode;
   action?: ReactNode;

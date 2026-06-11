@@ -19,6 +19,8 @@ const schema = z
     path: ["confirm_password"],
   });
 
+type ResetPasswordForm = z.infer<typeof schema>;
+
 export default function ResetPasswordPage() {
   const locale = useLocale();
   const router = useRouter();
@@ -29,9 +31,9 @@ export default function ResetPasswordPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm<ResetPasswordForm>({ resolver: zodResolver(schema) });
 
-  const onSubmit = async ({ new_password }: { new_password: string }) => {
+  const onSubmit = async ({ new_password }: ResetPasswordForm) => {
     try {
       await authApi.resetPassword(token, new_password);
       toast.success("تم إعادة تعيين كلمة المرور");

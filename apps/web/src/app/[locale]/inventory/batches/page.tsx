@@ -13,6 +13,18 @@ import { Plus, Eye } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 
+type BatchRow = {
+  id: string;
+  product_name_ar?: string;
+  product_name?: string;
+  batch_number?: string;
+  branch_name?: string;
+  expiry_date?: string;
+  days_until_expiry?: number;
+  quantity_available?: number;
+  unit_cost?: number;
+};
+
 export default function BatchesPage() {
   const locale = useLocale();
   const t = useTranslations("inventory");
@@ -41,7 +53,7 @@ export default function BatchesPage() {
           }
         />
 
-        <DataTable
+        <DataTable<BatchRow>
           rowKey={(r: { id: string }) => r.id}
           isLoading={isLoading}
           data={data?.items ?? []}

@@ -8,11 +8,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
-import { Pill, Loader2, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
+import BrandLogo from "@/components/brand-logo";
 
 const schema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),
 });
+
+type ForgotPasswordForm = z.infer<typeof schema>;
 
 export default function ForgotPasswordPage() {
   const locale = useLocale();
@@ -22,9 +25,9 @@ export default function ForgotPasswordPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm<ForgotPasswordForm>({ resolver: zodResolver(schema) });
 
-  const onSubmit = async ({ email }: { email: string }) => {
+  const onSubmit = async ({ email }: ForgotPasswordForm) => {
     try {
       await authApi.forgotPassword(email);
       setSent(true);
@@ -37,10 +40,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center">
-            <Pill className="h-5 w-5 text-white" />
-          </div>
-          <p className="text-lg font-bold text-gray-900">سوق الصيدليات</p>
+          <BrandLogo size="md" />
         </div>
 
         {!sent ? (

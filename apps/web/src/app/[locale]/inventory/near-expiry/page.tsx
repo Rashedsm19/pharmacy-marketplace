@@ -13,6 +13,18 @@ import { Eye, AlertTriangle, AlertOctagon, BellRing } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { KpiCard } from "@/components/ui/kpi-card";
 
+type NearExpiryBatchRow = {
+  id: string;
+  product_name_ar?: string;
+  branch_name?: string;
+  batch_number?: string;
+  expiry_date?: string;
+  days_until_expiry?: number;
+  quantity_available?: number;
+  unit_cost?: number;
+  expiry_zone?: string;
+};
+
 export default function NearExpiryPage() {
   const locale = useLocale();
   const [days, setDays] = useState(180);
@@ -73,7 +85,7 @@ export default function NearExpiryPage() {
           />
         </div>
 
-        <DataTable
+        <DataTable<NearExpiryBatchRow>
           rowKey={(r: { id: string }) => r.id}
           isLoading={isLoading}
           data={data}

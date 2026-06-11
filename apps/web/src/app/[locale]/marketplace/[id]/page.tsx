@@ -22,6 +22,8 @@ const offerSchema = z.object({
   message: z.string().optional(),
 });
 
+type OfferForm = z.infer<typeof offerSchema>;
+
 export default function ListingDetailPage() {
   const locale = useLocale();
   const { id } = useParams<{ id: string }>();
@@ -33,7 +35,7 @@ export default function ListingDetailPage() {
     queryFn: () => listingsApi.get(id).then((r) => r.data),
   });
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OfferForm>({
     resolver: zodResolver(offerSchema),
   });
 
@@ -159,7 +161,7 @@ export default function ListingDetailPage() {
                     </button>
                   ) : (
                     <form
-                      onSubmit={handleSubmit((d) => submitOffer.mutate(d as { offered_price: number; quantity: number; message?: string }))}
+                      onSubmit={handleSubmit((d) => submitOffer.mutate(d))}
                       className="space-y-3"
                     >
                       <div>

@@ -8,6 +8,20 @@ import { productsApi } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
+type ProductRow = {
+  id: string;
+  name_ar?: string;
+  name?: string;
+  sku?: string;
+  category?: {
+    name_ar?: string;
+  };
+  standard_price?: number;
+  is_active?: boolean;
+  is_controlled?: boolean;
+  is_restricted?: boolean;
+};
+
 export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -23,7 +37,7 @@ export default function ProductsPage() {
       <div className="space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">كتالوج المنتجات</h1>
 
-        <DataTable
+        <DataTable<ProductRow>
           rowKey={(r: { id: string }) => r.id}
           isLoading={isLoading}
           data={data?.items ?? []}

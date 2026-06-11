@@ -8,14 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { productsApi } from "@/lib/api";
 import { Loader2, Tag, Edit2, Check, X } from "lucide-react";
 
+type CategoryEditState = {
+  is_exchange_allowed_default: boolean;
+  is_restricted: boolean;
+  requires_cold_storage: boolean;
+};
+
 export default function AdminCategoriesPage() {
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editState, setEditState] = useState<{
-    is_exchange_allowed_default: boolean;
-    is_restricted: boolean;
-    requires_cold_storage: boolean;
-  } | null>(null);
+  const [editState, setEditState] = useState<CategoryEditState | null>(null);
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories-admin"],
@@ -23,7 +25,7 @@ export default function AdminCategoriesPage() {
   });
 
   const updateCategory = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: typeof editState }) =>
+    mutationFn: ({ id, data }: { id: string; data: CategoryEditState }) =>
       productsApi.updateCategory(id, data),
     onSuccess: () => {
       toast.success("تم تحديث الفئة");

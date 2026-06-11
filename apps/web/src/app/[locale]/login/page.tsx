@@ -9,8 +9,9 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
-import { Pill, ShieldCheck, ArrowLeft } from "lucide-react";
+import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BrandLogo from "@/components/brand-logo";
 
 const loginSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),
@@ -57,17 +58,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Brand lockup */}
         <div className="flex items-center justify-center gap-3 mb-7">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lift">
-            <Pill className="h-6 w-6 text-white" />
-          </div>
-          <div className="text-right">
-            <p className="text-lg font-bold text-slate-900 leading-tight">
-              سوق الصيدليات
-            </p>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Near-Expiry B2B Marketplace
-            </p>
-          </div>
+          <BrandLogo size="lg" />
         </div>
 
         {/* Card */}

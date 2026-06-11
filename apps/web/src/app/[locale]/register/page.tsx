@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
-import { Pill, Loader2, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import BrandLogo from "@/components/brand-logo";
 
 const registerSchema = z.object({
   full_name: z.string().min(2, "الاسم مطلوب"),
@@ -76,10 +77,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center">
-            <Pill className="h-5 w-5 text-white" />
-          </div>
-          <p className="text-lg font-bold text-gray-900">سوق الصيدليات</p>
+          <BrandLogo size="md" />
         </div>
 
         {/* Step indicators */}

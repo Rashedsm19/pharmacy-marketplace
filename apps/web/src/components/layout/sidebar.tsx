@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import BrandLogo from "@/components/brand-logo";
 import {
   LayoutDashboard,
   Package,
@@ -100,24 +101,10 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100">
         {open && (
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Pill className="h-5 w-5 text-white" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-bold text-slate-900 text-sm leading-tight truncate">
-                سوق الصيدليات
-              </p>
-              <p className="text-[10px] text-slate-400 leading-tight truncate">
-                Pharmacy Marketplace
-              </p>
-            </div>
-          </div>
+          <BrandLogo size="sm" />
         )}
         {!open && (
-          <div className="hidden md:flex h-9 w-9 mx-auto rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 items-center justify-center flex-shrink-0 shadow-sm">
-            <Pill className="h-5 w-5 text-white" />
-          </div>
+          <BrandLogo compact size="sm" className="hidden md:flex mx-auto" />
         )}
         <button
           onClick={onToggle}
