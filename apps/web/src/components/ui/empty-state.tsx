@@ -27,13 +27,13 @@ export function EmptyState({
       )}
     >
       {Icon && (
-        <div className="h-14 w-14 rounded-2xl bg-slate-50 ring-1 ring-slate-200/70 flex items-center justify-center mb-3">
-          <Icon className="h-7 w-7 text-slate-400" />
+        <div className="h-14 w-14 rounded-2xl bg-[#f4eadf] ring-1 ring-[#e2d4bf] flex items-center justify-center mb-3">
+          <Icon className="h-7 w-7 text-[#a88d60]" />
         </div>
       )}
-      <h3 className="text-base font-semibold text-slate-800">{title}</h3>
+      <h3 className="text-base font-semibold text-[#1f2a24]">{title}</h3>
       {description && (
-        <p className="text-sm text-slate-500 mt-1 max-w-sm">{description}</p>
+        <p className="text-sm text-[#6d746d] mt-1 max-w-sm">{description}</p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

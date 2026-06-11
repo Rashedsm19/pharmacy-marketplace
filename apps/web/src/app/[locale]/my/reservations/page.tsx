@@ -57,14 +57,14 @@ export default function MyReservationsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : reservations.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-gray-500 mb-4">لا توجد حجوزات نشطة</p>
               <Link
                 href={`/${locale}/marketplace`}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                className="text-brand-600 hover:text-brand-700 text-sm font-medium"
               >
                 تصفح السوق
               </Link>
@@ -100,7 +100,7 @@ export default function MyReservationsPage() {
                       {res.product_name_ar ?? res.product_name ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{res.seller_org_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-blue-600 font-semibold">
+                    <td className="px-4 py-3 text-brand-600 font-semibold">
                       {formatCurrency(res.reserved_price)}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{res.quantity}</td>
@@ -117,7 +117,7 @@ export default function MyReservationsPage() {
                         {res.transaction_id && (
                           <Link
                             href={`/${locale}/my/transactions`}
-                            className="text-blue-600 hover:text-blue-700 p-1 rounded"
+                            className="text-brand-600 hover:text-brand-700 p-1 rounded"
                             title="عرض المعاملة"
                           >
                             <ArrowRight className="h-4 w-4" />

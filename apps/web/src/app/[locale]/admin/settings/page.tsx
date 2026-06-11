@@ -94,7 +94,7 @@ export default function AdminSettingsPage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
           </div>
         ) : (
           Object.entries(groups).map(([groupName, groupSettings]) => (
@@ -119,7 +119,7 @@ export default function AdminSettingsPage() {
                               <select
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                className="px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-24"
+                                className="px-2 py-1 border border-brand-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 w-24"
                               >
                                 <option value="true">نعم</option>
                                 <option value="false">لا</option>
@@ -130,13 +130,13 @@ export default function AdminSettingsPage() {
                                 onChange={(e) => setEditValue(e.target.value)}
                                 type={setting.value_type === "number" ? "number" : "text"}
                                 dir="ltr"
-                                className="px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-28"
+                                className="px-2 py-1 border border-brand-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 w-28"
                               />
                             )}
                             <button
                               onClick={() => saveEdit(setting)}
                               disabled={updateSetting.isPending}
-                              className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium disabled:opacity-60"
+                              className="flex items-center gap-1 px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs font-medium disabled:opacity-60"
                             >
                               {updateSetting.isPending && editingKey === setting.key ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -161,7 +161,7 @@ export default function AdminSettingsPage() {
                             </span>
                             <button
                               onClick={() => startEdit(setting)}
-                              className="text-blue-600 hover:text-blue-700 text-xs font-medium"
+                              className="text-brand-600 hover:text-brand-700 text-xs font-medium"
                             >
                               تعديل
                             </button>

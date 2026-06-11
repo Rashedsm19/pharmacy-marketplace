@@ -49,13 +49,13 @@ export default function MarketplacePage() {
     <Shell>
       <div className="space-y-6">
         <PageHeader
-          title="السوق"
-          subtitle="اكتشف الدفعات المعروضة من صيدليات معتمدة"
+          title="سوق التبادل"
+          subtitle="استعرض الدفعات المتاحة من منشآت صيدلانية مرخصة داخل المملكة"
           actions={
             <Link href={`/${locale}/marketplace/create`}>
               <Button variant="gold">
                 <Plus className="h-4 w-4" />
-                إنشاء إعلان
+                نشر عرض
               </Button>
             </Link>
           }
@@ -65,18 +65,18 @@ export default function MarketplacePage() {
         <Card className="p-4">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <div className="relative w-full md:flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#a88d60]" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="بحث في الإعلانات..."
-                className="w-full h-10 pr-10 pl-4 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
+                placeholder="بحث في العروض..."
+                className="w-full h-10 pr-10 pl-4 bg-[#fbf7f0]/80 ring-1 ring-inset ring-[#d8c8b3] rounded-full text-sm placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
               />
             </div>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full md:w-auto h-10 px-3 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
+              className="w-full md:w-auto h-10 px-3 bg-[#fbf7f0]/80 ring-1 ring-inset ring-[#d8c8b3] rounded-full text-sm text-[#1f2a24] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
             >
               <option value="">كل الفئات</option>
               {(categories ?? []).map((c: { id: string; name_ar: string }) => (
@@ -94,11 +94,11 @@ export default function MarketplacePage() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl p-5 ring-1 ring-slate-200/70 shadow-soft animate-pulse"
+                className="bg-white/90 rounded-2xl p-5 ring-1 ring-[#e2d4bf] shadow-soft animate-pulse"
               >
-                <div className="h-4 bg-slate-100 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-slate-100 rounded w-1/2 mb-5" />
-                <div className="h-8 bg-slate-100 rounded" />
+                <div className="h-4 bg-[#f0e4d4] rounded w-3/4 mb-2" />
+                <div className="h-3 bg-[#f0e4d4] rounded w-1/2 mb-5" />
+                <div className="h-8 bg-[#f0e4d4] rounded" />
               </div>
             ))}
           </div>
@@ -106,8 +106,8 @@ export default function MarketplacePage() {
           <Card>
             <EmptyState
               icon={Package}
-              title="لا توجد إعلانات"
-              description="لم يتم العثور على إعلانات مطابقة لبحثك"
+              title="لا توجد عروض"
+              description="لم يتم العثور على عروض مطابقة لبحثك"
             />
           </Card>
         ) : (
@@ -133,14 +133,14 @@ export default function MarketplacePage() {
                     <Link
                       key={l.id}
                       href={`/${locale}/marketplace/${l.id}`}
-                      className="group relative bg-white rounded-2xl ring-1 ring-slate-200/70 shadow-soft hover:ring-brand-300 hover:shadow-lift transition-all duration-200 overflow-hidden"
+                      className="group relative bg-white/92 rounded-2xl ring-1 ring-[#e2d4bf] shadow-soft hover:ring-gold-300 hover:shadow-lift transition-all duration-200 overflow-hidden"
                     >
                       <div
                         className={`h-1 bg-gradient-to-r ${zoneStripeGradient[zone] ?? zoneStripeGradient.green}`}
                       />
                       <div className="p-5">
                         <div className="flex items-start justify-between gap-3 mb-2">
-                          <h3 className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2 group-hover:text-brand-700 transition-colors">
+                          <h3 className="font-semibold text-[#1f2a24] text-sm leading-snug line-clamp-2 group-hover:text-brand-800 transition-colors">
                             {l.title_ar ?? l.title}
                           </h3>
                           {l.days_until_expiry !== undefined && (
@@ -150,19 +150,19 @@ export default function MarketplacePage() {
                             />
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 mb-4 truncate">
+                        <p className="text-xs text-[#6d746d] mb-4 truncate">
                           {l.seller_org_name ?? "—"}
                         </p>
                         <div className="flex items-end justify-between">
                           <div>
-                            <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">
+                            <p className="text-[10px] uppercase tracking-normal text-[#9a8b77] mb-0.5">
                               السعر المطلوب
                             </p>
-                            <span className="text-lg font-bold text-slate-900 tabular-nums">
+                            <span className="text-lg font-semibold text-[#1f2a24] tabular-nums">
                               {formatCurrency(l.asking_price)}
                             </span>
                           </div>
-                          <span className="text-xs text-slate-500 tabular-nums">
+                          <span className="text-xs text-[#6d746d] tabular-nums">
                             متوفر: {l.quantity_available}
                           </span>
                         </div>
@@ -180,18 +180,18 @@ export default function MarketplacePage() {
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
                   aria-label="السابق"
-                  className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-full ring-1 ring-[#d8c8b3] text-[#6d746d] hover:bg-[#f7efe3] disabled:opacity-40"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
-                <span className="px-3 py-2 text-sm text-slate-600 tabular-nums">
+                <span className="px-3 py-2 text-sm text-[#6d746d] tabular-nums">
                   {page} من {listings.pages}
                 </span>
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={page >= listings.pages}
                   aria-label="التالي"
-                  className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-full ring-1 ring-[#d8c8b3] text-[#6d746d] hover:bg-[#f7efe3] disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>

@@ -27,11 +27,11 @@ export function PageHeader({
     >
       <div className="min-w-0">
         {back && <div className="mb-1.5">{back}</div>}
-        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-semibold text-[#1f2a24] tracking-normal">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+          <p className="text-sm text-[#6d746d] mt-1 leading-relaxed">
             {subtitle}
           </p>
         )}

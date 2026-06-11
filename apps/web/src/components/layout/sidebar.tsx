@@ -51,7 +51,7 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
 
   const renderNavItem = (
     item: { href: string; icon: typeof LayoutDashboard; label: string },
-    accent: "brand" | "violet"
+    accent: "brand" | "gold"
   ) => {
     const active = pathname.startsWith(item.href);
     return (
@@ -60,19 +60,19 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
         href={item.href}
         onClick={handleNavClick}
         className={cn(
-          "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
+          "group relative flex items-center gap-3 px-3 py-2.5 rounded-full text-sm font-medium transition-all duration-150",
           active
             ? accent === "brand"
-              ? "bg-brand-50 text-brand-700"
-              : "bg-violet-50 text-violet-700"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              ? "bg-[#f4eadf] text-[#1f2a24]"
+              : "bg-[#f7efe3] text-[#7b5411]"
+            : "text-[#5f665f] hover:bg-[#fbf7f0] hover:text-[#1f2a24]"
         )}
       >
         {active && (
           <span
             className={cn(
               "absolute inset-y-2 right-0 w-1 rounded-full",
-              accent === "brand" ? "bg-brand-600" : "bg-violet-600"
+              accent === "brand" ? "bg-brand-600" : "bg-gold-500"
             )}
             aria-hidden
           />
@@ -80,7 +80,7 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
         <item.icon
           className={cn(
             "h-5 w-5 flex-shrink-0",
-            active && (accent === "brand" ? "text-brand-600" : "text-violet-600")
+            active && (accent === "brand" ? "text-brand-700" : "text-gold-700")
           )}
         />
         {open && <span className="truncate">{item.label}</span>}
@@ -91,7 +91,7 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "flex flex-col bg-white border-l border-slate-200/80 shadow-soft",
+        "flex flex-col bg-[#fffdf9]/95 border-l border-[#e2d4bf] shadow-soft backdrop-blur",
         "fixed inset-y-0 right-0 z-40 transition-transform duration-300 md:static md:translate-x-0 md:transition-all",
         open ? "translate-x-0 w-72" : "translate-x-full md:translate-x-0",
         "md:w-64",
@@ -99,7 +99,7 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
       )}
     >
       {/* Logo */}
-      <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100">
+      <div className="flex items-center justify-between h-16 px-4 border-b border-[#eadfcc]">
         {open && (
           <BrandLogo size="sm" />
         )}
@@ -108,7 +108,7 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
         )}
         <button
           onClick={onToggle}
-          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+          className="p-1.5 rounded-full hover:bg-[#f4eadf] text-[#6d746d] transition-colors"
           aria-label="Toggle sidebar"
         >
           <X className="h-4 w-4 md:hidden" />
@@ -126,22 +126,22 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2.5">
         {navItems.map((item) => renderNavItem(item, "brand"))}
 
-        <div className="pt-3 mt-3 border-t border-slate-100">
+        <div className="pt-3 mt-3 border-t border-[#eadfcc]">
           {open && (
-            <p className="px-3 pb-2 text-[10px] uppercase tracking-wider font-semibold text-slate-400">
+            <p className="px-3 pb-2 text-[10px] uppercase tracking-normal font-semibold text-[#9a8b77]">
               لوحة الإدارة
             </p>
           )}
-          {adminItems.map((item) => renderNavItem(item, "violet"))}
+          {adminItems.map((item) => renderNavItem(item, "gold"))}
         </div>
       </nav>
 
       {/* Settings at bottom */}
-      <div className="border-t border-slate-100 p-2.5">
+      <div className="border-t border-[#eadfcc] p-2.5">
         <Link
           href={`/${locale}/org/profile`}
           onClick={handleNavClick}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-full text-sm font-medium text-[#5f665f] hover:bg-[#fbf7f0] hover:text-[#1f2a24] transition-colors"
         >
           <Settings className="h-5 w-5 flex-shrink-0" />
           {open && <span>{t("settings")}</span>}

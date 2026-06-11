@@ -59,14 +59,14 @@ export default function MyOffersPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : offers.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-gray-500 mb-4">لم تقدم أي عروض بعد</p>
               <Link
                 href={`/${locale}/marketplace`}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                className="text-brand-600 hover:text-brand-700 text-sm font-medium"
               >
                 تصفح السوق
               </Link>
@@ -106,7 +106,7 @@ export default function MyOffersPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-blue-600 font-semibold">
+                    <td className="px-4 py-3 text-brand-600 font-semibold">
                       {formatCurrency(offer.offered_price)}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{offer.quantity}</td>
@@ -122,8 +122,8 @@ export default function MyOffersPage() {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/${locale}/marketplace/${offer.listing_id}`}
-                          className="text-blue-600 hover:text-blue-700 p-1 rounded"
-                          title="عرض الإعلان"
+                          className="text-brand-600 hover:text-brand-700 p-1 rounded"
+                          title="عرض العرض"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>

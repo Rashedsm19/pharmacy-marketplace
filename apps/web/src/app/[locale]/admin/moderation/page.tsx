@@ -30,12 +30,12 @@ export default function AdminModerationPage() {
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       adminApi.removeListing(id, reason),
     onSuccess: () => {
-      toast.success("تم إزالة الإعلان");
+      toast.success("تم إزالة العرض");
       qc.invalidateQueries({ queryKey: ["admin-moderation"] });
       setRemovingId(null);
       setRemoveReason("");
     },
-    onError: () => toast.error("فشل إزالة الإعلان"),
+    onError: () => toast.error("فشل إزالة العرض"),
   });
 
   const listings = data?.items ?? [];
@@ -46,7 +46,7 @@ export default function AdminModerationPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <ShieldAlert className="h-6 w-6 text-purple-600" />
-          <h1 className="text-2xl font-bold text-gray-900">إدارة الإعلانات</h1>
+          <h1 className="text-2xl font-bold text-gray-900">إدارة العروض</h1>
         </div>
 
         {/* Filter */}
@@ -54,7 +54,7 @@ export default function AdminModerationPage() {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="active">نشط</option>
             <option value="cancelled">ملغى</option>
@@ -66,10 +66,10 @@ export default function AdminModerationPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : listings.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">لا توجد إعلانات</div>
+            <div className="text-center py-16 text-gray-500">لا توجد عروض</div>
           ) : (
             <div className="divide-y divide-gray-100">
               {listings.map((listing: {
@@ -110,7 +110,7 @@ export default function AdminModerationPage() {
                           className="flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium disabled:opacity-60"
                         >
                           {removeListing.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                          إزالة الإعلان
+                          إزالة العرض
                         </button>
                       </div>
                     </div>
@@ -140,7 +140,7 @@ export default function AdminModerationPage() {
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <Link
                           href={`/${locale}/marketplace/${listing.id}`}
-                          className="text-blue-600 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50"
+                          className="text-brand-600 hover:text-brand-700 p-1.5 rounded hover:bg-brand-50"
                           title="عرض"
                         >
                           <Eye className="h-4 w-4" />

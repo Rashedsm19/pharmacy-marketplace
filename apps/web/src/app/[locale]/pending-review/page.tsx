@@ -1,46 +1,48 @@
 import { Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function PendingReviewPage({
+export default async function PendingReviewPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-10 text-center">
+    <div className="min-h-screen bg-app-shell flex items-center justify-center overflow-x-hidden p-4" dir="rtl">
+      <div className="w-[calc(100vw-2rem)] max-w-md min-w-0 bg-[#fffdf9]/95 rounded-3xl shadow-lift ring-1 ring-[#e2d4bf] p-10 text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-20 w-20 bg-amber-100 rounded-full flex items-center justify-center">
-            <Clock className="h-10 w-10 text-amber-600" />
+          <div className="h-20 w-20 bg-[#f4eadf] rounded-full flex items-center justify-center ring-1 ring-[#e2d4bf]">
+            <Clock className="h-10 w-10 text-gold-600" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">طلبك قيد المراجعة</h1>
-        <p className="text-gray-600 leading-relaxed mb-8">
-          شكراً لتسجيلك في سوق الصيدليات. يخضع طلبك حالياً للمراجعة من قبل فريقنا وسيتم إعلامك عبر
+        <h1 className="text-2xl font-semibold text-[#1f2a24] mb-3">طلب الاعتماد قيد المراجعة</h1>
+        <p className="text-[#6d746d] leading-relaxed mb-8">
+          شكراً لتسجيل منشأتك في MedSave. يخضع الطلب لمراجعة بيانات الترخيص والاعتماد، وسيتم إشعارك عبر
           البريد الإلكتروني عند الموافقة خلال <strong>24–48 ساعة</strong>.
         </p>
 
-        <div className="bg-blue-50 rounded-xl p-4 mb-6 text-right">
-          <h3 className="font-semibold text-blue-900 mb-2">ما يمكنك توقعه:</h3>
-          <ul className="space-y-1 text-sm text-blue-700">
+        <div className="bg-[#f7efe3] rounded-2xl p-4 mb-6 text-right ring-1 ring-[#eadfcc]">
+          <h3 className="font-semibold text-[#1f2a24] mb-2">خطوات المراجعة:</h3>
+          <ul className="space-y-1 text-sm text-[#4d554e]">
             <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              مراجعة وثائق التسجيل التجاري والترخيص
+              <CheckCircle className="h-4 w-4 flex-shrink-0 text-brand-600" />
+              مطابقة السجل التجاري وترخيص المنشأة
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              التحقق من معلومات الصيدلية
+              <CheckCircle className="h-4 w-4 flex-shrink-0 text-brand-600" />
+              التحقق من بيانات الصيدلية والفروع
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              إرسال تأكيد الموافقة عبر البريد الإلكتروني
+              <CheckCircle className="h-4 w-4 flex-shrink-0 text-brand-600" />
+              إرسال قرار الاعتماد عبر البريد الإلكتروني
             </li>
           </ul>
         </div>
 
         <Link
-          href={`/${params.locale}/login`}
-          className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
+          href={`/${locale}/login`}
+          className="block w-full bg-[#1f2a24] hover:bg-brand-800 text-[#fbf7f0] font-semibold py-2.5 rounded-full transition-colors"
         >
           العودة لتسجيل الدخول
         </Link>

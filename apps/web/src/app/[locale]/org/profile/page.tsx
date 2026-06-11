@@ -67,7 +67,7 @@ export default function OrgProfilePage() {
     return (
       <Shell>
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
         </div>
       </Shell>
     );
@@ -114,7 +114,7 @@ export default function OrgProfilePage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "الفروع", value: org?.branch_count ?? 0 },
-            { label: "الإعلانات النشطة", value: org?.active_listings_count ?? 0 },
+            { label: "العروض النشطة", value: org?.active_listings_count ?? 0 },
             { label: "المعاملات المكتملة", value: org?.completed_transactions_count ?? 0 },
             { label: "الرقم الضريبي", value: org?.tax_number ?? "—" },
           ].map((item) => (
@@ -128,7 +128,7 @@ export default function OrgProfilePage() {
         {/* Profile form */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Building2 className="h-5 w-5 text-blue-600" />
+            <Building2 className="h-5 w-5 text-brand-600" />
             <h2 className="font-semibold text-gray-900">معلومات المنشأة</h2>
           </div>
 
@@ -138,7 +138,7 @@ export default function OrgProfilePage() {
                 <label className="text-sm text-gray-600 block mb-1">اسم المنشأة (عربي) *</label>
                 <input
                   {...register("name_ar")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
                 {errors.name_ar && <p className="text-red-500 text-xs mt-0.5">{errors.name_ar.message}</p>}
               </div>
@@ -147,7 +147,7 @@ export default function OrgProfilePage() {
                 <input
                   {...register("name")}
                   dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-0.5">{errors.name.message}</p>}
               </div>
@@ -157,7 +157,7 @@ export default function OrgProfilePage() {
                   {...register("phone")}
                   type="tel"
                   dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div>
@@ -166,7 +166,7 @@ export default function OrgProfilePage() {
                   {...register("email")}
                   type="email"
                   dir="ltr"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-0.5">{errors.email.message}</p>}
               </div>
@@ -176,7 +176,7 @@ export default function OrgProfilePage() {
               <label className="text-sm text-gray-600 block mb-1">العنوان</label>
               <input
                 {...register("address")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
@@ -187,7 +187,7 @@ export default function OrgProfilePage() {
                 type="url"
                 dir="ltr"
                 placeholder="https://"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
               {errors.website && <p className="text-red-500 text-xs mt-0.5">{errors.website.message}</p>}
             </div>
@@ -226,7 +226,7 @@ export default function OrgProfilePage() {
               <button
                 type="submit"
                 disabled={isSubmitting || !isDirty}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-60"
+                className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-60"
               >
                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                 حفظ التغييرات

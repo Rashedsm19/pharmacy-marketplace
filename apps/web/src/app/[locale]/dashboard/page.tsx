@@ -97,12 +97,12 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <PageHeader
           title={t("title")}
-          subtitle="نظرة عامة على المخزون والصفقات النشطة"
+          subtitle="مؤشرات تشغيلية لمخزون المنشأة والعروض النشطة"
           actions={
             <Link href={`/${locale}/marketplace/create`}>
               <Button variant="gold">
                 <ShoppingCart className="h-4 w-4" />
-                إنشاء إعلان جديد
+                نشر عرض جديد
               </Button>
             </Link>
           }
@@ -115,28 +115,28 @@ export default function DashboardPage() {
             label={t("activeListings")}
             value={listings?.total ?? "—"}
             tone="brand"
-            hint="إعلان نشط"
+            hint="عرض نشط"
           />
           <KpiCard
             icon={AlertTriangle}
             label={t("nearExpiryBatches")}
             value={nearExpiry?.length ?? "—"}
             tone="warning"
-            hint="دفعة قاربة الانتهاء"
+            hint="دفعة تتطلب إجراء"
           />
           <KpiCard
             icon={Bell}
             label={t("pendingOffers")}
             value={incomingOffers?.total ?? "—"}
             tone="gold"
-            hint="عرض بانتظار الرد"
+            hint="طلب بانتظار الرد"
           />
           <KpiCard
             icon={TrendingUp}
             label={t("recoveredValue")}
             value={formatCurrency(totalRecovered)}
             tone="safe"
-            hint="قيمة قابلة للاسترجاع"
+            hint="قيمة قابلة للاسترداد"
           />
         </div>
 
@@ -144,11 +144,11 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <SectionCard
             title={t("nearExpiryTable")}
-            subtitle="الدفعات الأكثر إلحاحاً (≤ 90 يوم)"
+            subtitle="دفعات تتطلب قراراً تشغيلياً خلال 90 يوماً"
             action={
               <Link
                 href={`/${locale}/inventory/near-expiry`}
-                className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+                className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800"
               >
                 عرض الكل
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -160,31 +160,31 @@ export default function DashboardPage() {
             {urgentBatches.length === 0 ? (
               <EmptyState
                 icon={Package}
-                title="لا توجد دفعات قرب الانتهاء"
-                description="كل المخزون في المنطقة الآمنة"
+                title="لا توجد دفعات تتطلب إجراء"
+                description="المخزون الحالي ضمن نطاق تشغيلي آمن"
               />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm tabular-nums min-w-[520px]">
-                  <thead className="bg-slate-50/60 border-b border-slate-100">
+                  <thead className="bg-[#f7efe3] border-b border-[#eadfcc]">
                     <tr>
-                      <th className="px-5 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500">المنتج</th>
-                      <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500 hidden sm:table-cell">الفرع</th>
-                      <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500">الحالة</th>
-                      <th className="px-5 py-3 text-right text-[11px] uppercase tracking-wider font-semibold text-slate-500">الكمية</th>
+                      <th className="px-5 py-3 text-right text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">المنتج</th>
+                      <th className="px-4 py-3 text-right text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58] hidden sm:table-cell">الفرع</th>
+                      <th className="px-4 py-3 text-right text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">الحالة</th>
+                      <th className="px-5 py-3 text-right text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">الكمية</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100/80">
+                  <tbody className="divide-y divide-[#eadfcc]/80">
                     {urgentBatches.map((b: { id: string; product_name?: string; branch_name?: string; days_until_expiry?: number; quantity?: number }) => (
-                      <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-5 py-3 font-medium text-slate-900">
+                      <tr key={b.id} className="hover:bg-[#fbf7f0]/70 transition-colors">
+                        <td className="px-5 py-3 font-medium text-[#1f2a24]">
                           {b.product_name ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{b.branch_name ?? "—"}</td>
+                        <td className="px-4 py-3 text-[#6d746d] hidden sm:table-cell">{b.branch_name ?? "—"}</td>
                         <td className="px-4 py-3">
                           <ExpiryBadge daysUntilExpiry={b.days_until_expiry ?? 999} />
                         </td>
-                        <td className="px-5 py-3 text-slate-700">{b.quantity}</td>
+                        <td className="px-5 py-3 text-[#4d554e]">{b.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
 
           <SectionCard
             title={t("inventoryHealth")}
-            subtitle="توزيع الدفعات حسب المنطقة"
+            subtitle="تصنيف الدفعات حسب مستوى الإجراء"
           >
             {pieData.length > 0 ? (
               <div className="h-64">
@@ -227,15 +227,15 @@ export default function DashboardPage() {
                       }}
                       contentStyle={{
                         background: "white",
-                        border: "1px solid #e2e8f0",
+                        border: "1px solid #e2d4bf",
                         borderRadius: 10,
                         fontSize: 12,
-                        boxShadow: "0 4px 12px -2px rgba(15,23,42,0.08)",
+                        boxShadow: "0 14px 30px -24px rgba(47,37,26,0.34)",
                       }}
                     />
                     <Legend
                       formatter={(v) => (
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-[#6d746d]">
                           {zoneLabels[v as string] ?? v}
                         </span>
                       )}
@@ -255,11 +255,11 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <SectionCard
             title={t("activeListingsSummary")}
-            subtitle="آخر إعلاناتك المنشورة"
+            subtitle="آخر العروض المنشورة من منشأتك"
             action={
               <Link
                 href={`/${locale}/my/listings`}
-                className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+                className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800"
               >
                 عرض الكل
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -269,11 +269,11 @@ export default function DashboardPage() {
             {!listings?.items?.length ? (
               <EmptyState
                 icon={ShoppingCart}
-                title="لا توجد إعلانات نشطة"
-                description="ابدأ بنشر دفعتك الأولى الآن"
+                title="لا توجد عروض نشطة"
+                description="يمكنك نشر دفعة مؤهلة للتبادل عند الحاجة"
                 action={
                   <Link href={`/${locale}/marketplace/create`}>
-                    <Button variant="primary" size="sm">إنشاء إعلان جديد</Button>
+                    <Button variant="primary" size="sm">نشر عرض جديد</Button>
                   </Link>
                 }
               />
@@ -282,15 +282,15 @@ export default function DashboardPage() {
                 {listings.items.map((l: { id: string; title: string; asking_price: number; quantity_available: number }) => (
                   <li
                     key={l.id}
-                    className="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-0"
+                    className="flex items-center justify-between gap-3 py-2.5 border-b border-[#eadfcc] last:border-0"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate">{l.title}</p>
-                      <p className="text-xs text-slate-500 tabular-nums">
+                      <p className="text-sm font-medium text-[#1f2a24] truncate">{l.title}</p>
+                      <p className="text-xs text-[#6d746d] tabular-nums">
                         الكمية المتاحة: {l.quantity_available}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-slate-900 tabular-nums whitespace-nowrap">
+                    <span className="text-sm font-semibold text-[#1f2a24] tabular-nums whitespace-nowrap">
                       {formatCurrency(l.asking_price)}
                     </span>
                   </li>
@@ -301,11 +301,11 @@ export default function DashboardPage() {
 
           <SectionCard
             title={t("incomingOffersWidget")}
-            subtitle="عروض شراء واردة من صيدليات أخرى"
+            subtitle="طلبات شراء واردة من منشآت مرخصة"
             action={
               <Link
                 href={`/${locale}/my/incoming-offers`}
-                className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+                className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800"
               >
                 عرض الكل
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -315,17 +315,17 @@ export default function DashboardPage() {
             {!incomingOffers?.items?.length ? (
               <EmptyState
                 icon={Bell}
-                title="لا توجد عروض واردة"
-                description="ستظهر هنا فور وصول عرض على أحد إعلاناتك"
+                title="لا توجد طلبات واردة"
+                description="ستظهر هنا طلبات الشراء عند ورودها على عروضك المنشورة"
               />
             ) : (
               <ul className="space-y-1">
                 {incomingOffers.items.map((o: { id: string; offered_price: number; quantity: number; status: string }) => (
                   <li
                     key={o.id}
-                    className="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-0"
+                    className="flex items-center justify-between gap-3 py-2.5 border-b border-[#eadfcc] last:border-0"
                   >
-                    <span className="text-sm font-medium text-slate-900 tabular-nums">
+                    <span className="text-sm font-medium text-[#1f2a24] tabular-nums">
                       {formatCurrency(o.offered_price)} × {o.quantity}
                     </span>
                     <Badge variant={statusBadgeMap[o.status] ?? "default"} size="sm">

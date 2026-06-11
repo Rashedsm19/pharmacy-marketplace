@@ -9,8 +9,8 @@ import { formatDate } from "@/lib/utils";
 import { Loader2, Bell, Check, CheckCheck } from "lucide-react";
 
 const TYPE_LABELS: Record<string, string> = {
-  listing_created: "تم إنشاء إعلان",
-  listing_expired: "انتهى إعلان",
+  listing_created: "تم إنشاء عرض",
+  listing_expired: "انتهى عرض",
   offer_received: "عرض جديد",
   offer_accepted: "تم قبول عرضك",
   offer_rejected: "تم رفض عرضك",
@@ -61,10 +61,10 @@ export default function NotificationsPage() {
       <div className="max-w-2xl space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Bell className="h-6 w-6 text-blue-600" />
+            <Bell className="h-6 w-6 text-brand-600" />
             <h1 className="text-2xl font-bold text-gray-900">الإشعارات</h1>
             {unreadCount > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+              <span className="bg-brand-100 text-brand-700 text-xs font-semibold px-2.5 py-1 rounded-full">
                 {unreadCount} جديد
               </span>
             )}
@@ -73,7 +73,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => markAllRead.mutate()}
               disabled={markAllRead.isPending}
-              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 font-medium"
             >
               {markAllRead.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
               onClick={() => { setUnreadOnly(opt.key); setPage(1); }}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                 unreadOnly === opt.key
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-brand-600 text-white border-brand-600"
                   : "border-gray-300 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -107,7 +107,7 @@ export default function NotificationsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : notifications.length === 0 ? (
             <div className="text-center py-16">
@@ -127,10 +127,10 @@ export default function NotificationsPage() {
                 <div
                   key={notif.id}
                   className={`flex items-start gap-3 px-5 py-4 hover:bg-gray-50 transition-colors ${
-                    !notif.is_read ? "bg-blue-50/40" : ""
+                    !notif.is_read ? "bg-brand-50/40" : ""
                   }`}
                 >
-                  <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${!notif.is_read ? "bg-blue-500" : "bg-transparent"}`} />
+                  <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${!notif.is_read ? "bg-brand-500" : "bg-transparent"}`} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm ${!notif.is_read ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}>
                       {notif.title ?? TYPE_LABELS[notif.type] ?? notif.type}
@@ -143,7 +143,7 @@ export default function NotificationsPage() {
                   {!notif.is_read && (
                     <button
                       onClick={() => markRead.mutate(notif.id)}
-                      className="text-blue-400 hover:text-blue-600 p-1 flex-shrink-0"
+                      className="text-brand-400 hover:text-brand-600 p-1 flex-shrink-0"
                       title="تحديد كمقروء"
                     >
                       <Check className="h-4 w-4" />

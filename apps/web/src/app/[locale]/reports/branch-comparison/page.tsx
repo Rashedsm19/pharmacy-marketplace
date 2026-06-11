@@ -28,13 +28,13 @@ export default function BranchComparisonReportPage() {
     total_batches: number;
   }) => ({
     name: b.branch_name_ar ?? b.branch_name,
-    "إعلانات نشطة": b.active_listings,
+    "عروض نشطة": b.active_listings,
     "معاملات مكتملة": b.completed_transactions,
     "قريب الانتهاء": b.near_expiry_count,
   }));
 
   const radarData = [
-    { metric: "الإعلانات", fullMark: 100 },
+    { metric: "العروض", fullMark: 100 },
     { metric: "المعاملات", fullMark: 100 },
     { metric: "الاسترداد", fullMark: 100 },
     { metric: "الدفعات", fullMark: 100 },
@@ -46,7 +46,7 @@ export default function BranchComparisonReportPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
-            <BarChart2 className="h-6 w-6 text-blue-500" />
+            <BarChart2 className="h-6 w-6 text-brand-500" />
             <h1 className="text-2xl font-bold text-gray-900">مقارنة أداء الفروع</h1>
           </div>
           <button className="flex items-center gap-2 border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">
@@ -93,7 +93,7 @@ export default function BranchComparisonReportPage() {
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="إعلانات نشطة" fill="#3b82f6" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="عروض نشطة" fill="#0AA39B" radius={[2, 2, 0, 0]} />
                   <Bar dataKey="معاملات مكتملة" fill="#22c55e" radius={[2, 2, 0, 0]} />
                   <Bar dataKey="قريب الانتهاء" fill="#f97316" radius={[2, 2, 0, 0]} />
                 </BarChart>
@@ -106,7 +106,7 @@ export default function BranchComparisonReportPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : branches.length === 0 ? (
             <div className="text-center py-16 text-gray-500">لا توجد بيانات فروع</div>
@@ -118,7 +118,7 @@ export default function BranchComparisonReportPage() {
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">الحالة</th>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">الدفعات</th>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">قريب الانتهاء</th>
-                  <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">الإعلانات</th>
+                  <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">العروض</th>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">المعاملات</th>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">القيمة المستردة</th>
                 </tr>

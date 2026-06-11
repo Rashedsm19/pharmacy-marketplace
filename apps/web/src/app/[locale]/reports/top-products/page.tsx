@@ -41,7 +41,7 @@ export default function TopProductsReportPage() {
           <select
             value={period}
             onChange={(e) => setPeriod(e.target.value as typeof period)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="30">آخر 30 يوم</option>
             <option value="90">آخر 90 يوم</option>
@@ -51,7 +51,7 @@ export default function TopProductsReportPage() {
           <select
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value={5}>أفضل 5</option>
             <option value={10}>أفضل 10</option>
@@ -77,7 +77,7 @@ export default function TopProductsReportPage() {
                   <XAxis type="number" tick={{ fontSize: 11 }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
                   <Tooltip />
-                  <Bar dataKey="offers" name="عدد الطلبات" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="offers" name="عدد الطلبات" fill="#0AA39B" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -88,7 +88,7 @@ export default function TopProductsReportPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-16 text-gray-500">لا توجد بيانات للفترة المحددة</div>
@@ -101,7 +101,7 @@ export default function TopProductsReportPage() {
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">الفئة</th>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">عدد الطلبات</th>
                   <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">إجمالي المبيعات</th>
-                  <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">الإعلانات</th>
+                  <th className="text-right px-4 py-3 text-xs text-gray-500 font-medium">العروض</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -124,7 +124,7 @@ export default function TopProductsReportPage() {
                       {item.category_name_ar ?? item.category_name ?? "—"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                      <span className="bg-brand-50 text-brand-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                         {item.offer_count}
                       </span>
                     </td>

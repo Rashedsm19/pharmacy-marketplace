@@ -75,7 +75,7 @@ export default function MyTransactionsPage() {
               onClick={() => { setRoleFilter(r); setPage(1); }}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 roleFilter === r
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-brand-600 text-white border-brand-600"
                   : "border-gray-300 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -87,7 +87,7 @@ export default function MyTransactionsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-16">
@@ -125,7 +125,7 @@ export default function MyTransactionsPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-blue-600">{formatCurrency(tx.total_amount)}</p>
+                      <p className="font-semibold text-brand-600">{formatCurrency(tx.total_amount)}</p>
                       <p className="text-xs text-gray-400">{tx.quantity} وحدة</p>
                     </div>
                     <Badge variant={STATUS_VARIANTS[tx.status] ?? "default"}>
@@ -174,7 +174,7 @@ export default function MyTransactionsPage() {
                               dispatch.mutate(tx.id);
                             }}
                             disabled={processingId === tx.id && dispatch.isPending}
-                            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60"
+                            className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60"
                           >
                             {processingId === tx.id && dispatch.isPending ? (
                               <Loader2 className="h-3.5 w-3.5 animate-spin" />

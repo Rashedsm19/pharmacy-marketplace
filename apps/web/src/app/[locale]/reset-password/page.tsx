@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import BrandLogo from "@/components/brand-logo";
 
 const schema = z
   .object({
@@ -44,18 +45,24 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">إعادة تعيين كلمة المرور</h1>
+    <div className="min-h-screen bg-app-shell flex items-center justify-center overflow-x-hidden p-4" dir="rtl">
+      <div className="w-[calc(100vw-2rem)] max-w-md min-w-0 bg-[#fffdf9]/95 rounded-3xl shadow-lift ring-1 ring-[#e2d4bf] p-8">
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <BrandLogo size="md" />
+        </div>
+        <h1 className="text-2xl font-semibold text-[#1f2a24] text-center mb-2">تعيين كلمة مرور جديدة</h1>
+        <p className="text-[#6d746d] text-sm text-center mb-6">
+          اختر كلمة مرور آمنة لحساب المنشأة.
+        </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-[#4d554e] mb-1">
               كلمة المرور الجديدة
             </label>
             <input
               {...register("new_password")}
               type="password"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2.5 bg-[#fbf7f0]/80 border border-[#d8c8b3] rounded-full text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
               dir="ltr"
             />
             {errors.new_password && (
@@ -63,13 +70,13 @@ export default function ResetPasswordPage() {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-[#4d554e] mb-1">
               تأكيد كلمة المرور
             </label>
             <input
               {...register("confirm_password")}
               type="password"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2.5 bg-[#fbf7f0]/80 border border-[#d8c8b3] rounded-full text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
               dir="ltr"
             />
             {errors.confirm_password && (
@@ -79,7 +86,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full bg-[#1f2a24] hover:bg-brand-800 text-[#fbf7f0] font-semibold py-2.5 rounded-full flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             إعادة التعيين

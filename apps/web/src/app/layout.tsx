@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "سوق الصيدليات | Pharmacy Near-Expiry Marketplace",
-  description: "منصة لبيع وشراء الأدوية قرب انتهاء الصلاحية بين الصيدليات",
+  title: "MedSave | منصة تداول مخزون الصيدليات",
+  description: "منصة سعودية عملية لإدارة وتداول مخزون الصيدليات المرخصة قبل انتهاء الصلاحية",
   icons: {
     icon: "/medsave-logo.png",
     apple: "/medsave-logo.png",

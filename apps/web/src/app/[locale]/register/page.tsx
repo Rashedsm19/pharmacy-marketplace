@@ -34,9 +34,9 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const STEPS = [
-  { id: 1, label: "معلومات المستخدم" },
-  { id: 2, label: "معلومات المنظمة" },
-  { id: 3, label: "معلومات الفرع" },
+  { id: 1, label: "بيانات المفوّض" },
+  { id: 2, label: "بيانات المنشأة" },
+  { id: 3, label: "بيانات الفرع" },
 ];
 
 export default function RegisterPage() {
@@ -73,8 +73,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-app-shell flex items-center justify-center overflow-x-hidden p-4" dir="rtl">
+      <div className="w-[calc(100vw-2rem)] max-w-lg min-w-0 bg-[#fffdf9]/95 rounded-3xl shadow-lift ring-1 ring-[#e2d4bf] p-8">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-6">
           <BrandLogo size="md" />
@@ -85,22 +85,22 @@ export default function RegisterPage() {
           {STEPS.map((s) => (
             <div key={s.id} className="flex items-center gap-2">
               <div
-                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                   step > s.id
-                    ? "bg-green-500 text-white"
+                    ? "bg-brand-600 text-white"
                     : step === s.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-500"
+                    ? "bg-[#1f2a24] text-[#fbf7f0]"
+                    : "bg-[#f4eadf] text-[#9a8b77]"
                 }`}
               >
                 {step > s.id ? <Check className="h-4 w-4" /> : s.id}
               </div>
-              {s.id < 3 && <div className={`h-0.5 w-8 ${step > s.id ? "bg-green-500" : "bg-gray-200"}`} />}
+              {s.id < 3 && <div className={`h-0.5 w-8 ${step > s.id ? "bg-brand-600" : "bg-[#eadfcc]"}`} />}
             </div>
           ))}
         </div>
 
-        <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
+        <h2 className="text-lg font-semibold text-[#1f2a24] mb-4 text-center">
           {STEPS[step - 1].label}
         </h2>
 
@@ -171,7 +171,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep((s) => s - 1)}
-                className="flex-1 border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg flex items-center justify-center gap-1 hover:bg-gray-50"
+                className="flex-1 border border-[#cdbda8] text-[#4d554e] font-medium py-2.5 rounded-full flex items-center justify-center gap-1 hover:bg-[#f4eadf]"
               >
                 <ChevronLeft className="h-4 w-4" />
                 السابق
@@ -181,7 +181,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-1"
+                className="flex-1 bg-[#1f2a24] hover:bg-brand-800 text-[#fbf7f0] font-semibold py-2.5 rounded-full flex items-center justify-center gap-1"
               >
                 التالي
                 <ChevronRight className="h-4 w-4" />
@@ -190,7 +190,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 disabled:opacity-60"
+                className="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-full flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                 إنشاء الحساب
@@ -199,9 +199,9 @@ export default function RegisterPage() {
           </div>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm text-[#6d746d] mt-4">
           لديك حساب بالفعل؟{" "}
-          <Link href={`/${locale}/login`} className="text-blue-600 font-medium hover:underline">
+          <Link href={`/${locale}/login`} className="text-brand-700 font-medium hover:underline">
             تسجيل الدخول
           </Link>
         </p>
@@ -211,7 +211,7 @@ export default function RegisterPage() {
 }
 
 const inputCls =
-  "w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
+  "w-full px-4 py-2.5 bg-[#fbf7f0]/80 border border-[#d8c8b3] rounded-full text-sm text-[#1f2a24] placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500";
 
 function Field({
   label,
@@ -224,7 +224,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-[#4d554e] mb-1">{label}</label>
       {children}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>

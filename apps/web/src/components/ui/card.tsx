@@ -11,13 +11,13 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 const variants: Record<Variant, string> = {
   default:
-    "bg-white ring-1 ring-slate-200/70 shadow-soft rounded-2xl",
+    "bg-white/90 ring-1 ring-[#e1d3c0] shadow-soft rounded-2xl",
   elevated:
-    "bg-white ring-1 ring-slate-200/70 shadow-lift rounded-2xl",
+    "bg-white/95 ring-1 ring-[#e1d3c0] shadow-lift rounded-2xl",
   ghost:
     "bg-transparent rounded-2xl",
   outline:
-    "bg-white ring-1 ring-slate-200 rounded-2xl",
+    "bg-white/80 ring-1 ring-[#d8c8b3] rounded-2xl",
 };
 
 export function Card({ className, variant = "default", ...props }: CardProps) {
@@ -49,12 +49,12 @@ export function CardHeader({
       >
         <div className="min-w-0">
           {title && (
-            <h2 className="font-semibold text-slate-900 text-base leading-tight">
+            <h2 className="font-semibold text-[#1f2a24] text-base leading-tight">
               {title}
             </h2>
           )}
           {subtitle && (
-            <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+            <p className="text-xs text-[#6d746d] mt-0.5">{subtitle}</p>
           )}
         </div>
         {action && <div className="flex-shrink-0">{action}</div>}
@@ -86,7 +86,7 @@ export function CardFooter({
   return (
     <div
       className={cn(
-        "px-5 sm:px-6 py-4 border-t border-slate-100",
+        "px-5 sm:px-6 py-4 border-t border-[#eadfcc]",
         className
       )}
       {...props}

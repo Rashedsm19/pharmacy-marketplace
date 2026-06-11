@@ -48,9 +48,9 @@ const toneClasses: Record<Tone, { halo: string; icon: string; ring: string }> = 
     ring: "ring-rose-100",
   },
   slate: {
-    halo: "bg-slate-100",
-    icon: "text-slate-600",
-    ring: "ring-slate-200",
+    halo: "bg-[#f4eadf]",
+    icon: "text-[#6d746d]",
+    ring: "ring-[#e2d4bf]",
   },
 };
 
@@ -67,7 +67,7 @@ export function KpiCard({
   return (
     <div
       className={cn(
-        "group relative bg-white ring-1 ring-slate-200/70 shadow-soft rounded-2xl p-5 transition-all duration-200 hover:shadow-card hover:ring-slate-300/70",
+        "group relative bg-white/90 ring-1 ring-[#e1d3c0] shadow-soft rounded-2xl p-5 transition-all duration-200 hover:shadow-card hover:ring-[#cdbda8]",
         className
       )}
     >
@@ -84,10 +84,10 @@ export function KpiCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide truncate">
+          <p className="text-xs font-medium text-[#6d746d] uppercase tracking-normal truncate">
             {label}
           </p>
-          <p className="kpi-value mt-1 text-2xl sm:text-[1.75rem] font-bold text-slate-900 leading-tight">
+          <p className="kpi-value mt-1 text-2xl sm:text-[1.75rem] font-semibold text-[#1f2a24] leading-tight">
             {value}
           </p>
           {(hint || trend) && (
@@ -98,7 +98,7 @@ export function KpiCard({
                     "inline-flex items-center gap-0.5 font-medium",
                     trend.direction === "up" && "text-emerald-600",
                     trend.direction === "down" && "text-rose-600",
-                    trend.direction === "flat" && "text-slate-500"
+                    trend.direction === "flat" && "text-[#6d746d]"
                   )}
                 >
                   {trend.direction === "up" && <TrendingUp className="h-3 w-3" />}
@@ -108,7 +108,7 @@ export function KpiCard({
                   {trend.value}
                 </span>
               )}
-              {hint && <span className="text-slate-500">{hint}</span>}
+              {hint && <span className="text-[#6d746d]">{hint}</span>}
             </div>
           )}
         </div>

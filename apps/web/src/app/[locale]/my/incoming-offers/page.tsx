@@ -70,45 +70,45 @@ export default function IncomingOffersPage() {
         <PageHeader
           title={
             <span className="inline-flex items-center gap-3">
-              العروض الواردة
+              طلبات الشراء الواردة
               {pendingCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-gold-50 text-gold-700 ring-1 ring-inset ring-gold-200 text-xs font-semibold rounded-full tabular-nums">
+                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-gold-50 text-gold-800 ring-1 ring-inset ring-gold-200 text-xs font-semibold rounded-full tabular-nums">
                   {pendingCount} جديد
                 </span>
               )}
             </span>
           }
-          subtitle="عروض شراء واردة من صيدليات أخرى — اقبل أو ارفض"
+          subtitle="راجع طلبات الشراء الواردة من منشآت مرخصة واتخذ القرار المناسب"
         />
 
-        <div className="bg-white ring-1 ring-slate-200/70 shadow-soft rounded-2xl overflow-hidden">
+        <div className="bg-white/90 ring-1 ring-[#e1d3c0] shadow-soft rounded-2xl overflow-hidden">
           {isLoading ? (
             <div className="p-5 space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-12 bg-slate-50 rounded-lg animate-pulse" />
+                <div key={i} className="h-12 bg-[#f0e4d4] rounded-lg animate-pulse" />
               ))}
             </div>
           ) : offers.length === 0 ? (
             <EmptyState
               icon={Bell}
-              title="لا توجد عروض واردة"
-              description="ستظهر هنا فور وصول عرض على أحد إعلاناتك"
+              title="لا توجد طلبات واردة"
+              description="ستظهر هنا طلبات الشراء عند ورودها على عروضك المنشورة"
             />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm tabular-nums min-w-[760px]">
-                <thead className="bg-slate-50/60 border-b border-slate-100">
+                <thead className="bg-[#f7efe3] border-b border-[#eadfcc]">
                   <tr>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">الإعلان</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500 hidden md:table-cell">المشتري</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">السعر</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">الكمية</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500 hidden lg:table-cell">التاريخ</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">الحالة</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">إجراءات</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">العرض</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58] hidden md:table-cell">المشتري</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">السعر</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">الكمية</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58] hidden lg:table-cell">التاريخ</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">الحالة</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">إجراءات</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100/80">
+                <tbody className="divide-y divide-[#eadfcc]/80">
                   {offers.map((offer: {
                     id: string;
                     listing_id: string;
@@ -124,31 +124,31 @@ export default function IncomingOffersPage() {
                   }) => (
                     <tr
                       key={offer.id}
-                      className={`hover:bg-slate-50/60 transition-colors ${
-                        offer.status === "pending" ? "bg-brand-50/30" : ""
+                      className={`hover:bg-[#fbf7f0]/70 transition-colors ${
+                        offer.status === "pending" ? "bg-[#eafbf8]/55" : ""
                       }`}
                     >
                       <td className="px-4 py-3">
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-medium text-[#1f2a24]">
                             {offer.listing_product_name_ar ?? offer.listing_product_name ?? "—"}
                           </p>
                           {offer.message && (
                             <div className="flex items-center gap-1 mt-0.5">
-                              <MessageSquare className="h-3 w-3 text-slate-400" />
-                              <p className="text-xs text-slate-400 truncate max-w-36">
+                              <MessageSquare className="h-3 w-3 text-[#9a8b77]" />
+                              <p className="text-xs text-[#9a8b77] truncate max-w-36">
                                 {offer.message}
                               </p>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-slate-600 hidden md:table-cell">{offer.buyer_org_name ?? "—"}</td>
-                      <td className="px-4 py-3 text-brand-700 font-semibold">
+                      <td className="px-4 py-3 text-[#6d746d] hidden md:table-cell">{offer.buyer_org_name ?? "—"}</td>
+                      <td className="px-4 py-3 text-brand-800 font-semibold">
                         {formatCurrency(offer.offered_price)}
                       </td>
-                      <td className="px-4 py-3 text-slate-700">{offer.quantity}</td>
-                      <td className="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">
+                      <td className="px-4 py-3 text-[#4d554e]">{offer.quantity}</td>
+                      <td className="px-4 py-3 text-[#6d746d] text-xs hidden lg:table-cell">
                         {formatDate(offer.created_at, "ar-SA")}
                       </td>
                       <td className="px-4 py-3">
@@ -160,15 +160,15 @@ export default function IncomingOffersPage() {
                         <div className="flex items-center gap-1">
                           <Link
                             href={`/${locale}/marketplace/${offer.listing_id}`}
-                            className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                            title="عرض الإعلان"
+                            className="h-8 w-8 inline-flex items-center justify-center rounded-full text-[#6d746d] hover:bg-[#f4eadf] hover:text-[#1f2a24]"
+                            title="عرض التفاصيل"
                           >
                             <Eye className="h-4 w-4" />
                           </Link>
                           {offer.status === "pending" && (
                             <>
                               {processingId === offer.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin text-slate-400 mx-1" />
+                                <Loader2 className="h-4 w-4 animate-spin text-[#9a8b77] mx-1" />
                               ) : (
                                 <>
                                   <button
@@ -176,7 +176,7 @@ export default function IncomingOffersPage() {
                                       setProcessingId(offer.id);
                                       acceptOffer.mutate(offer.id);
                                     }}
-                                    className="h-8 w-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 ring-1 ring-inset ring-emerald-200"
+                                    className="h-8 w-8 inline-flex items-center justify-center rounded-full bg-brand-50 text-brand-700 hover:bg-brand-100 ring-1 ring-inset ring-brand-200"
                                     title="قبول"
                                   >
                                     <CheckCircle className="h-4 w-4" />
@@ -186,7 +186,7 @@ export default function IncomingOffersPage() {
                                       setProcessingId(offer.id);
                                       rejectOffer.mutate(offer.id);
                                     }}
-                                    className="h-8 w-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 ring-1 ring-inset ring-rose-200"
+                                    className="h-8 w-8 inline-flex items-center justify-center rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 ring-1 ring-inset ring-rose-200"
                                     title="رفض"
                                   >
                                     <XCircle className="h-4 w-4" />
@@ -211,18 +211,18 @@ export default function IncomingOffersPage() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               aria-label="السابق"
-              className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-full ring-1 ring-[#d8c8b3] text-[#6d746d] hover:bg-[#f7efe3] disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
-            <span className="text-sm text-slate-600 px-3 tabular-nums">
+            <span className="text-sm text-[#6d746d] px-3 tabular-nums">
               صفحة {page} من {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               aria-label="التالي"
-              className="h-9 w-9 inline-flex items-center justify-center rounded-lg ring-1 ring-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-full ring-1 ring-[#d8c8b3] text-[#6d746d] hover:bg-[#f7efe3] disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>

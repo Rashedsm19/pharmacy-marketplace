@@ -37,27 +37,27 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-app-shell flex items-center justify-center overflow-x-hidden p-4" dir="rtl">
+      <div className="w-[calc(100vw-2rem)] max-w-md min-w-0 bg-[#fffdf9]/95 rounded-3xl shadow-lift ring-1 ring-[#e2d4bf] p-8">
         <div className="flex items-center justify-center gap-3 mb-8">
           <BrandLogo size="md" />
         </div>
 
         {!sent ? (
           <>
-            <h1 className="text-2xl font-bold text-center mb-2">نسيت كلمة المرور؟</h1>
-            <p className="text-gray-500 text-sm text-center mb-6">
-              أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين
+            <h1 className="text-2xl font-semibold text-[#1f2a24] text-center mb-2">استعادة الوصول</h1>
+            <p className="text-[#6d746d] text-sm text-center mb-6 leading-relaxed">
+              أدخل البريد المعتمد لدى المنشأة لإرسال رابط إعادة تعيين آمن.
             </p>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#4d554e] mb-1">
                   البريد الإلكتروني
                 </label>
                 <input
                   {...register("email")}
                   type="email"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 bg-[#fbf7f0]/80 border border-[#d8c8b3] rounded-full text-sm placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500"
                   placeholder="example@pharmacy.sa"
                   dir="ltr"
                 />
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full bg-[#1f2a24] hover:bg-brand-800 text-[#fbf7f0] font-semibold py-2.5 rounded-full flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                 إرسال الرابط
@@ -77,16 +77,16 @@ export default function ForgotPasswordPage() {
           </>
         ) : (
           <div className="text-center">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">تم الإرسال!</h2>
-            <p className="text-gray-600 mb-6">
+            <CheckCircle className="h-16 w-16 text-brand-600 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-[#1f2a24] mb-2">تم إرسال الطلب</h2>
+            <p className="text-[#6d746d] mb-6">
               إذا كان البريد الإلكتروني مسجلاً، ستصلك رسالة تحتوي على رابط إعادة التعيين.
             </p>
           </div>
         )}
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          <Link href={`/${locale}/login`} className="text-blue-600 hover:underline">
+        <p className="text-center text-sm text-[#6d746d] mt-4">
+          <Link href={`/${locale}/login`} className="text-brand-700 hover:underline">
             العودة لتسجيل الدخول
           </Link>
         </p>

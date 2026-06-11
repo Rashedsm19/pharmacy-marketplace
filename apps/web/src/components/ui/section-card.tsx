@@ -25,20 +25,20 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "bg-white ring-1 ring-slate-200/70 shadow-soft rounded-2xl overflow-hidden",
+        "bg-white/90 ring-1 ring-[#e1d3c0] shadow-soft rounded-2xl overflow-hidden",
         className
       )}
     >
       {(title || action) && (
-        <header className="flex items-start justify-between gap-3 px-5 sm:px-6 pt-5 pb-4 border-b border-slate-100/80">
+        <header className="flex items-start justify-between gap-3 px-5 sm:px-6 pt-5 pb-4 border-b border-[#eadfcc]">
           <div className="min-w-0">
             {title && (
-              <h2 className="font-semibold text-slate-900 text-base leading-tight">
+              <h2 className="font-semibold text-[#1f2a24] text-base leading-tight">
                 {title}
               </h2>
             )}
             {subtitle && (
-              <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+              <p className="text-xs text-[#6d746d] mt-0.5">{subtitle}</p>
             )}
           </div>
           {action && <div className="flex-shrink-0">{action}</div>}

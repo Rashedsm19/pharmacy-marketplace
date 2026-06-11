@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 36 58% 96%;
+    --foreground: 144 12% 14%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    /* Primary now matches our brand indigo (#4F46E5) */
-    --primary: 244 75% 59%;
+    /* Primary matches MedSave teal */
+    --primary: 177 88% 34%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -23,8 +23,15 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 244 75% 59%;
+    --ring: 177 88% 34%;
     --radius: 0.75rem;
+    --brand-bg: #fbf7f0;
+    --brand-bg-2: #f4eadf;
+    --brand-ink: #1f2a24;
+    --brand-ink-2: #6d746d;
+    --brand-gold: #d99b16;
+    --brand-olive: #68794f;
+    --brand-hairline: rgba(76, 61, 41, 0.16);
   }
 
   .dark {
@@ -34,7 +41,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 244 80% 70%;
+    --primary: 177 70% 44%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -46,7 +53,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 244 80% 70%;
+    --ring: 177 70% 44%;
   }
 }
 
@@ -66,6 +73,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "ss01", "cv11";
+    color: var(--brand-ink);
   }
 
   /* Tabular numerals for tables, prices, KPIs */
@@ -80,7 +88,7 @@
   /* Polished, accessible focus ring */
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22);
+    box-shadow: 0 0 0 4px rgba(10, 163, 155, 0.2);
     border-radius: 0.5rem;
   }
 
@@ -124,9 +132,14 @@
 /* Subtle gradient page background */
 .bg-app-shell {
   background-image: radial-gradient(
-      80% 60% at 50% 0%,
-      rgba(99, 102, 241, 0.06) 0%,
-      rgba(99, 102, 241, 0) 60%
+      70% 52% at 50% 0%,
+      rgba(217, 155, 22, 0.13) 0%,
+      rgba(217, 155, 22, 0) 58%
     ),
-    linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+    radial-gradient(
+      54% 42% at 0% 100%,
+      rgba(10, 163, 155, 0.08) 0%,
+      rgba(10, 163, 155, 0) 56%
+    ),
+    linear-gradient(180deg, #fbf7f0 0%, #fffdf9 100%);
 }

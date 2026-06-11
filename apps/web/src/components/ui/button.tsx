@@ -15,21 +15,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed select-none whitespace-nowrap focus-visible:outline-none";
+  "inline-flex items-center justify-center gap-2 font-medium rounded-full transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed select-none whitespace-nowrap focus-visible:outline-none";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-sm hover:shadow-card",
+    "bg-[#1f2a24] text-[#fbf7f0] hover:bg-brand-800 active:bg-brand-900 shadow-sm hover:shadow-card",
   secondary:
-    "bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300 ring-1 ring-inset ring-slate-200",
+    "bg-surface-subtle text-[#1f2a24] hover:bg-surface-muted active:bg-surface-muted ring-1 ring-inset ring-[#d9c9b5]",
   ghost:
-    "bg-transparent text-slate-700 hover:bg-slate-100 active:bg-slate-200",
+    "bg-transparent text-[#4d554e] hover:bg-surface-subtle active:bg-surface-muted",
   outline:
-    "bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100 ring-1 ring-inset ring-slate-300",
+    "bg-white/80 text-[#1f2a24] hover:bg-surface-subtle active:bg-surface-muted ring-1 ring-inset ring-[#cdbda8]",
   danger:
     "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-sm",
   gold:
-    "bg-gold-500 text-white hover:bg-gold-600 active:bg-gold-700 shadow-sm hover:shadow-card",
+    "bg-gold-500 text-[#1f2a24] hover:bg-gold-600 active:bg-gold-700 shadow-sm hover:shadow-card",
 };
 
 const sizes: Record<Size, string> = {

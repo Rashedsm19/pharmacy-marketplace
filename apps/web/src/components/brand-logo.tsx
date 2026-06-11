@@ -21,24 +21,24 @@ const sizes: Record<
 > = {
   sm: {
     root: "gap-2.5",
-    mark: "h-9 w-9 rounded-xl",
+    mark: "h-9 w-9 rounded-2xl",
     title: "text-sm",
     subtitle: "text-[10px]",
     imageSizes: "36px",
   },
   md: {
     root: "gap-3",
-    mark: "h-11 w-11 rounded-2xl",
+    mark: "h-12 w-12 rounded-2xl",
     title: "text-base",
     subtitle: "text-[11px]",
-    imageSizes: "44px",
+    imageSizes: "48px",
   },
   lg: {
     root: "gap-3.5",
-    mark: "h-14 w-14 rounded-2xl",
+    mark: "h-16 w-16 rounded-2xl",
     title: "text-xl",
     subtitle: "text-xs",
-    imageSizes: "56px",
+    imageSizes: "64px",
   },
 };
 
@@ -49,7 +49,7 @@ export default function BrandLogo({ compact = false, size = "md", className }: B
     <div className={cn("flex items-center min-w-0", current.root, className)}>
       <div
         className={cn(
-          "relative flex shrink-0 items-center justify-center overflow-hidden bg-white shadow-sm ring-1 ring-slate-200/80",
+          "relative flex shrink-0 items-center justify-center overflow-hidden bg-white shadow-sm ring-1 ring-[#e2d4bf]",
           current.mark
         )}
       >
@@ -65,11 +65,11 @@ export default function BrandLogo({ compact = false, size = "md", className }: B
       </div>
       {!compact && (
         <div className="min-w-0 text-right">
-          <p className={cn("font-bold text-slate-900 leading-tight truncate", current.title)}>
+          <p className={cn("font-semibold text-[#1f2a24] leading-tight truncate", current.title)}>
             MedSave
           </p>
-          <p className={cn("font-medium text-slate-500 leading-tight truncate", current.subtitle)}>
-            سوق الصيدليات
+          <p className={cn("font-medium text-[#6d746d] leading-tight truncate", current.subtitle)}>
+            منصة تداول مخزون الصيدليات
           </p>
         </div>
       )}

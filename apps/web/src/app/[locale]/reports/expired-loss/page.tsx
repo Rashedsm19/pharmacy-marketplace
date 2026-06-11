@@ -43,7 +43,7 @@ export default function ExpiredLossReportPage() {
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             {[currentYear, currentYear - 1, currentYear - 2].map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -52,7 +52,7 @@ export default function ExpiredLossReportPage() {
           <select
             value={month}
             onChange={(e) => setMonth(e.target.value ? Number(e.target.value) : "")}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">جميع الأشهر</option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
@@ -105,7 +105,7 @@ export default function ExpiredLossReportPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-16 text-gray-500">لا توجد دفعات منتهية في هذه الفترة</div>

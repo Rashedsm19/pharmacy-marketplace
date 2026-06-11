@@ -54,10 +54,10 @@ export default function AdminApprovalsPage() {
         <PageHeader
           title={
             <span className="inline-flex items-center gap-3">
-              <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-violet-600" />
+              <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-gold-600" />
               طلبات الموافقة
               {data?.total ? (
-                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200 text-xs font-semibold rounded-full tabular-nums">
+                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-gold-50 text-gold-700 ring-1 ring-inset ring-gold-200 text-xs font-semibold rounded-full tabular-nums">
                   {data.total}
                 </span>
               ) : null}

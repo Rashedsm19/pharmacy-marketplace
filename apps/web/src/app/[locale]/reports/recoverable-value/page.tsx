@@ -169,13 +169,13 @@ export default function RecoverableValueReportPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm tabular-nums min-w-[680px]">
-                <thead className="bg-slate-50/60 border-b border-slate-100">
+                <thead className="bg-[#f7efe3] border-b border-[#eadfcc]">
                   <tr>
-                    <th className="text-right px-5 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">المنتج</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500 hidden sm:table-cell">الفرع</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">الكمية</th>
-                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">القيمة التقديرية</th>
-                    <th className="text-right px-5 py-3 text-[11px] uppercase tracking-wider font-semibold text-slate-500">الحالة</th>
+                    <th className="text-right px-5 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">المنتج</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58] hidden sm:table-cell">الفرع</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">الكمية</th>
+                    <th className="text-right px-4 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">القيمة التقديرية</th>
+                    <th className="text-right px-5 py-3 text-[11px] uppercase tracking-normal font-semibold text-[#7d6d58]">الحالة</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/80">

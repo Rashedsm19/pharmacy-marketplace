@@ -84,7 +84,7 @@ export default function BranchesPage() {
           <h1 className="text-2xl font-bold text-gray-900">الفروع</h1>
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
           >
             <Plus className="h-4 w-4" />
             فرع جديد
@@ -93,7 +93,7 @@ export default function BranchesPage() {
 
         {/* Add form */}
         {showAddForm && (
-          <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-6 space-y-4">
+          <div className="bg-white rounded-xl shadow-sm border border-brand-200 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-gray-900">إضافة فرع جديد</h2>
               <button onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-gray-600">
@@ -111,7 +111,7 @@ export default function BranchesPage() {
               <button
                 onClick={addForm.handleSubmit((d) => createBranch.mutate(d))}
                 disabled={createBranch.isPending}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60"
+                className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60"
               >
                 {createBranch.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 إنشاء الفرع
@@ -123,14 +123,14 @@ export default function BranchesPage() {
         {/* Branch list */}
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
           </div>
         ) : branchList.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-16 text-center">
             <p className="text-gray-500 mb-4">لا توجد فروع</p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="text-brand-600 hover:text-brand-700 text-sm font-medium"
             >
               إضافة فرع الآن
             </button>
@@ -170,7 +170,7 @@ export default function BranchesPage() {
                       <button
                         onClick={editForm.handleSubmit((d) => updateBranch.mutate({ id: branch.id, data: d }))}
                         disabled={updateBranch.isPending}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60"
+                        className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60"
                       >
                         {updateBranch.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                         حفظ
@@ -233,28 +233,28 @@ function BranchFormFields({ form }: { form: ReturnType<typeof useForm<BranchForm
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label className="text-sm text-gray-600 block mb-1">اسم الفرع (عربي) *</label>
-        <input {...register("name_ar")} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input {...register("name_ar")} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
         {errors.name_ar && <p className="text-red-500 text-xs mt-0.5">{errors.name_ar.message}</p>}
       </div>
       <div>
         <label className="text-sm text-gray-600 block mb-1">اسم الفرع (إنجليزي)</label>
-        <input {...register("name")} dir="ltr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input {...register("name")} dir="ltr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       </div>
       <div>
         <label className="text-sm text-gray-600 block mb-1">رقم الهاتف</label>
-        <input {...register("phone")} dir="ltr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input {...register("phone")} dir="ltr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       </div>
       <div>
         <label className="text-sm text-gray-600 block mb-1">مدير الفرع</label>
-        <input {...register("manager_name")} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input {...register("manager_name")} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       </div>
       <div className="sm:col-span-2">
         <label className="text-sm text-gray-600 block mb-1">العنوان</label>
-        <input {...register("address")} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input {...register("address")} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       </div>
       <div>
         <label className="text-sm text-gray-600 block mb-1">مساحة التخزين (م²)</label>
-        <input {...register("storage_area_sqm")} type="number" min="0" dir="ltr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input {...register("storage_area_sqm")} type="number" min="0" dir="ltr" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       </div>
       <div className="flex gap-4 items-center pt-5">
         <label className="flex items-center gap-2 cursor-pointer text-sm">

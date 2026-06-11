@@ -46,7 +46,7 @@ export default function NearExpiryReportPage() {
           <select
             value={branchId}
             onChange={(e) => setBranchId(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">جميع الفروع</option>
             {branchList.map((b: { id: string; name_ar?: string; name: string }) => (
@@ -56,7 +56,7 @@ export default function NearExpiryReportPage() {
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value={30}>خلال 30 يوم</option>
             <option value={90}>خلال 90 يوم</option>
@@ -106,7 +106,7 @@ export default function NearExpiryReportPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-16 text-gray-500">لا توجد دفعات قريبة الانتهاء</div>

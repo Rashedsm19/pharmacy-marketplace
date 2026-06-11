@@ -8,9 +8,9 @@ import { formatDate } from "@/lib/utils";
 import { Loader2, FileText, ChevronDown, ChevronUp } from "lucide-react";
 
 const ACTION_LABELS: Record<string, string> = {
-  listing_created: "إنشاء إعلان",
-  listing_cancelled: "إلغاء إعلان",
-  listing_updated: "تحديث إعلان",
+  listing_created: "إنشاء عرض",
+  listing_cancelled: "إلغاء عرض",
+  listing_updated: "تحديث عرض",
   offer_accepted: "قبول عرض",
   offer_rejected: "رفض عرض",
   org_approved: "قبول منشأة",
@@ -50,7 +50,7 @@ export default function AuditLogsPage() {
           <select
             value={action}
             onChange={(e) => { setAction(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">جميع الإجراءات</option>
             {Object.entries(ACTION_LABELS).map(([key, label]) => (
@@ -60,10 +60,10 @@ export default function AuditLogsPage() {
           <select
             value={entityType}
             onChange={(e) => { setEntityType(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">جميع الكيانات</option>
-            <option value="listing">إعلان</option>
+            <option value="listing">عرض</option>
             <option value="offer">عرض</option>
             <option value="organization">منشأة</option>
             <option value="transaction">معاملة</option>
@@ -75,7 +75,7 @@ export default function AuditLogsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : logs.length === 0 ? (
             <div className="text-center py-16 text-gray-500">لا توجد سجلات</div>

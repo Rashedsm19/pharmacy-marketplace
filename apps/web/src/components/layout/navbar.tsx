@@ -55,11 +55,11 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const unreadCount = countData?.count ?? 0;
 
   return (
-    <header className="h-16 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-slate-200/70 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20">
+    <header className="h-16 bg-[#fffdf9]/88 backdrop-blur supports-[backdrop-filter]:bg-[#fffdf9]/76 border-b border-[#e2d4bf] flex items-center justify-between px-3 sm:px-6 sticky top-0 z-20">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}
-          className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 md:hidden"
+          className="p-2 rounded-full hover:bg-[#f4eadf] text-[#5f665f] md:hidden"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
@@ -70,7 +70,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Language toggle */}
         <Link
           href={locale === "ar" ? "/en/dashboard" : "/ar/dashboard"}
-          className="hidden sm:inline-flex h-9 items-center px-3 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+          className="hidden sm:inline-flex h-9 items-center px-3 text-xs font-medium text-[#5f665f] hover:text-[#1f2a24] rounded-full hover:bg-[#f4eadf] transition-colors"
         >
           {locale === "ar" ? "EN" : "عربي"}
         </Link>
@@ -78,12 +78,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Notifications */}
         <Link
           href={`/${locale}/notifications`}
-          className="relative h-9 w-9 inline-flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
+          className="relative h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-[#f4eadf] text-[#5f665f] transition-colors"
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-gold-500 text-white text-[10px] font-semibold rounded-full flex items-center justify-center ring-2 ring-white">
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-gold-500 text-[#1f2a24] text-[10px] font-semibold rounded-full flex items-center justify-center ring-2 ring-white">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -93,30 +93,30 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setUserMenuOpen((v) => !v)}
-            className="flex items-center gap-2 h-9 px-1.5 sm:pl-3 rounded-lg hover:bg-slate-100 transition-colors"
+            className="flex items-center gap-2 h-9 px-1.5 sm:pl-3 rounded-full hover:bg-[#f4eadf] transition-colors"
             aria-haspopup="menu"
             aria-expanded={userMenuOpen}
           >
-            <div className="h-7 w-7 bg-gradient-to-br from-brand-500 to-brand-700 rounded-full flex items-center justify-center text-white text-xs font-semibold shadow-sm">
+            <div className="h-7 w-7 bg-[#1f2a24] rounded-full flex items-center justify-center text-[#fbf7f0] text-xs font-semibold shadow-sm">
               {initials}
             </div>
             {user && (
-              <span className="hidden sm:inline text-sm font-medium text-slate-700 max-w-[140px] truncate">
+              <span className="hidden sm:inline text-sm font-medium text-[#4d554e] max-w-[140px] truncate">
                 {user.full_name}
               </span>
             )}
           </button>
 
           {userMenuOpen && (
-            <div className="absolute left-0 mt-2 w-56 max-w-[calc(100vw-1rem)] bg-white rounded-xl shadow-lift ring-1 ring-slate-200 py-1.5 z-50 animate-fade-in">
+            <div className="absolute left-0 mt-2 w-56 max-w-[calc(100vw-1rem)] bg-[#fffdf9] rounded-2xl shadow-lift ring-1 ring-[#e2d4bf] py-1.5 z-50 animate-fade-in">
               {user && (
-                <div className="px-3 py-2 border-b border-slate-100">
-                  <p className="text-sm font-medium text-slate-900 truncate">
+                <div className="px-3 py-2 border-b border-[#eadfcc]">
+                  <p className="text-sm font-medium text-[#1f2a24] truncate">
                     {user.full_name}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                  <p className="text-xs text-[#6d746d] truncate">{user.email}</p>
                   {user.role && (
-                    <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-100 text-[10px] font-semibold">
+                    <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-[#f4eadf] text-[#1f2a24] ring-1 ring-inset ring-[#e2d4bf] text-[10px] font-semibold">
                       {user.role === "super_admin"
                         ? "مدير المنصة"
                         : user.role === "org_admin"
@@ -131,9 +131,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               <Link
                 href={`/${locale}/org/profile`}
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#4d554e] hover:bg-[#fbf7f0]"
               >
-                <User className="h-4 w-4 text-slate-400" />
+                <User className="h-4 w-4 text-[#9a8b77]" />
                 <span>{t("profile") ?? "الملف الشخصي"}</span>
               </Link>
               <button

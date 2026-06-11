@@ -29,7 +29,7 @@ export default function BranchDetailPage() {
     return (
       <Shell>
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
         </div>
       </Shell>
     );
@@ -78,7 +78,7 @@ export default function BranchDetailPage() {
           {/* Storage compliance */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
+              <Shield className="h-5 w-5 text-brand-600" />
               <h2 className="font-semibold text-gray-900">الامتثال التخزيني</h2>
             </div>
 
@@ -135,7 +135,7 @@ export default function BranchDetailPage() {
               { label: "إجمالي الدفعات", value: batchStats?.total ?? branch.batch_count ?? 0 },
               { label: "الدفعات النشطة", value: branch.active_batch_count ?? "—" },
               { label: "قريبة الانتهاء", value: branch.near_expiry_count ?? "—" },
-              { label: "الإعلانات النشطة", value: branch.active_listings_count ?? "—" },
+              { label: "العروض النشطة", value: branch.active_listings_count ?? "—" },
             ].map((item) => (
               <div key={item.label} className="bg-gray-50 rounded-lg p-3">
                 <p className="text-gray-400 text-xs">{item.label}</p>
@@ -154,7 +154,7 @@ export default function BranchDetailPage() {
           </Link>
           <Link
             href={`/${locale}/inventory/near-expiry?branch_id=${id}`}
-            className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium"
+            className="flex-1 text-center bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-lg text-sm font-medium"
           >
             الدفعات قريبة الانتهاء
           </Link>

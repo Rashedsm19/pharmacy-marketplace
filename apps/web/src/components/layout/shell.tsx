@@ -23,7 +23,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden bg-app-shell" dir="rtl">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-30 md:hidden animate-fade-in"
+          className="fixed inset-0 bg-[#1f2a24]/32 backdrop-blur-sm z-30 md:hidden animate-fade-in"
           onClick={close}
           aria-hidden
         />

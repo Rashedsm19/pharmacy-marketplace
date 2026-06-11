@@ -48,39 +48,39 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 sm:p-6"
+      className="min-h-screen flex items-center justify-center overflow-x-hidden p-4 sm:p-6 bg-app-shell"
       style={{
         background:
-          "radial-gradient(60% 50% at 80% 0%, rgba(99,102,241,0.10) 0%, rgba(99,102,241,0) 50%), radial-gradient(50% 40% at 0% 100%, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0) 50%), linear-gradient(180deg, #FAFBFC 0%, #FFFFFF 100%)",
+          "radial-gradient(60% 48% at 80% 0%, rgba(217,155,22,0.13) 0%, rgba(217,155,22,0) 52%), radial-gradient(48% 38% at 0% 100%, rgba(10,163,155,0.09) 0%, rgba(10,163,155,0) 54%), linear-gradient(180deg, #FBF7F0 0%, #FFFDF9 100%)",
       }}
       dir="rtl"
     >
-      <div className="w-full max-w-md">
+      <div className="w-[calc(100vw-2rem)] max-w-md min-w-0">
         {/* Brand lockup */}
         <div className="flex items-center justify-center gap-3 mb-7">
           <BrandLogo size="lg" />
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-lift ring-1 ring-slate-200/70 p-7 sm:p-8">
+        <div className="bg-[#fffdf9]/95 rounded-3xl shadow-lift ring-1 ring-[#e2d4bf] p-7 sm:p-8">
           <div className="mb-6">
-            <h1 className="text-xl font-bold text-slate-900">
-              {t("login")}
+            <h1 className="text-xl font-semibold text-[#1f2a24]">
+              دخول المنشآت المعتمدة
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              سجّل الدخول للوصول إلى لوحة التحكم
+            <p className="text-sm text-[#6d746d] mt-1 leading-relaxed">
+              أدِر المخزون القابل للتداول والعروض والتقارير التشغيلية من لوحة موحدة.
             </p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              <label className="block text-xs font-medium text-[#4d554e] mb-1.5">
                 {t("email")}
               </label>
               <input
                 type="email"
                 {...register("email")}
-                className="w-full h-11 px-4 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                className="w-full h-11 px-4 bg-[#fbf7f0]/80 ring-1 ring-inset ring-[#d8c8b3] rounded-full text-sm placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
                 placeholder="example@pharmacy.sa"
                 dir="ltr"
                 autoComplete="email"
@@ -92,12 +92,12 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium text-slate-700">
+                <label className="block text-xs font-medium text-[#4d554e]">
                   {t("password")}
                 </label>
                 <Link
                   href={`/${locale}/forgot-password`}
-                  className="text-xs text-brand-600 hover:text-brand-700 hover:underline"
+                  className="text-xs text-brand-700 hover:text-brand-800 hover:underline"
                 >
                   {t("forgotPassword")}
                 </Link>
@@ -105,7 +105,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 {...register("password")}
-                className="w-full h-11 px-4 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                className="w-full h-11 px-4 bg-[#fbf7f0]/80 ring-1 ring-inset ring-[#d8c8b3] rounded-full text-sm placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
                 placeholder="••••••••"
                 dir="ltr"
                 autoComplete="current-password"
@@ -127,11 +127,11 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-slate-600 mt-6">
+          <p className="text-center text-sm text-[#6d746d] mt-6">
             {t("noAccount")}{" "}
             <Link
               href={`/${locale}/register`}
-              className="text-brand-600 font-medium hover:text-brand-700 hover:underline"
+              className="text-brand-700 font-medium hover:text-brand-800 hover:underline"
             >
               {t("register")}
             </Link>
@@ -139,9 +139,9 @@ export default function LoginPage() {
         </div>
 
         {/* Trust hint */}
-        <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-slate-500">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-          <span>منصة B2B خاصة بالصيدليات المرخصة في المملكة</span>
+        <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-[#6d746d]">
+          <ShieldCheck className="h-3.5 w-3.5 text-brand-600" />
+          <span>منصة سعودية مخصصة للصيدليات والمنشآت الصحية المرخصة</span>
         </div>
       </div>
     </div>

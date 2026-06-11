@@ -7,7 +7,7 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const variants = {
   default:
-    "bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-200",
+    "bg-[#f4eadf] text-[#4d554e] ring-1 ring-inset ring-[#e2d4bf]",
   success:
     "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
   warning:
@@ -15,9 +15,9 @@ const variants = {
   danger:
     "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200",
   info:
-    "bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200",
+    "bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200",
   secondary:
-    "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200",
+    "bg-[#f7efe3] text-[#7b5411] ring-1 ring-inset ring-[#e5d2aa]",
   brand:
     "bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200",
   gold:

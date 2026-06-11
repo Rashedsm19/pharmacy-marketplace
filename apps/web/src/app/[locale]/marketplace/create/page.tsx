@@ -32,7 +32,7 @@ const listingSchema = z.object({
 type ListingFormData = z.infer<typeof listingSchema>;
 
 const inputCls =
-  "w-full h-10 px-3 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors";
+  "w-full h-10 px-3 bg-[#fbf7f0]/80 ring-1 ring-inset ring-[#d8c8b3] rounded-full text-sm placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors";
 
 export default function CreateListingPage() {
   const locale = useLocale();
@@ -86,10 +86,10 @@ export default function CreateListingPage() {
   const createListing = useMutation({
     mutationFn: (data: ListingFormData) => listingsApi.create(data),
     onSuccess: () => {
-      toast.success("تم إنشاء الإعلان بنجاح");
+      toast.success("تم نشر العرض بنجاح");
       router.push(`/${locale}/my/listings`);
     },
-    onError: () => toast.error("فشل إنشاء الإعلان"),
+    onError: () => toast.error("فشل نشر العرض"),
   });
 
   const onSubmit = (data: ListingFormData) => {
@@ -104,15 +104,15 @@ export default function CreateListingPage() {
     <Shell>
       <div className="space-y-6">
         <PageHeader
-          title="إنشاء إعلان جديد"
-          subtitle="اختر دفعة وعدّل تفاصيل العرض — النظام يفحص الأهلية تلقائياً"
+          title="نشر عرض جديد"
+          subtitle="اختر دفعة مؤهلة وحدد تفاصيل العرض، وسيتم فحص الأهلية تلقائياً قبل النشر"
           back={
             <Link
               href={`/${locale}/my/listings`}
-              className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900"
+              className="inline-flex items-center gap-1 text-xs text-[#6d746d] hover:text-[#1f2a24]"
             >
               <ArrowRight className="h-3.5 w-3.5" />
-              العودة لإعلاناتي
+              العودة للعروض المنشورة
             </Link>
           }
         />
@@ -124,8 +124,8 @@ export default function CreateListingPage() {
               <SectionCard title="اختيار الدفعة">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-medium text-slate-700 block mb-1.5">
-                      الدفعة المراد إدراجها <span className="text-rose-500">*</span>
+                    <label className="text-xs font-medium text-[#4d554e] block mb-1.5">
+                      الدفعة المراد عرضها <span className="text-rose-500">*</span>
                     </label>
                     <select
                       {...register("batch_id")}
@@ -160,27 +160,27 @@ export default function CreateListingPage() {
                   </div>
 
                   {selectedBatch && (
-                    <div className="bg-slate-50/60 ring-1 ring-slate-200/60 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div className="bg-[#f7efe3] ring-1 ring-[#eadfcc] rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">المنتج</p>
-                        <p className="font-semibold text-slate-900">
+                        <p className="text-[11px] uppercase tracking-normal text-[#7d6d58] mb-0.5">المنتج</p>
+                        <p className="font-semibold text-[#1f2a24]">
                           {selectedBatch.product_name_ar ?? selectedBatch.product_name}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">الكمية المتاحة</p>
-                        <p className="font-semibold text-slate-900 tabular-nums">
+                        <p className="text-[11px] uppercase tracking-normal text-[#7d6d58] mb-0.5">الكمية المتاحة</p>
+                        <p className="font-semibold text-[#1f2a24] tabular-nums">
                           {selectedBatch.quantity_on_hand} وحدة
                         </p>
                       </div>
                       <div>
-                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">تاريخ الانتهاء</p>
-                        <p className="font-semibold text-slate-900 tabular-nums">
+                        <p className="text-[11px] uppercase tracking-normal text-[#7d6d58] mb-0.5">تاريخ الانتهاء</p>
+                        <p className="font-semibold text-[#1f2a24] tabular-nums">
                           {formatDate(selectedBatch.expiry_date, "ar-SA")}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-0.5">حالة الانتهاء</p>
+                        <p className="text-[11px] uppercase tracking-normal text-[#7d6d58] mb-0.5">حالة الانتهاء</p>
                         {selectedBatch.days_until_expiry !== undefined && (
                           <ExpiryBadge daysUntilExpiry={selectedBatch.days_until_expiry} />
                         )}
@@ -190,11 +190,11 @@ export default function CreateListingPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="تفاصيل الإعلان">
+              <SectionCard title="تفاصيل العرض">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                      <label className="text-xs font-medium text-[#4d554e] block mb-1.5">
                         السعر المطلوب (ر.س) <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -210,7 +210,7 @@ export default function CreateListingPage() {
                       )}
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                      <label className="text-xs font-medium text-[#4d554e] block mb-1.5">
                         الكمية المعروضة <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -228,7 +228,7 @@ export default function CreateListingPage() {
                       )}
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                      <label className="text-xs font-medium text-[#4d554e] block mb-1.5">
                         أقل سعر مقبول (ر.س)
                       </label>
                       <input
@@ -241,8 +241,8 @@ export default function CreateListingPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1.5">
-                        تاريخ انتهاء الإعلان
+                      <label className="text-xs font-medium text-[#4d554e] block mb-1.5">
+                        تاريخ انتهاء العرض
                       </label>
                       <input
                         {...register("expires_at")}
@@ -254,14 +254,14 @@ export default function CreateListingPage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-700 block mb-1.5">
+                    <label className="text-xs font-medium text-[#4d554e] block mb-1.5">
                       وصف إضافي
                     </label>
                     <textarea
                       {...register("description")}
                       rows={3}
-                      placeholder="أضف وصفاً للإعلان..."
-                      className="w-full px-3 py-2 bg-slate-50/60 ring-1 ring-inset ring-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                      placeholder="أضف ملاحظات تشغيلية عن العرض..."
+                      className="w-full px-3 py-2 bg-[#fbf7f0]/80 ring-1 ring-inset ring-[#d8c8b3] rounded-2xl text-sm placeholder:text-[#9a8b77] focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-colors"
                     />
                   </div>
 
@@ -270,17 +270,17 @@ export default function CreateListingPage() {
                       <input
                         {...register("allow_offers")}
                         type="checkbox"
-                        className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                        className="h-4 w-4 rounded border-[#cdbda8] text-brand-600 focus:ring-brand-500"
                       />
-                      <span className="text-sm text-slate-700">قبول العروض</span>
+                      <span className="text-sm text-[#4d554e]">قبول طلبات التفاوض</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         {...register("allow_direct_purchase")}
                         type="checkbox"
-                        className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                        className="h-4 w-4 rounded border-[#cdbda8] text-brand-600 focus:ring-brand-500"
                       />
-                      <span className="text-sm text-slate-700">السماح بالشراء المباشر</span>
+                      <span className="text-sm text-[#4d554e]">السماح بالشراء المباشر</span>
                     </label>
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default function CreateListingPage() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href={`/${locale}/my/listings`}
-                  className="flex-1 inline-flex items-center justify-center h-11 rounded-lg ring-1 ring-inset ring-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="flex-1 inline-flex items-center justify-center h-11 rounded-full ring-1 ring-inset ring-[#cdbda8] bg-white/80 text-sm font-medium text-[#4d554e] hover:bg-[#f4eadf]"
                 >
                   إلغاء
                 </Link>
@@ -302,7 +302,7 @@ export default function CreateListingPage() {
                   loading={isSubmitting}
                   disabled={!eligibilityResult?.all_passed}
                 >
-                  نشر الإعلان
+                  نشر العرض
                 </Button>
               </div>
             </div>
@@ -320,13 +320,13 @@ export default function CreateListingPage() {
                   subtitle="10 قواعد امتثال يجب اجتيازها"
                 >
                   {!eligibilityResult && !checkingEligibility && (
-                    <div className="text-center py-8 text-sm text-slate-500">
+                    <div className="text-center py-8 text-sm text-[#6d746d]">
                       اختر دفعة لبدء فحص الأهلية
                     </div>
                   )}
 
                   {checkingEligibility && (
-                    <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-500">
+                    <div className="flex items-center justify-center gap-2 py-6 text-sm text-[#6d746d]">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span>جاري الفحص...</span>
                     </div>
@@ -368,14 +368,14 @@ export default function CreateListingPage() {
                               <p
                                 className={
                                   r.passed
-                                    ? "text-slate-700 font-medium"
+                                    ? "text-[#4d554e] font-medium"
                                     : "text-rose-700 font-semibold"
                                 }
                               >
                                 {r.rule_name}
                               </p>
                               {!r.passed && r.reason && (
-                                <p className="text-slate-500 mt-0.5">{r.reason}</p>
+                                <p className="text-[#6d746d] mt-0.5">{r.reason}</p>
                               )}
                             </div>
                           </li>

@@ -52,7 +52,7 @@ export default function AdminCategoriesPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : cats.length === 0 ? (
             <div className="text-center py-16 text-gray-500">لا توجد فئات</div>
@@ -156,7 +156,7 @@ export default function AdminCategoriesPage() {
                                 requires_cold_storage: cat.requires_cold_storage,
                               });
                             }}
-                            className="text-blue-600 hover:text-blue-700 p-1 rounded"
+                            className="text-brand-600 hover:text-brand-700 p-1 rounded"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
