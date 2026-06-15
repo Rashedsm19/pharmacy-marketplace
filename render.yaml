@@ -69,4 +69,6 @@ services:
       - key: NODE_VERSION
         value: 20.18.0
       - key: NEXT_PUBLIC_API_URL
-        sync: false
+        value: /api/v1
+      - key: API_URL
+        value: http://pharmacy-api:8000/api/v1

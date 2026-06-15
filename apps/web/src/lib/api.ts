@@ -4,7 +4,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const BASE_URL = (
+  process.env.NEXT_PUBLIC_API_URL ??
+  (process.env.NODE_ENV === "production" ? "/api/v1" : "http://localhost:8000/api/v1")
+).replace(/\/$/, "");
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
