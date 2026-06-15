@@ -1,10 +1,10 @@
 databases:
-  - name: pharmacy-db
-    databaseName: pharmacy_marketplace
-    user: pharmacy
+  - name: date
+    databaseName: date_f4um
+    user: date_f4um_user
     plan: free
     region: oregon
-    postgresMajorVersion: "16"
+    postgresMajorVersion: "18"
     ipAllowList: []
 
 services:
@@ -30,7 +30,7 @@ services:
         value: "1"
       - key: DATABASE_URL
         fromDatabase:
-          name: pharmacy-db
+          name: date
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -71,4 +71,4 @@ services:
       - key: NEXT_PUBLIC_API_URL
         value: /api/v1
       - key: API_URL
-        value: http://pharmacy-api:8000/api/v1
+        value: https://pharmacy-api-w1vu.onrender.com/api/v1
