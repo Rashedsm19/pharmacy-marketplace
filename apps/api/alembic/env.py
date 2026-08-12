@@ -17,12 +17,15 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import settings  # noqa: E402
+from database import split_db_url  # noqa: E402
 from models import Base  # noqa: E402 — triggers all model imports
 
 config = context.config
 
-# Override sqlalchemy.url from settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Override sqlalchemy.url from settings. Lift libpq-only params (sslmode …) out
+# of the URL — asyncpg rejects them — and hand them to the driver separately.
+_url, _connect_args = split_db_url(settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", _url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -58,6 +61,7 @@ async def run_async_migrations() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args=_connect_args,
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
