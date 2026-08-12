@@ -133,17 +133,19 @@ class TransactionService:
         tx.completed_at = datetime.now(timezone.utc)
         tx.buyer_notes = buyer_notes
 
-        # Mark listing as sold
+        # Draw the sold quantity down; a partly-sold listing stays on the market
         listing = await self.listing_repo.get(tx.listing_id)
         if listing:
-            listing.status = ListingStatus.SOLD
+            listing.quantity_available = max(0, listing.quantity_available - tx.quantity)
+            listing.status = (
+                ListingStatus.SOLD if listing.quantity_available == 0 else ListingStatus.ACTIVE
+            )
 
-        # Update batch status
+        # Update batch stock
         from repositories.inventory import InventoryBatchRepository
         batch_repo = InventoryBatchRepository(self.db)
         batch = await batch_repo.get(listing.batch_id) if listing else None
         if batch:
-            batch.status = BatchStatus.SOLD
             # Record movement
             movement = InventoryMovement(
                 id=uuid.uuid4(),
@@ -158,6 +160,13 @@ class TransactionService:
                 performed_by_id=actor_id,
             )
             batch.quantity_available = max(0, batch.quantity_available - tx.quantity)
+            # Only a fully depleted batch is 'sold'. Leaving remaining stock marked
+            # sold would hide it from near-expiry queries, FEFO and the reports,
+            # which filter on status IN (active, near_expiry).
+            if batch.quantity_available == 0:
+                batch.status = BatchStatus.SOLD
+            elif batch.status == BatchStatus.LISTED:
+                batch.status = BatchStatus.ACTIVE
             self.db.add(movement)
 
         await self.db.flush()

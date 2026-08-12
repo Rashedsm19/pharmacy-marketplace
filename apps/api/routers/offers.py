@@ -40,6 +40,25 @@ async def submit_offer(
     return OfferOut.model_validate(offer)
 
 
+def _to_offer_out(offer) -> OfferOut:
+    """Serialize an offer with the listing/org labels the offer tables display."""
+    out = OfferOut.model_validate(offer)
+    listing = offer.listing
+    if listing is not None:
+        out.listing_title = listing.title_ar or listing.title
+        product = listing.batch.product if listing.batch is not None else None
+        if product is not None:
+            out.listing_product_name = product.name
+            out.listing_product_name_ar = product.name_ar
+        if listing.seller_organization is not None:
+            out.seller_org_name = (
+                listing.seller_organization.name_ar or listing.seller_organization.name
+            )
+    if offer.buyer_organization is not None:
+        out.buyer_org_name = offer.buyer_organization.name_ar or offer.buyer_organization.name
+    return out
+
+
 @router.get("", response_model=PaginatedResponse[OfferOut])
 async def list_my_offers(
     db: DbSession,
@@ -53,7 +72,7 @@ async def list_my_offers(
         org_id, offset=(page - 1) * page_size, limit=page_size
     )
     return PaginatedResponse(
-        items=[OfferOut.model_validate(r) for r in rows],
+        items=[_to_offer_out(r) for r in rows],
         total=total, page=page, page_size=page_size,
         pages=math.ceil(total / page_size) if total else 0,
     )
@@ -67,18 +86,17 @@ async def list_incoming_offers(
     page: int = 1,
     page_size: int = 20,
 ):
-    await _get_org_id(current_user, db)
+    # scoped to listings this organization owns — never the whole platform
+    org_id = await _get_org_id(current_user, db)
     repo = OfferRepository(db)
-    if listing_id:
-        rows, total = await repo.list_by_listing(listing_id, offset=(page-1)*page_size, limit=page_size)
-    else:
-        rows, total = await repo.get_many(
-            __import__("models.marketplace", fromlist=["ListingOffer"]).ListingOffer.deleted_at.is_(None),
-            offset=(page - 1) * page_size,
-            limit=page_size,
-        )
+    rows, total = await repo.list_by_seller_org(
+        org_id,
+        listing_id=listing_id,
+        offset=(page - 1) * page_size,
+        limit=page_size,
+    )
     return PaginatedResponse(
-        items=[OfferOut.model_validate(r) for r in rows],
+        items=[_to_offer_out(r) for r in rows],
         total=total, page=page, page_size=page_size,
         pages=math.ceil(total / page_size) if total else 0,
     )

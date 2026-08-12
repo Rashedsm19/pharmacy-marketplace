@@ -30,10 +30,26 @@ class BaseRepository(Generic[ModelType]):
         *where_clauses: Any,
         offset: int = 0,
         limit: int = 50,
+        order_by: Any | None = None,
     ) -> tuple[Sequence[ModelType], int]:
         q = select(self.model).where(*where_clauses)
         count_q = select(func.count()).select_from(q.subquery())
         total = (await self.db.execute(count_q)).scalar_one()
+
+        # An unordered LIMIT/OFFSET is non-deterministic: as rows change, the
+        # same row can show up on two pages or be skipped entirely. Default to
+        # newest-first with the primary key as a stable tiebreaker.
+        if order_by is None:
+            created_at = getattr(self.model, "created_at", None)
+            order_by = (
+                (created_at.desc(), self.model.id.desc())
+                if created_at is not None
+                else (self.model.id.desc(),)
+            )
+        elif not isinstance(order_by, (list, tuple)):
+            order_by = (order_by,)
+        q = q.order_by(*order_by)
+
         rows = (await self.db.execute(q.offset(offset).limit(limit))).scalars().all()
         return rows, total
 

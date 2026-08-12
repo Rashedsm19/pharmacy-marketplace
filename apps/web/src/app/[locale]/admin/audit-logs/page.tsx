@@ -7,19 +7,20 @@ import { adminApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { Loader2, FileText, ChevronDown, ChevronUp } from "lucide-react";
 
+// Keys must match the action strings written by the backend audit service —
+// the filter dropdown is built from them, so a stale key filters to nothing.
 const ACTION_LABELS: Record<string, string> = {
   listing_created: "إنشاء عرض",
   listing_cancelled: "إلغاء عرض",
-  listing_updated: "تحديث عرض",
-  offer_accepted: "قبول عرض",
-  offer_rejected: "رفض عرض",
-  org_approved: "قبول منشأة",
+  offer_accepted: "قبول عرض سعر",
+  offer_rejected: "رفض عرض سعر",
+  org_approved: "اعتماد منشأة",
   org_rejected: "رفض منشأة",
-  org_suspended: "تعليق منشأة",
+  org_suspended: "إيقاف منشأة",
+  organization_updated: "تحديث بيانات منشأة",
+  transaction_dispatched: "شحن معاملة",
   transaction_completed: "إتمام معاملة",
-  setting_updated: "تحديث إعداد",
-  batch_created: "إنشاء دفعة",
-  user_registered: "تسجيل مستخدم",
+  admin_setting_change: "تغيير إعداد المنصة",
 };
 
 export default function AuditLogsPage() {
@@ -31,7 +32,7 @@ export default function AuditLogsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["audit-logs", page, action, entityType],
     queryFn: () =>
-      adminApi.getAuditLogs({ page, page_size: 20, action: action || undefined, entity_type: entityType || undefined }).then((r) => r.data),
+      adminApi.getAuditLogs({ page, page_size: 20, action: action || undefined, resource_type: entityType || undefined }).then((r) => r.data),
   });
 
   const logs = data?.items ?? [];
@@ -62,13 +63,13 @@ export default function AuditLogsPage() {
             onChange={(e) => { setEntityType(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
+            {/* values must match the resource_type written by the audit service */}
             <option value="">جميع الكيانات</option>
-            <option value="listing">عرض</option>
-            <option value="offer">عرض</option>
-            <option value="organization">منشأة</option>
+            <option value="marketplace_listing">عرض منشور</option>
+            <option value="listing_offer">عرض سعر</option>
+            <option value="pharmacy_organization">منشأة</option>
             <option value="transaction">معاملة</option>
-            <option value="batch">دفعة</option>
-            <option value="setting">إعداد</option>
+            <option value="platform_settings">إعداد المنصة</option>
           </select>
         </div>
 
@@ -87,6 +88,7 @@ export default function AuditLogsPage() {
                 entity_type?: string;
                 entity_id?: string;
                 user_email?: string;
+                user_full_name?: string;
                 user_org_name?: string;
                 ip_address?: string;
                 created_at: string;
@@ -111,6 +113,7 @@ export default function AuditLogsPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
+                        {log.user_full_name && <span>{log.user_full_name}</span>}
                         {log.user_email && <span dir="ltr">{log.user_email}</span>}
                         {log.user_org_name && <span>{log.user_org_name}</span>}
                         {log.ip_address && <span dir="ltr">{log.ip_address}</span>}

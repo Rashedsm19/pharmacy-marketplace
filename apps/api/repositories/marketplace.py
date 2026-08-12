@@ -4,8 +4,9 @@ from __future__ import annotations
 import uuid
 from typing import Sequence
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from models.marketplace import (
     ListingOffer,
@@ -103,6 +104,44 @@ class OfferRepository(BaseRepository[ListingOffer]):
             limit=limit,
         )
 
+    async def list_by_seller_org(
+        self,
+        seller_org_id: uuid.UUID,
+        listing_id: uuid.UUID | None = None,
+        offset: int = 0,
+        limit: int = 50,
+    ) -> tuple[Sequence[ListingOffer], int]:
+        """Offers received on listings owned by this organization."""
+        clauses = [
+            MarketplaceListing.seller_organization_id == seller_org_id,
+            ListingOffer.deleted_at.is_(None),
+        ]
+        if listing_id:
+            clauses.append(ListingOffer.listing_id == listing_id)
+
+        count_stmt = (
+            select(func.count())
+            .select_from(ListingOffer)
+            .join(MarketplaceListing, MarketplaceListing.id == ListingOffer.listing_id)
+            .where(*clauses)
+        )
+        total = (await self.db.execute(count_stmt)).scalar_one()
+
+        stmt = (
+            select(ListingOffer)
+            .join(MarketplaceListing, MarketplaceListing.id == ListingOffer.listing_id)
+            .where(*clauses)
+            .options(
+                selectinload(ListingOffer.listing).selectinload(MarketplaceListing.batch),
+                selectinload(ListingOffer.buyer_organization),
+            )
+            .order_by(ListingOffer.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        rows = (await self.db.execute(stmt)).scalars().all()
+        return rows, total
+
     async def list_by_buyer_org(
         self,
         buyer_org_id: uuid.UUID,
@@ -116,7 +155,23 @@ class OfferRepository(BaseRepository[ListingOffer]):
         ]
         if status:
             clauses.append(ListingOffer.status == status)
-        return await self.get_many(*clauses, offset=offset, limit=limit)
+
+        count_stmt = select(func.count()).select_from(ListingOffer).where(*clauses)
+        total = (await self.db.execute(count_stmt)).scalar_one()
+
+        stmt = (
+            select(ListingOffer)
+            .where(*clauses)
+            .options(
+                selectinload(ListingOffer.listing).selectinload(MarketplaceListing.batch),
+                selectinload(ListingOffer.buyer_organization),
+            )
+            .order_by(ListingOffer.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        rows = (await self.db.execute(stmt)).scalars().all()
+        return rows, total
 
     async def get_by_buyer_and_listing(
         self,

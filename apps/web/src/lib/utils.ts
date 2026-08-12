@@ -47,11 +47,17 @@ export const expiryZoneLabels = {
   },
 } as const;
 
+// Pin the Gregorian calendar explicitly: "ar-SA" defaults to the Hijri calendar
+// in browsers, which would print expiry dates in a calendar that doesn't match
+// what is stamped on the medicine packaging. Pinning it also keeps server and
+// client output identical, avoiding hydration mismatches.
 export function formatDate(dateStr: string, locale = "ar-SA"): string {
-  return new Date(dateStr).toLocaleDateString(locale, {
+  const gregorian = locale.includes("-u-ca-") ? locale : `${locale}-u-ca-gregory`;
+  return new Date(dateStr).toLocaleDateString(gregorian, {
     year: "numeric",
     month: "short",
     day: "numeric",
+    calendar: "gregory",
   });
 }
 

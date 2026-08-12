@@ -16,7 +16,10 @@ def utcnow() -> datetime:
 
 
 class Base(DeclarativeBase):
-    pass
+    # Fetch server-generated values (created_at / updated_at) inline via RETURNING
+    # instead of leaving them expired after a flush. Without this, serializing a
+    # just-updated row outside the async greenlet context raises MissingGreenlet.
+    __mapper_args__ = {"eager_defaults": True}
 
 
 class TimestampMixin:

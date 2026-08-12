@@ -8,7 +8,16 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+    Text,
+    text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -208,11 +217,22 @@ class ListingOffer(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
 class Reservation(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "reservations"
 
+    # A listing may hold only one *active* reservation, but must stay sellable
+    # after one is cancelled or expires — hence a partial unique index rather
+    # than a plain UNIQUE on listing_id.
+    __table_args__ = (
+        Index(
+            "uq_reservations_active_listing",
+            "listing_id",
+            unique=True,
+            postgresql_where=text("status = 'active'"),
+        ),
+    )
+
     listing_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("marketplace_listings.id"),
         nullable=False,
-        unique=True,
         index=True,
     )
     offer_id: Mapped[uuid.UUID | None] = mapped_column(

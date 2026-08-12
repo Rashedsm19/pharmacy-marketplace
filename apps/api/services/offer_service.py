@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.marketplace import ListingOffer, ListingStatus, OfferStatus, ReservationStatus, Reservation
@@ -106,6 +107,19 @@ class OfferService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Offer is in '{offer.status}' state, cannot accept",
+            )
+
+        # Only one active reservation may exist per listing
+        existing = await self.db.execute(
+            select(Reservation).where(
+                Reservation.listing_id == offer.listing_id,
+                Reservation.status == ReservationStatus.ACTIVE,
+            )
+        )
+        if existing.scalar_one_or_none() is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This listing already has an active reservation",
             )
 
         before = {"status": offer.status}

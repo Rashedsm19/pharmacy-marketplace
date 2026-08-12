@@ -98,13 +98,21 @@ async def check_eligibility_for_batch(
 @router.get("/{listing_id}/eligibility", response_model=EligibilityResult)
 async def check_eligibility(
     listing_id: uuid.UUID,
-    batch_id: uuid.UUID,
     db: DbSession,
     current_user: CurrentUser,
 ):
+    """Re-check the eligibility rules for the batch behind an existing listing."""
+    from models.user import UserRole
+
     org_id = await _get_org_id(current_user, db)
+    repo = ListingRepository(db)
+    listing = await repo.get(listing_id)
+    if not listing or listing.deleted_at:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if listing.seller_organization_id != org_id and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(status_code=403, detail="Access denied")
     svc = EligibilityService(db)
-    return await svc.check_listing_eligibility(batch_id, org_id)
+    return await svc.check_listing_eligibility(listing.batch_id, org_id)
 
 
 @router.get("/{listing_id}", response_model=ListingDetail)

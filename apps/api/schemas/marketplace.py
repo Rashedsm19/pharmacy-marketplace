@@ -112,6 +112,13 @@ class OfferOut(OfferBase):
     created_at: datetime
     updated_at: datetime
 
+    # Denormalised labels so offer tables can name the listing without N+1 calls
+    listing_title: str | None = None
+    listing_product_name: str | None = None
+    listing_product_name_ar: str | None = None
+    buyer_org_name: str | None = None
+    seller_org_name: str | None = None
+
 
 class ReservationCreate(BaseModel):
     listing_id: uuid.UUID

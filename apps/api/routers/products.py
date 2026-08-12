@@ -107,6 +107,9 @@ async def create_product(
     product = Product(id=uuid.uuid4(), **data.model_dump())
     db.add(product)
     await db.flush()
+    # load the category relationship before serializing — a freshly added instance
+    # has it unloaded, and lazy-loading it during validation is not allowed here
+    await db.refresh(product, ["category"])
     return ProductOut.model_validate(product)
 
 

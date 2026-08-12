@@ -5,9 +5,11 @@ import math
 import uuid
 
 from fastapi import APIRouter, Request
+from sqlalchemy import select
 
 from dependencies import DbSession, SuperAdmin
-from models.organization import OrganizationStatus
+from models.organization import OrganizationStatus, PharmacyOrganization
+from models.user import User
 from repositories.audit import AuditLogRepository
 from repositories.organization import OrganizationRepository
 from repositories.marketplace import ListingRepository
@@ -76,24 +78,47 @@ async def list_audit_logs(
     current_user: SuperAdmin,
     action: str | None = None,
     resource_type: str | None = None,
+    actor_id: uuid.UUID | None = None,
     org_id: uuid.UUID | None = None,
     page: int = 1,
     page_size: int = 50,
 ):
     repo = AuditLogRepository(db)
     rows, total = await repo.list_filtered(
-        org_id=org_id, action=action, resource_type=resource_type,
+        org_id=org_id, action=action, resource_type=resource_type, actor_id=actor_id,
         offset=(page - 1) * page_size, limit=page_size,
     )
+
+    # Resolve actor / organization names in one pass — a bare UUID tells a human
+    # reviewer nothing about who performed the action.
+    actor_ids = {r.actor_id for r in rows if r.actor_id}
+    org_ids = {r.organization_id for r in rows if r.organization_id}
+    actors: dict[uuid.UUID, User] = {}
+    org_names: dict[uuid.UUID, str] = {}
+    if actor_ids:
+        result = await db.execute(select(User).where(User.id.in_(actor_ids)))
+        actors = {u.id: u for u in result.scalars().all()}
+    if org_ids:
+        result = await db.execute(select(PharmacyOrganization).where(
+            PharmacyOrganization.id.in_(org_ids)
+        ))
+        org_names = {o.id: (o.name_ar or o.name) for o in result.scalars().all()}
+
     return {
         "items": [
             {
                 "id": str(r.id),
                 "actor_id": str(r.actor_id) if r.actor_id else None,
+                "user_email": actors[r.actor_id].email if r.actor_id in actors else None,
+                "user_full_name": actors[r.actor_id].full_name if r.actor_id in actors else None,
+                "user_org_name": org_names.get(r.organization_id),
                 "organization_id": str(r.organization_id) if r.organization_id else None,
                 "action": r.action,
+                # `entity_*` mirrors `resource_*` for the admin audit screen
                 "resource_type": r.resource_type,
+                "entity_type": r.resource_type,
                 "resource_id": str(r.resource_id) if r.resource_id else None,
+                "entity_id": str(r.resource_id) if r.resource_id else None,
                 "before_state": r.before_state,
                 "after_state": r.after_state,
                 "ip_address": r.ip_address,
