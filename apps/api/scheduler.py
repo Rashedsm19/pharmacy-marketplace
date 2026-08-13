@@ -200,12 +200,47 @@ async def expire_stale_reservations() -> None:
             logger.error("Reservation sweep failed: %s", exc)
 
 
+async def retry_invoice_clearance() -> None:
+    """Re-submit invoices the authority has not accepted yet.
+
+    Clearance is deliberately non-blocking at sale time, so this is the path by
+    which a transient outage eventually resolves itself.
+    """
+    from database import AsyncSessionLocal
+    from services.invoice_service import InvoiceService
+
+    async with AsyncSessionLocal() as db:
+        try:
+            svc = InvoiceService(db)
+            pending = await svc.pending_retries()
+            if not pending:
+                return
+            cleared = 0
+            for invoice in pending:
+                if await svc.attempt_clearance(invoice):
+                    cleared += 1
+            await db.commit()
+            logger.info(
+                "Invoice clearance retry: %d/%d cleared", cleared, len(pending)
+            )
+        except Exception as exc:  # noqa: BLE001
+            await db.rollback()
+            logger.error("Invoice clearance retry failed: %s", exc)
+
+
 def create_scheduler() -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         scan_near_expiry_batches,
         trigger=IntervalTrigger(hours=settings.NEAR_EXPIRY_SCAN_INTERVAL_HOURS),
         id="near_expiry_scan",
+        replace_existing=True,
+        misfire_grace_time=300,
+    )
+    scheduler.add_job(
+        retry_invoice_clearance,
+        trigger=IntervalTrigger(minutes=settings.INVOICE_RETRY_INTERVAL_MINUTES),
+        id="invoice_clearance_retry",
         replace_existing=True,
         misfire_grace_time=300,
     )

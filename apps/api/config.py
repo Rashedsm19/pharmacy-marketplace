@@ -106,6 +106,16 @@ class Settings(BaseSettings):
     NEAR_EXPIRY_THRESHOLDS_DAYS: str = "180,90,30"
     RESERVATION_SWEEP_INTERVAL_HOURS: int = 1
 
+    # ── ZATCA e-invoicing ────────────────────────────────────────────────
+    # stub: sign locally and treat as cleared (no credentials needed)
+    # sandbox / production: submit to the authority
+    ZATCA_MODE: str = "stub"
+    ZATCA_CSID: str = ""          # Base64 compliance certificate from Fatoora
+    ZATCA_SECRET: str = ""        # Secret issued alongside the CSID
+    ZATCA_PRIVATE_KEY_PATH: str = ""  # PEM EC key paired with the CSID
+    VAT_RATE_PCT: float = 15.0
+    INVOICE_RETRY_INTERVAL_MINUTES: int = 15
+
     @property
     def near_expiry_thresholds(self) -> List[int]:
         return [int(d.strip()) for d in self.NEAR_EXPIRY_THRESHOLDS_DAYS.split(",")]

@@ -275,4 +275,15 @@ class TransactionService:
             ip_address=ip_address,
         )
         await self.db.refresh(tx)
+
+        # The sale is done; the tax invoice is issued against it. A clearance
+        # failure is recorded and retried, never raised — the goods have already
+        # changed hands and unwinding that would be worse than a late invoice.
+        try:
+            from services.invoice_service import InvoiceService
+
+            await InvoiceService(self.db).issue_for_transaction(tx)
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Invoice issue failed for transaction %s: %s", tx_id, exc)
+
         return tx
