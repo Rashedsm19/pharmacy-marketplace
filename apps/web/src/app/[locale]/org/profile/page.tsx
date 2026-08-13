@@ -126,21 +126,21 @@ export default function OrgProfilePage() {
           ))}
         </div>
 
-        {/* Compliance documents */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <FileText className="h-5 w-5 text-brand-600" />
-            <h2 className="font-semibold text-gray-900">مستندات الاعتماد</h2>
-          </div>
-          {org?.id && (
+        {/* Compliance documents — only meaningful for a user who belongs to an org */}
+        {org?.id && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5 text-brand-600" />
+              <h2 className="font-semibold text-gray-900">مستندات الاعتماد</h2>
+            </div>
             <OrgDocumentsUpload
               orgId={org.id}
               crDoc={org.cr_doc_url}
               licenseDoc={org.license_doc_url}
               onChanged={() => qc.invalidateQueries({ queryKey: ["org-profile"] })}
             />
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Profile form */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
