@@ -1,9 +1,11 @@
 """Transaction service — dispatch, receipt, completion."""
 from __future__ import annotations
 
+import logging
 import uuid
 import secrets
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +16,8 @@ from models.transaction import Transaction, TransactionStatus
 from repositories.marketplace import ListingRepository, ReservationRepository
 from repositories.transaction import TransactionRepository
 from services.audit_service import AuditService
+
+logger = logging.getLogger("api.transactions")
 
 
 class TransactionService:
@@ -26,6 +30,47 @@ class TransactionService:
 
     def _generate_ref(self) -> str:
         return f"TXN-{secrets.token_hex(6).upper()}"
+
+    DEFAULT_FEE_PCT = Decimal("2")
+
+    async def _platform_fee_pct(self) -> Decimal:
+        """Commission percentage from platform settings, falling back to the default.
+
+        The admin owns this number, so it must be read at transaction time rather
+        than hardcoded — but a malformed setting must never block a sale.
+        """
+        from sqlalchemy import select
+        from models.settings import PlatformSettings
+
+        row = (
+            await self.db.execute(
+                select(PlatformSettings).where(
+                    PlatformSettings.key == "marketplace.platform_fee_pct"
+                )
+            )
+        ).scalar_one_or_none()
+        if row is None:
+            return self.DEFAULT_FEE_PCT
+
+        raw = row.value.get("value") if isinstance(row.value, dict) else row.value
+        if raw is None:
+            raw = row.value_text
+        try:
+            if isinstance(raw, bool):  # bool is an int subclass — reject it explicitly
+                raise TypeError
+            pct = Decimal(str(raw))
+        except (TypeError, ValueError, ArithmeticError):
+            logger.warning(
+                "marketplace.platform_fee_pct is not a number (%r) — using %s%%",
+                row.value,
+                self.DEFAULT_FEE_PCT,
+            )
+            return self.DEFAULT_FEE_PCT
+
+        if pct < 0 or pct > 100:
+            logger.warning("marketplace.platform_fee_pct out of range (%s) — using default", pct)
+            return self.DEFAULT_FEE_PCT
+        return pct
 
     async def create_from_reservation(
         self,
@@ -48,7 +93,8 @@ class TransactionService:
         listing = await self.listing_repo.get(reservation.listing_id)
         from decimal import Decimal
         total = Decimal(reservation.quantity) * Decimal(reservation.agreed_price)
-        platform_fee = (total * Decimal("0.02")).quantize(Decimal("0.01"))
+        fee_pct = await self._platform_fee_pct()
+        platform_fee = (total * fee_pct / Decimal("100")).quantize(Decimal("0.01"))
 
         tx = Transaction(
             id=uuid.uuid4(),

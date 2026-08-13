@@ -62,7 +62,7 @@ async def mark_all_read(db: DbSession, current_user: CurrentUser):
 @router.get("/preferences", response_model=list[NotificationPreferenceOut])
 async def get_preferences(db: DbSession, current_user: CurrentUser):
     repo = NotificationPreferenceRepository(db)
-    prefs = await repo.list_by_user(current_user.id)
+    prefs = await repo.ensure_defaults(current_user.id)
     return [NotificationPreferenceOut.model_validate(p) for p in prefs]
 
 

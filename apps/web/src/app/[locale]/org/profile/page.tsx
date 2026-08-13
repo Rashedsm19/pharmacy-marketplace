@@ -9,7 +9,8 @@ import { useEffect } from "react";
 import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { organizationsApi } from "@/lib/api";
-import { Loader2, Building2, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { OrgDocumentsUpload } from "@/components/org-documents";
+import { Loader2, Building2, CheckCircle, AlertCircle, Clock, FileText } from "lucide-react";
 
 const profileSchema = z.object({
   name: z.string().min(2, "الاسم مطلوب"),
@@ -123,6 +124,22 @@ export default function OrgProfilePage() {
               <p className="font-bold text-gray-900 text-lg mt-1">{item.value}</p>
             </div>
           ))}
+        </div>
+
+        {/* Compliance documents */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="h-5 w-5 text-brand-600" />
+            <h2 className="font-semibold text-gray-900">مستندات الاعتماد</h2>
+          </div>
+          {org?.id && (
+            <OrgDocumentsUpload
+              orgId={org.id}
+              crDoc={org.cr_doc_url}
+              licenseDoc={org.license_doc_url}
+              onChanged={() => qc.invalidateQueries({ queryKey: ["org-profile"] })}
+            />
+          )}
         </div>
 
         {/* Profile form */}

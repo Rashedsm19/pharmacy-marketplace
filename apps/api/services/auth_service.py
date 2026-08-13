@@ -3,6 +3,7 @@ Auth service — registration, login, token refresh, password management.
 """
 from __future__ import annotations
 
+import logging
 import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -18,9 +19,14 @@ from models.organization import MembershipRole, OrganizationStatus, PharmacyOrga
 from models.branch import PharmacyBranch
 from models.inventory import NearExpiryRule
 from models.user import User, UserRole
+from config import settings
+from repositories.notification import NotificationPreferenceRepository
 from repositories.organization import MembershipRepository, OrganizationRepository
 from repositories.user import UserRepository
 from schemas.auth import LoginRequest, LoginResponse, RegisterRequest, RefreshResponse
+from services.email_service import email_service, password_reset_email
+
+logger = logging.getLogger("api.auth")
 
 
 class AuthService:
@@ -111,6 +117,10 @@ class AuthService:
         )
         self.db.add(rule)
 
+        # Default notification preferences, so the account starts with a populated
+        # preferences screen rather than an empty one.
+        await NotificationPreferenceRepository(self.db).ensure_defaults(user.id)
+
         try:
             await self.db.flush()
         except IntegrityError as exc:
@@ -195,6 +205,18 @@ class AuthService:
         user.password_reset_token = token
         user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
         await self.db.flush()
+
+        # The token is useless unless it reaches the account owner — sending it is
+        # part of the flow, not an optional extra.
+        subject, text, html = password_reset_email(user.full_name, token)
+        sent = await email_service.send(user.email, subject, text, html)
+        if not sent:
+            logger.warning(
+                "Password reset requested for %s but no email was delivered "
+                "(EMAIL_BACKEND=%s)",
+                user.email,
+                settings.EMAIL_BACKEND,
+            )
         return token
 
     async def reset_password(self, token: str, new_password: str) -> None:

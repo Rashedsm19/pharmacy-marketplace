@@ -51,6 +51,12 @@ class OrganizationOut(OrganizationBase):
     approved_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
+    # Stored references, not public URLs — the file is served through the
+    # authenticated download endpoint. Exposed so the UI knows what exists.
+    cr_doc_url: str | None = None
+    license_doc_url: str | None = None
+    rejection_reason: str | None = None
+    suspension_reason: str | None = None
 
 
 class OrganizationApprove(BaseModel):

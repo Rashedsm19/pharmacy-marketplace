@@ -60,7 +60,24 @@ class OfferService:
         if data.quantity > listing.quantity_available:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Requested quantity exceeds available",
+                detail="الكمية المطلوبة تتجاوز المتاح",
+            )
+
+        # The seller decides whether the lot may be split, and the smallest slice
+        # they will accept. Both are stored on the listing; enforce them here.
+        if not listing.allow_partial_purchase and data.quantity != listing.quantity_available:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "هذا العرض لا يقبل التجزئة — "
+                    f"الكمية المطلوبة يجب أن تكون {listing.quantity_available}"
+                ),
+            )
+
+        if data.quantity < listing.min_purchase_quantity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"أقل كمية للشراء في هذا العرض {listing.min_purchase_quantity}",
             )
 
         # Check for existing pending offer

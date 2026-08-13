@@ -62,3 +62,32 @@ class NotificationPreferenceRepository(BaseRepository[NotificationPreference]):
             )
         )
         return result.scalars().all()
+
+    async def ensure_defaults(self, user_id: uuid.UUID) -> Sequence[NotificationPreference]:
+        """Create the default preference set once, then return the user's rows.
+
+        Called on registration and again lazily on first read, so accounts that
+        pre-date this still get a populated preferences screen.
+        """
+        from models.notification import NotificationChannel, NotificationType
+
+        existing = await self.list_by_user(user_id)
+        if existing:
+            return existing
+
+        # WhatsApp is not implemented yet, so it is not offered as a choice.
+        channels = (NotificationChannel.IN_APP, NotificationChannel.EMAIL)
+        rows = [
+            NotificationPreference(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                notification_type=ntype,
+                channel=channel,
+                is_enabled=True,
+            )
+            for ntype in NotificationType
+            for channel in channels
+        ]
+        self.db.add_all(rows)
+        await self.db.flush()
+        return rows

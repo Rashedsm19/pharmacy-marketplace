@@ -129,12 +129,90 @@ async def _auto_list_batch(db, batch, days: int) -> None:
     batch.status = BatchStatus.LISTED
 
 
+async def expire_stale_reservations() -> None:
+    """Release listings held by reservations nobody completed.
+
+    A reservation is good for a week. Without this the listing stays RESERVED
+    for ever and the seller can never sell that stock again.
+    """
+    from database import AsyncSessionLocal
+    from models.marketplace import ListingStatus, ReservationStatus
+    from models.notification import NotificationType
+    from repositories.marketplace import ListingRepository, ReservationRepository
+    from services.notification_service import NotificationService
+
+    async with AsyncSessionLocal() as db:
+        try:
+            res_repo = ReservationRepository(db)
+            listing_repo = ListingRepository(db)
+            notifier = NotificationService(db)
+
+            expired = await res_repo.list_expired_active()
+            if not expired:
+                logger.info("Reservation sweep: nothing expired")
+                return
+
+            for reservation in expired:
+                reservation.status = ReservationStatus.EXPIRED
+
+                listing = await listing_repo.get(reservation.listing_id)
+                product = None
+                if listing:
+                    # Only hand it back to the market if it is still held; a listing
+                    # already sold or cancelled must keep its final state.
+                    if listing.status == ListingStatus.RESERVED:
+                        listing.status = ListingStatus.ACTIVE
+                    product = (
+                        listing.batch.product.name_ar or listing.batch.product.name
+                        if listing.batch and listing.batch.product
+                        else None
+                    )
+
+                label = product or "العرض"
+                await notifier.create(
+                    user_id=reservation.reserved_by_id,
+                    notification_type=NotificationType.RESERVATION_EXPIRED,
+                    title=f"Reservation expired: {label}",
+                    title_ar=f"انتهت مهلة الحجز: {label}",
+                    body="The reservation expired before the transaction was created.",
+                    body_ar="انتهت مهلة الحجز قبل إنشاء المعاملة، وأُعيد العرض إلى السوق.",
+                    organization_id=reservation.buyer_organization_id,
+                    resource_type="reservation",
+                    resource_id=reservation.id,
+                )
+                if listing:
+                    await notifier.create(
+                        user_id=listing.created_by_id,
+                        notification_type=NotificationType.RESERVATION_EXPIRED,
+                        title=f"Reservation expired: {label}",
+                        title_ar=f"انتهت مهلة الحجز: {label}",
+                        body="The buyer did not complete the purchase; the listing is back on the market.",
+                        body_ar="لم يُكمل المشتري الشراء، وأُعيد عرضك إلى السوق.",
+                        organization_id=listing.seller_organization_id,
+                        resource_type="listing",
+                        resource_id=listing.id,
+                    )
+
+            await db.commit()
+            logger.info("Reservation sweep: expired %d reservation(s)", len(expired))
+        except Exception as exc:  # noqa: BLE001
+            await db.rollback()
+            logger.error("Reservation sweep failed: %s", exc)
+
+
 def create_scheduler() -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         scan_near_expiry_batches,
         trigger=IntervalTrigger(hours=settings.NEAR_EXPIRY_SCAN_INTERVAL_HOURS),
         id="near_expiry_scan",
+        replace_existing=True,
+        misfire_grace_time=300,
+    )
+    scheduler.add_job(
+        expire_stale_reservations,
+        trigger=IntervalTrigger(hours=settings.RESERVATION_SWEEP_INTERVAL_HOURS),
+        id="reservation_sweep",
         replace_existing=True,
         misfire_grace_time=300,
     )

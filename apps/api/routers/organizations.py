@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
+from fastapi.responses import FileResponse
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove, SuperAdmin
 from models.user import UserRole
-from repositories.organization import OrganizationRepository
-from schemas.common import PaginatedResponse
+from repositories.organization import MembershipRepository, OrganizationRepository
+from schemas.common import MessageResponse, PaginatedResponse
 from schemas.organization import (
     OrganizationApprove,
     OrganizationOut,
@@ -253,3 +254,108 @@ async def suspend_organization(
         ip_address=request.client.host if request.client else None,
     )
     return OrganizationOut.model_validate(org)
+
+
+# ── Compliance documents ─────────────────────────────────────────────────────
+# Approval is meaningless without the paperwork behind it, so the CR extract and
+# the pharmacy licence are uploaded here and read back by the admin reviewer.
+
+_DOC_FIELDS = {"cr": "cr_doc_url", "license": "license_doc_url"}
+
+
+async def _org_for_user(current_user, db) -> uuid.UUID:
+    org_id = await MembershipRepository(db).get_user_org_id(current_user.id)
+    if not org_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No organization")
+    return org_id
+
+
+@router.post("/me/documents/{doc_type}", response_model=OrganizationOut)
+async def upload_my_document(
+    doc_type: str,
+    db: DbSession,
+    current_user: OrgAdminOrAbove,
+    request: Request,
+    file: UploadFile = File(...),
+):
+    """Upload this organization's commercial registration or pharmacy licence."""
+    from services.storage_service import storage_service
+
+    field = _DOC_FIELDS.get(doc_type)
+    if not field:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="نوع المستند غير معروف — المسموح: cr أو license",
+        )
+
+    org_id = await _org_for_user(current_user, db)
+    repo = OrganizationRepository(db)
+    org = await repo.get_active(org_id)
+    if not org:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+
+    stored = await storage_service.save_document(file, org_id, doc_type)
+    setattr(org, field, stored)
+    await db.flush()
+
+    await AuditService(db).log(
+        action="document_uploaded",
+        resource_type="pharmacy_organization",
+        resource_id=org.id,
+        actor_id=current_user.id,
+        organization_id=org.id,
+        after_state={"document": doc_type},
+        ip_address=request.client.host if request.client else None,
+    )
+    return OrganizationOut.model_validate(org)
+
+
+@router.get("/{org_id}/documents/{doc_type}")
+async def download_document(
+    org_id: uuid.UUID,
+    doc_type: str,
+    db: DbSession,
+    current_user: CurrentUser,
+):
+    """Readable by the owning organization and by platform admins — nobody else."""
+    from services.storage_service import storage_service
+
+    field = _DOC_FIELDS.get(doc_type)
+    if not field:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="نوع المستند غير معروف")
+
+    if current_user.role != UserRole.SUPER_ADMIN:
+        own_org = await MembershipRepository(db).get_user_org_id(current_user.id)
+        if own_org != org_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+    org = await OrganizationRepository(db).get_active(org_id)
+    if not org:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+
+    stored = getattr(org, field)
+    if not stored:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="لم يُرفع هذا المستند بعد")
+
+    path = storage_service.resolve(stored)
+    return FileResponse(path, filename=f"{doc_type}-{org_id}{path.suffix}")
+
+
+@router.delete("/me/documents/{doc_type}", response_model=MessageResponse)
+async def delete_my_document(
+    doc_type: str,
+    db: DbSession,
+    current_user: OrgAdminOrAbove,
+):
+    field = _DOC_FIELDS.get(doc_type)
+    if not field:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="نوع المستند غير معروف")
+
+    org_id = await _org_for_user(current_user, db)
+    org = await OrganizationRepository(db).get_active(org_id)
+    if not org:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+
+    setattr(org, field, None)
+    await db.flush()
+    return MessageResponse(message="تم حذف المستند")

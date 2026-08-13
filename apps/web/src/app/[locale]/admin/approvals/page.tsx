@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { adminApi } from "@/lib/api";
+import { OrgDocumentsView } from "@/components/org-documents";
 import { formatDate } from "@/lib/utils";
 import { CheckCircle, XCircle, Building2, ChevronRight, ChevronLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
@@ -92,6 +93,8 @@ export default function AdminApprovalsPage() {
                 created_at: string;
                 status: string;
                 branch_count?: number;
+                cr_doc_url?: string | null;
+                license_doc_url?: string | null;
               }) => (
                 <div key={org.id} className="p-5">
                   {rejectingId === org.id ? (
@@ -169,6 +172,16 @@ export default function AdminApprovalsPage() {
                               <span className="font-medium tabular-nums">{org.branch_count}</span>
                             </div>
                           )}
+                        </div>
+
+                        {/* Approval rests on these — surface them before the decision */}
+                        <div className="mt-3">
+                          <p className="text-xs text-slate-400 mb-1.5">مستندات الاعتماد</p>
+                          <OrgDocumentsView
+                            orgId={org.id}
+                            crDoc={org.cr_doc_url}
+                            licenseDoc={org.license_doc_url}
+                          />
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">

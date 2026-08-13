@@ -104,6 +104,7 @@ class Settings(BaseSettings):
     # ── Scheduler ────────────────────────────────────────────────────────
     NEAR_EXPIRY_SCAN_INTERVAL_HOURS: int = 6
     NEAR_EXPIRY_THRESHOLDS_DAYS: str = "180,90,30"
+    RESERVATION_SWEEP_INTERVAL_HOURS: int = 1
 
     @property
     def near_expiry_thresholds(self) -> List[int]:

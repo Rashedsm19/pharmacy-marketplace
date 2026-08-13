@@ -160,6 +160,21 @@ export const organizationsApi = {
     apiClient.post(`/organizations/${id}/reject`, { reason }),
   suspend: (id: string, reason: string) =>
     apiClient.post(`/organizations/${id}/suspend`, { reason }),
+
+  // Compliance documents
+  uploadDocument: (docType: "cr" | "license", file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient.post(`/organizations/me/documents/${docType}`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  deleteDocument: (docType: "cr" | "license") =>
+    apiClient.delete(`/organizations/me/documents/${docType}`),
+  downloadDocument: (orgId: string, docType: "cr" | "license") =>
+    apiClient.get(`/organizations/${orgId}/documents/${docType}`, {
+      responseType: "blob",
+    }),
 };
 
 export const branchesApi = {

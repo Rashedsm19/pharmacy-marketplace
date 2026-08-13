@@ -35,3 +35,7 @@ resend==2.5.1
 # Utilities
 python-multipart==0.0.17
 python-dotenv==1.0.1
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==1.4.0

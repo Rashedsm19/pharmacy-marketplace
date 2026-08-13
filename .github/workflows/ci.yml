@@ -70,23 +70,28 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest pytest-asyncio httpx
+        run: pip install -r requirements.txt
 
       - name: Run migrations
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/pharmacy_test
           SECRET_KEY: test-secret-key
-          REFRESH_SECRET_KEY: test-refresh-secret
+          JWT_SECRET_KEY: test-jwt-secret
           ALLOWED_ORIGINS: http://localhost:3000
         run: alembic upgrade head
 
+      # The suite drives the real app in-process over ASGI, so it covers routing,
+      # auth and the database without a server running alongside it.
       - name: Run tests
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/pharmacy_test
           SECRET_KEY: test-secret-key
-          REFRESH_SECRET_KEY: test-refresh-secret
+          JWT_SECRET_KEY: test-jwt-secret
           ALLOWED_ORIGINS: http://localhost:3000
-        run: pytest tests/ -v --tb=short || echo "No tests found — skipping"
+          EMAIL_BACKEND: stub
+          WHATSAPP_BACKEND: stub
+          STORAGE_LOCAL_PATH: /tmp/medsave-uploads
+        run: pytest -v --tb=short
 
   # ── Frontend CI ──────────────────────────────────────────────────────────────
   frontend-lint:
