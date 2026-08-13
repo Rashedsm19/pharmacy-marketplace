@@ -12,6 +12,7 @@ from models.organization import (  # noqa: F401
 from models.branch import PharmacyBranch, StorageConditionStatus  # noqa: F401
 from models.dispute import Dispute, DisputeReason, DisputeStatus  # noqa: F401
 from models.invoice import Invoice, InvoiceStatus  # noqa: F401
+from models.rating import Rating  # noqa: F401
 from models.product import ProductCategory, Product  # noqa: F401
 from models.inventory import (  # noqa: F401
     InventoryBatch,
