@@ -23,11 +23,13 @@ const registerSchema = z.object({
   license_number: z.string().optional(),
   org_email: z.string().email("البريد الإلكتروني للمنظمة غير صحيح"),
   org_phone: z.string().min(9, "رقم الهاتف مطلوب"),
-  org_city: z.string().optional(),
+  org_address: z.string().optional(),
+  org_city: z.string().min(2, "المدينة مطلوبة"),
   org_region: z.string().optional(),
   branch_name: z.string().min(2, "اسم الفرع مطلوب"),
   branch_name_ar: z.string().optional(),
-  branch_city: z.string().optional(),
+  branch_address: z.string().optional(),
+  branch_city: z.string().min(2, "مدينة الفرع مطلوبة"),
   branch_phone: z.string().optional(),
 });
 
@@ -52,8 +54,8 @@ export default function RegisterPage() {
   } = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
 
   const step1Fields: (keyof RegisterForm)[] = ["full_name", "email", "phone", "password"];
-  const step2Fields: (keyof RegisterForm)[] = ["org_name", "commercial_registration_number", "org_email", "org_phone"];
-  const step3Fields: (keyof RegisterForm)[] = ["branch_name"];
+  const step2Fields: (keyof RegisterForm)[] = ["org_name", "commercial_registration_number", "org_email", "org_phone", "org_city"];
+  const step3Fields: (keyof RegisterForm)[] = ["branch_name", "branch_city"];
 
   const nextStep = async () => {
     const fields = step === 1 ? step1Fields : step === 2 ? step2Fields : step3Fields;
@@ -140,8 +142,17 @@ export default function RegisterPage() {
               <Field label="البريد الإلكتروني للمنظمة" error={errors.org_email?.message}>
                 <input {...register("org_email")} type="email" className={inputCls} dir="ltr" />
               </Field>
-              <Field label="رقم هاتف المنظمة" error={errors.org_phone?.message}>
+              <Field label="رقم هاتف المنشأة" error={errors.org_phone?.message}>
                 <input {...register("org_phone")} placeholder="+966112345678" className={inputCls} dir="ltr" />
+              </Field>
+              <Field label="المدينة" error={errors.org_city?.message}>
+                <input {...register("org_city")} placeholder="الرياض" className={inputCls} />
+              </Field>
+              <Field label="المنطقة" error={errors.org_region?.message}>
+                <input {...register("org_region")} placeholder="منطقة الرياض" className={inputCls} />
+              </Field>
+              <Field label="العنوان الوطني" error={errors.org_address?.message}>
+                <input {...register("org_address")} placeholder="طريق الملك فهد، حي العليا" className={inputCls} />
               </Field>
             </>
           )}
@@ -155,8 +166,11 @@ export default function RegisterPage() {
               <Field label="اسم الفرع (عربي)" error={errors.branch_name_ar?.message}>
                 <input {...register("branch_name_ar")} placeholder="الفرع الرئيسي" className={inputCls} />
               </Field>
-              <Field label="المدينة" error={errors.branch_city?.message}>
+              <Field label="مدينة الفرع" error={errors.branch_city?.message}>
                 <input {...register("branch_city")} placeholder="الرياض" className={inputCls} />
+              </Field>
+              <Field label="عنوان الفرع" error={errors.branch_address?.message}>
+                <input {...register("branch_address")} placeholder="طريق الملك عبدالعزيز، حي الملز" className={inputCls} />
               </Field>
               <Field label="رقم هاتف الفرع" error={errors.branch_phone?.message}>
                 <input {...register("branch_phone")} placeholder="+966112345678" className={inputCls} dir="ltr" />

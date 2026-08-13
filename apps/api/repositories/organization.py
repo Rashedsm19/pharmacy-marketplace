@@ -37,6 +37,24 @@ class OrganizationRepository(BaseRepository[PharmacyOrganization]):
         )
         return result.scalar_one_or_none()
 
+    async def cr_exists(self, cr_number: str) -> bool:
+        """Ignores soft-deletes: the UNIQUE constraint on the CR number does not."""
+        result = await self.db.execute(
+            select(PharmacyOrganization.id)
+            .where(PharmacyOrganization.commercial_registration_number == cr_number)
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None
+
+    async def license_exists(self, license_number: str) -> bool:
+        """Same for the licence number, which is also UNIQUE when present."""
+        result = await self.db.execute(
+            select(PharmacyOrganization.id)
+            .where(PharmacyOrganization.license_number == license_number)
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None
+
     async def list_by_status(
         self,
         status: OrganizationStatus | None = None,

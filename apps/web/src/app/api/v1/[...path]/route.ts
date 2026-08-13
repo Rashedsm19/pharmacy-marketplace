@@ -66,14 +66,36 @@ async function proxy(request: NextRequest, context: RouteContext) {
     init.body = await request.arrayBuffer();
   }
 
-  const response = await fetch(targetUrl, init);
-  const responseHeaders = filteredHeaders(response.headers);
+  // The API sleeps on the free plan, so the first request after an idle period can
+  // be refused or dropped while it wakes. Without this the fetch throws and Next
+  // answers with a bare "Internal Server Error" that tells the user nothing.
+  const MAX_ATTEMPTS = 3;
+  let lastError: unknown;
 
-  return new NextResponse(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: responseHeaders,
-  });
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(targetUrl, {
+        ...init,
+        signal: AbortSignal.timeout(60_000),
+      });
+      return new NextResponse(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: filteredHeaders(response.headers),
+      });
+    } catch (error) {
+      lastError = error;
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+      }
+    }
+  }
+
+  console.error(`[api-proxy] ${request.method} ${targetUrl.pathname} failed`, lastError);
+  return NextResponse.json(
+    { detail: "تعذّر الوصول إلى الخادم. حاول مرة أخرى بعد قليل." },
+    { status: 502 }
+  );
 }
 
 export const GET = proxy;

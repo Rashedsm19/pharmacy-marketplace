@@ -8,6 +8,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.jwt import create_access_token, create_refresh_token, decode_token
@@ -30,20 +31,24 @@ class AuthService:
         self.membership_repo = MembershipRepository(db)
 
     async def register(self, data: RegisterRequest) -> User:
-        # Check duplicate email
-        existing = await self.user_repo.get_by_email(data.email)
-        if existing:
+        # Duplicate checks look past soft-deletes on purpose: the UNIQUE constraints
+        # do not ignore deleted rows, so a soft-deleted match would still collide.
+        if await self.user_repo.email_exists(data.email):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered",
+                detail="هذا البريد الإلكتروني مسجّل مسبقاً",
             )
 
-        # Check duplicate org CR
-        existing_org = await self.org_repo.get_by_cr(data.commercial_registration_number)
-        if existing_org:
+        if await self.org_repo.cr_exists(data.commercial_registration_number):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Organization with this CR number already exists",
+                detail="رقم السجل التجاري مسجّل مسبقاً لمنشأة أخرى",
+            )
+
+        if data.license_number and await self.org_repo.license_exists(data.license_number):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="رقم الترخيص مسجّل مسبقاً لمنشأة أخرى",
             )
 
         # Create org
@@ -106,7 +111,16 @@ class AuthService:
         )
         self.db.add(rule)
 
-        await self.db.flush()
+        try:
+            await self.db.flush()
+        except IntegrityError as exc:
+            # Last line of defence: a race between two registrations, or a constraint
+            # the checks above don't cover. Never surface this as a bare 500.
+            await self.db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="تعذّر إتمام التسجيل — تحقق من أن البريد ورقم السجل التجاري ورقم الترخيص غير مستخدمة",
+            ) from exc
         return user
 
     async def login(self, data: LoginRequest) -> LoginResponse:

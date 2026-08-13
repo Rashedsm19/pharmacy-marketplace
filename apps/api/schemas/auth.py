@@ -4,8 +4,9 @@ Auth request/response schemas.
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class LoginRequest(BaseModel):
@@ -55,6 +56,29 @@ class RegisterRequest(BaseModel):
     branch_address: str | None = None
     branch_city: str | None = None
     branch_phone: str | None = None
+
+    @field_validator(
+        "org_name_ar", "license_number", "org_address", "org_city", "org_region",
+        "branch_name_ar", "branch_address", "branch_city", "branch_phone",
+        mode="before",
+    )
+    @classmethod
+    def _blank_to_none(cls, v: Any) -> Any:
+        """An untouched optional input arrives as "", not null.
+
+        Storing "" in a column with a UNIQUE constraint (license_number) makes the
+        second registration collide with the first. NULL repeats freely in Postgres,
+        so normalise blanks away before they reach the database.
+        """
+        if isinstance(v, str):
+            v = v.strip()
+            return v or None
+        return v
+
+    @field_validator("full_name", "org_name", "commercial_registration_number", "branch_name")
+    @classmethod
+    def _strip_required(cls, v: str) -> str:
+        return v.strip()
 
 
 class ForgotPasswordRequest(BaseModel):

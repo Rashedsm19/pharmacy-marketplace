@@ -24,6 +24,13 @@ class UserRepository(BaseRepository[User]):
         )
         return result.scalar_one_or_none()
 
+    async def email_exists(self, email: str) -> bool:
+        """Ignores soft-deletes: the UNIQUE constraint on email does not."""
+        result = await self.db.execute(
+            select(User.id).where(User.email == email.lower()).limit(1)
+        )
+        return result.scalar_one_or_none() is not None
+
     async def get_active(self, id: uuid.UUID) -> User | None:
         result = await self.db.execute(
             select(User).where(
