@@ -9,7 +9,8 @@
     "notifications": "Notifications",
     "admin": "Platform Admin",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "disputes": "Disputes"
   },
   "auth": {
     "login": "Facility Login",

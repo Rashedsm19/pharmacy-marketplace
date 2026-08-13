@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Pill,
+  AlertTriangle,
   X,
 } from "lucide-react";
 
@@ -36,6 +37,7 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
     { href: `/${locale}/inventory/batches`, icon: Package, label: t("inventory") },
     { href: `/${locale}/marketplace`, icon: ShoppingCart, label: t("marketplace") },
     { href: `/${locale}/my/listings`, icon: Pill, label: t("myListings") },
+    { href: `/${locale}/my/disputes`, icon: AlertTriangle, label: t("disputes") },
     { href: `/${locale}/reports/near-expiry`, icon: FileBarChart, label: t("reports") },
     { href: `/${locale}/org/profile`, icon: Building2, label: t("organization") },
     { href: `/${locale}/notifications`, icon: Bell, label: t("notifications") },

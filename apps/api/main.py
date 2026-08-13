@@ -106,6 +106,7 @@ def _register_routers(app: FastAPI) -> None:
     from routers.offers import router as offers_router
     from routers.reservations import router as reservations_router
     from routers.transactions import router as transactions_router
+    from routers.disputes import router as disputes_router
     from routers.reports import router as reports_router
     from routers.admin import router as admin_router
     from routers.notifications import router as notifications_router
@@ -120,6 +121,7 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(offers_router, prefix=prefix)
     app.include_router(reservations_router, prefix=prefix)
     app.include_router(transactions_router, prefix=prefix)
+    app.include_router(disputes_router, prefix=prefix)
     app.include_router(reports_router, prefix=prefix)
     app.include_router(admin_router, prefix=prefix)
     app.include_router(notifications_router, prefix=prefix)

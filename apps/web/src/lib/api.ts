@@ -256,3 +256,27 @@ export const adminApi = {
   updateSetting: (key: string, value: unknown) =>
     apiClient.put(`/admin/settings/${key}`, { value }),
 };
+
+export const disputesApi = {
+  open: (data: {
+    transaction_id: string;
+    reason: string;
+    description: string;
+    disputed_quantity?: number;
+  }) => apiClient.post("/disputes", data),
+  list: (params?: Record<string, unknown>) => apiClient.get("/disputes", { params }),
+  get: (id: string) => apiClient.get(`/disputes/${id}`),
+  respond: (id: string, response: string) =>
+    apiClient.post(`/disputes/${id}/respond`, { response }),
+  resolve: (id: string, outcome: string, notes: string) =>
+    apiClient.post(`/disputes/${id}/resolve`, { outcome, notes }),
+  queue: (params?: Record<string, unknown>) =>
+    apiClient.get("/disputes/queue", { params }),
+  uploadEvidence: (id: string, file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient.post(`/disputes/${id}/evidence`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+};

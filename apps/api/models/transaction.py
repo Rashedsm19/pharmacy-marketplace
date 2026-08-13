@@ -15,6 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from models.dispute import Dispute
     from models.marketplace import MarketplaceListing, Reservation
     from models.organization import PharmacyOrganization
     from models.user import User
@@ -112,4 +113,7 @@ class Transaction(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
     received_by: Mapped["User | None"] = relationship(
         "User", foreign_keys=[received_by_id], lazy="selectin"
+    )
+    disputes: Mapped[list["Dispute"]] = relationship(
+        "Dispute", back_populates="transaction", lazy="selectin"
     )
