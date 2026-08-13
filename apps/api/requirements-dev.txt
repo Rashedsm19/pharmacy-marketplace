@@ -1,0 +1,9 @@
+# Development and CI only — not installed on the deployed service.
+-r requirements.txt
+
+pytest==9.1.1
+pytest-asyncio==1.4.0
+
+# Linting / typing used by CI
+ruff==0.8.4
+mypy==1.14.0
