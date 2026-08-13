@@ -8,7 +8,7 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.notification import Notification, NotificationType
+from models.notification import Notification, NotificationChannel, NotificationType
 from repositories.notification import NotificationRepository
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ class NotificationService:
         self,
         user_id: uuid.UUID,
         notification_type: NotificationType,
-        channel: "NotificationChannel",
+        channel: NotificationChannel,
     ) -> bool:
         """Preferences are per (type, channel); absence means allowed."""
         from models.notification import NotificationPreference
