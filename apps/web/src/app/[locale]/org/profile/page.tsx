@@ -19,6 +19,19 @@ const profileSchema = z.object({
   email: z.string().email("بريد إلكتروني غير صحيح").optional().or(z.literal("")),
   address: z.string().optional(),
   website: z.string().url("رابط غير صحيح").optional().or(z.literal("")),
+  // Regulatory identity — mirrors the server-side rules so the user is told
+  // before the request is sent.
+  vat_number: z
+    .string()
+    .regex(/^3\d{13}3$/, "الرقم الضريبي: ١٥ رقماً يبدأ وينتهي بـ٣")
+    .optional()
+    .or(z.literal("")),
+  gln: z
+    .string()
+    .regex(/^\d{13}$/, "رقم الموقع العالمي GLN: ١٣ رقماً")
+    .optional()
+    .or(z.literal("")),
+  license_expires_at: z.string().optional().or(z.literal("")),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -51,17 +64,29 @@ export default function OrgProfilePage() {
         email: org.email ?? "",
         address: org.address ?? "",
         website: org.website ?? "",
+        vat_number: org.vat_number ?? "",
+        gln: org.gln ?? "",
+        license_expires_at: org.license_expires_at ?? "",
       });
     }
   }, [org, reset]);
 
   const updateOrg = useMutation({
-    mutationFn: (data: ProfileFormData) => organizationsApi.updateMyOrg(data),
+    // Blank optional inputs are sent as "", which the API would reject on
+    // format; drop them so "cleared" and "untouched" both mean null.
+    mutationFn: (data: ProfileFormData) =>
+      organizationsApi.updateMyOrg(
+        Object.fromEntries(Object.entries(data).filter(([, v]) => v !== ""))
+      ),
     onSuccess: () => {
       toast.success("تم حفظ التغييرات");
       qc.invalidateQueries({ queryKey: ["org-profile"] });
     },
-    onError: () => toast.error("فشل حفظ التغييرات"),
+    onError: (err: unknown) => {
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+      const msg = Array.isArray(detail) ? detail[0]?.msg : detail;
+      toast.error(typeof msg === "string" ? msg : "فشل حفظ التغييرات");
+    },
   });
 
   if (isLoading) {
@@ -117,7 +142,7 @@ export default function OrgProfilePage() {
             { label: "الفروع", value: org?.branch_count ?? 0 },
             { label: "العروض النشطة", value: org?.active_listings_count ?? 0 },
             { label: "المعاملات المكتملة", value: org?.completed_transactions_count ?? 0 },
-            { label: "الرقم الضريبي", value: org?.tax_number ?? "—" },
+            { label: "الرقم الضريبي", value: org?.vat_number ?? "—" },
           ].map((item) => (
             <div key={item.label} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
               <p className="text-gray-500 text-xs">{item.label}</p>
@@ -207,6 +232,53 @@ export default function OrgProfilePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
               {errors.website && <p className="text-red-500 text-xs mt-0.5">{errors.website.message}</p>}
+            </div>
+
+            {/* Regulatory identity — needed before invoices or traceability
+                reports can be filed on this organization's behalf. */}
+            <div className="border-t pt-4 space-y-4">
+              <p className="text-xs text-gray-500">
+                هذه البيانات مطلوبة لإصدار الفواتير الضريبية والإبلاغ عن حركة الدواء.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-gray-600 block mb-1">الرقم الضريبي</label>
+                  <input
+                    {...register("vat_number")}
+                    dir="ltr"
+                    inputMode="numeric"
+                    placeholder="300000000000003"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  {errors.vat_number && (
+                    <p className="text-red-500 text-xs mt-0.5">{errors.vat_number.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 block mb-1">
+                    رقم الموقع العالمي (GLN)
+                  </label>
+                  <input
+                    {...register("gln")}
+                    dir="ltr"
+                    inputMode="numeric"
+                    placeholder="6287000000009"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  {errors.gln && <p className="text-red-500 text-xs mt-0.5">{errors.gln.message}</p>}
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 block mb-1">
+                    تاريخ انتهاء الترخيص
+                  </label>
+                  <input
+                    {...register("license_expires_at")}
+                    type="date"
+                    dir="ltr"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Read-only compliance fields */}

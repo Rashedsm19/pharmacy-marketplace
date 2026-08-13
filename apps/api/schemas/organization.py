@@ -4,11 +4,16 @@ Organization and membership schemas.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
-from models.organization import MembershipRole, OrganizationStatus
+from models.organization import (
+    LicenseVerificationStatus,
+    MembershipRole,
+    OrganizationStatus,
+)
+from schemas.validators import validate_gln, validate_vat_number
 
 
 class OrganizationBase(BaseModel):
@@ -41,6 +46,14 @@ class OrganizationUpdate(BaseModel):
     allow_auto_listing: bool | None = None
     notes: str | None = None
 
+    # Regulatory identity — editable by the organization, checked on the way in.
+    vat_number: str | None = None
+    gln: str | None = None
+    license_expires_at: date | None = None
+
+    _vat = field_validator("vat_number")(lambda cls, v: validate_vat_number(v))
+    _gln = field_validator("gln")(lambda cls, v: validate_gln(v))
+
 
 class OrganizationOut(OrganizationBase):
     id: uuid.UUID
@@ -57,6 +70,14 @@ class OrganizationOut(OrganizationBase):
     license_doc_url: str | None = None
     rejection_reason: str | None = None
     suspension_reason: str | None = None
+
+    vat_number: str | None = None
+    gln: str | None = None
+    license_expires_at: date | None = None
+    license_verified_at: datetime | None = None
+    license_verification_status: LicenseVerificationStatus = (
+        LicenseVerificationStatus.UNVERIFIED
+    )
 
 
 class OrganizationApprove(BaseModel):

@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import enum
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,6 +35,15 @@ class MembershipRole(str, enum.Enum):
     VIEWER = "viewer"
 
 
+class LicenseVerificationStatus(str, enum.Enum):
+    """How the pharmacy licence was last checked against the regulator's register."""
+
+    UNVERIFIED = "unverified"
+    VERIFIED = "verified"
+    EXPIRED = "expired"
+    MISMATCH = "mismatch"
+
+
 class PharmacyOrganization(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "pharmacy_organizations"
 
@@ -45,6 +54,21 @@ class PharmacyOrganization(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDelete
     )
     license_number: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
     is_licensed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    # ── Regulatory identity ───────────────────────────────────────────────
+    # Required to issue a ZATCA tax invoice; 15 digits starting and ending in 3.
+    vat_number: Mapped[str | None] = mapped_column(String(15), nullable=True, index=True)
+    # GS1 Global Location Number — the party identifier RSD reports are filed under.
+    gln: Mapped[str | None] = mapped_column(String(13), nullable=True, index=True)
+    license_expires_at: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
+    license_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    license_verification_status: Mapped[LicenseVerificationStatus] = mapped_column(
+        String(20),
+        nullable=False,
+        default=LicenseVerificationStatus.UNVERIFIED,
+    )
     status: Mapped[OrganizationStatus] = mapped_column(
         String(50),
         nullable=False,

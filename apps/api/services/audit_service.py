@@ -1,11 +1,40 @@
 """Audit log service."""
 from __future__ import annotations
 
+import enum
 import uuid
+from datetime import date, datetime, time
+from decimal import Decimal
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.audit import AuditLog
+
+
+def json_safe(value: Any) -> Any:
+    """Coerce a value into something JSONB can hold.
+
+    Before/after states are built by handlers out of whatever the model exposes,
+    so a date, UUID, Decimal or enum arrives sooner or later; asyncpg raises on
+    those and the audit write takes the whole request down with it. Auditing must
+    never be the reason an operation fails.
+    """
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, enum.Enum):
+        return json_safe(value.value)
+    if isinstance(value, (datetime, date, time)):
+        return value.isoformat()
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, uuid.UUID):
+        return str(value)
+    if isinstance(value, dict):
+        return {str(k): json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [json_safe(v) for v in value]
+    return str(value)
 
 
 class AuditService:
@@ -32,8 +61,8 @@ class AuditService:
             action=action,
             resource_type=resource_type,
             resource_id=resource_id,
-            before_state=before_state,
-            after_state=after_state,
+            before_state=json_safe(before_state),
+            after_state=json_safe(after_state),
             ip_address=ip_address,
             user_agent=user_agent,
             notes=notes,
