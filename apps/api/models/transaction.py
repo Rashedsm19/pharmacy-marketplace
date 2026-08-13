@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -90,6 +90,17 @@ class Transaction(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     seller_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     buyer_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     dispute_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # ── Cold chain ────────────────────────────────────────────────────────
+    # Good distribution practice requires the temperature to be monitored and
+    # any excursion investigated. A cold-chain batch cannot be dispatched until
+    # the log is attached, and an excursion is disclosed to the buyer.
+    temperature_log_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    min_temp_c: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    max_temp_c: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    temperature_excursion: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
 
     # ── Relationships ─────────────────────────────────────────────────────
     listing: Mapped["MarketplaceListing"] = relationship(

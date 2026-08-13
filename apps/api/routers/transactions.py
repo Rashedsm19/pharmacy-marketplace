@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import uuid
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
 from repositories.organization import MembershipRepository
@@ -111,5 +111,36 @@ async def confirm_receipt(
         tx_id, org_id, current_user.id,
         buyer_notes=data.buyer_notes,
         ip_address=request.client.host if request.client else None,
+    )
+    return TransactionOut.model_validate(tx)
+
+
+@router.post("/{tx_id}/temperature-log", response_model=TransactionOut)
+async def attach_temperature_log(
+    tx_id: uuid.UUID,
+    db: DbSession,
+    current_user: OrgAdminOrAbove,
+    file: UploadFile = File(...),
+    min_temp_c: float | None = Form(default=None),
+    max_temp_c: float | None = Form(default=None),
+):
+    """Attach the shipment's temperature record.
+
+    Required before a cold-chain batch may be dispatched; readings outside
+    2-8 C are flagged so the buyer sees the excursion before accepting.
+    """
+    from decimal import Decimal
+
+    from services.storage_service import storage_service
+
+    org_id = await _get_org_id(current_user, db)
+    stored = await storage_service.save_document(file, org_id, "temperature")
+    svc = TransactionService(db)
+    tx = await svc.attach_temperature_log(
+        tx_id,
+        org_id,
+        stored,
+        Decimal(str(min_temp_c)) if min_temp_c is not None else None,
+        Decimal(str(max_temp_c)) if max_temp_c is not None else None,
     )
     return TransactionOut.model_validate(tx)

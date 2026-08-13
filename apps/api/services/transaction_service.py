@@ -116,6 +116,44 @@ class TransactionService:
         await self.db.flush()
         return tx
 
+    # Outside this window a refrigerated medicine is treated as excursed. The
+    # widely used range for cold-chain pharmaceuticals is 2–8 °C.
+    COLD_CHAIN_MIN_C = Decimal("2")
+    COLD_CHAIN_MAX_C = Decimal("8")
+
+    async def _requires_cold_chain(self, tx: Transaction) -> bool:
+        listing = await self.listing_repo.get(tx.listing_id)
+        return bool(listing and listing.batch and listing.batch.requires_cold_chain)
+
+    async def attach_temperature_log(
+        self,
+        tx_id: uuid.UUID,
+        seller_org_id: uuid.UUID,
+        stored_path: str,
+        min_temp_c: Decimal | None,
+        max_temp_c: Decimal | None,
+    ) -> Transaction:
+        """Record the shipment's temperature evidence before dispatch."""
+        tx = await self.tx_repo.get(tx_id)
+        if not tx:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+        if tx.seller_organization_id != seller_org_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+
+        tx.temperature_log_url = stored_path
+        tx.min_temp_c = min_temp_c
+        tx.max_temp_c = max_temp_c
+        tx.temperature_excursion = bool(
+            (min_temp_c is not None and min_temp_c < self.COLD_CHAIN_MIN_C)
+            or (max_temp_c is not None and max_temp_c > self.COLD_CHAIN_MAX_C)
+        )
+        if tx.temperature_excursion:
+            logger.warning(
+                "Temperature excursion on tx %s (%s–%s °C)", tx.id, min_temp_c, max_temp_c
+            )
+        await self.db.flush()
+        return tx
+
     async def dispatch(
         self,
         tx_id: uuid.UUID,
@@ -134,6 +172,17 @@ class TransactionService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Transaction is in '{tx.status}' state",
+            )
+
+        # A cold-chain product may not leave without evidence it stayed cold.
+        # Checked here rather than in the router so every path is covered.
+        if await self._requires_cold_chain(tx) and not tx.temperature_log_url:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "هذه الدفعة تتطلب سلسلة تبريد — "
+                    "ارفع سجل الحرارة قبل الشحن"
+                ),
             )
 
         tx.status = TransactionStatus.DISPATCHED

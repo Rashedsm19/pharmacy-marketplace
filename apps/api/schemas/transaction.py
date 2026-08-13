@@ -35,6 +35,12 @@ class TransactionOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    # Cold chain evidence attached to the shipment
+    temperature_log_url: str | None = None
+    min_temp_c: float | None = None
+    max_temp_c: float | None = None
+    temperature_excursion: bool = False
+
 
 class TransactionDetail(TransactionOut):
     product_name: str | None = None
