@@ -12,7 +12,14 @@
     "logout": "تسجيل الخروج",
     "disputes": "النزاعات",
     "importInventory": "استيراد المخزون",
-    "apiKeys": "الربط البرمجي"
+    "apiKeys": "الربط البرمجي",
+    "adminCompliance": "مراجعة الامتثال",
+    "adminInventory": "مخزون المنصة",
+    "adminDrafts": "مسودات المنتجات",
+    "adminImports": "عمليات الاستيراد",
+    "adminModeration": "مراقبة العروض",
+    "adminAudit": "سجل التدقيق",
+    "adminSettings": "إعدادات المنصة"
   },
   "auth": {
     "login": "دخول المنشآت",

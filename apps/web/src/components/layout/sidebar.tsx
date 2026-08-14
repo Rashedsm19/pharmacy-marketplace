@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import BrandLogo from "@/components/brand-logo";
+import { useAuthStore } from "@/lib/auth";
 import {
   LayoutDashboard,
   Package,
@@ -20,6 +21,12 @@ import {
   AlertTriangle,
   Upload,
   KeyRound,
+  Boxes,
+  FileStack,
+  ClipboardList,
+  BadgeCheck,
+  Gavel,
+  ScrollText,
   X,
 } from "lucide-react";
 
@@ -33,6 +40,9 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("nav");
+  const user = useAuthStore((state) => state.user);
+  // Showing a pharmacy eight links that all return 403 is worse than hiding them.
+  const isPlatformAdmin = user?.role === "super_admin";
 
   const navItems = [
     { href: `/${locale}/dashboard`, icon: LayoutDashboard, label: t("dashboard") },
@@ -47,8 +57,17 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
     { href: `/${locale}/notifications`, icon: Bell, label: t("notifications") },
   ];
 
+  // Every admin destination, not just approvals: the other screens existed but
+  // nothing linked to them, so they were reachable only by typing the URL.
   const adminItems = [
     { href: `/${locale}/admin/approvals`, icon: Shield, label: t("admin") },
+    { href: `/${locale}/admin/compliance`, icon: BadgeCheck, label: t("adminCompliance") },
+    { href: `/${locale}/admin/inventory`, icon: Boxes, label: t("adminInventory") },
+    { href: `/${locale}/admin/drafts`, icon: FileStack, label: t("adminDrafts") },
+    { href: `/${locale}/admin/imports`, icon: ClipboardList, label: t("adminImports") },
+    { href: `/${locale}/admin/moderation`, icon: Gavel, label: t("adminModeration") },
+    { href: `/${locale}/admin/audit-logs`, icon: ScrollText, label: t("adminAudit") },
+    { href: `/${locale}/admin/settings`, icon: Settings, label: t("adminSettings") },
   ];
 
   const handleNavClick = () => {
@@ -132,14 +151,16 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2.5">
         {navItems.map((item) => renderNavItem(item, "brand"))}
 
-        <div className="pt-3 mt-3 border-t border-[#eadfcc]">
-          {open && (
-            <p className="px-3 pb-2 text-[10px] uppercase tracking-normal font-semibold text-[#9a8b77]">
-              لوحة الإدارة
-            </p>
-          )}
-          {adminItems.map((item) => renderNavItem(item, "gold"))}
-        </div>
+        {isPlatformAdmin && (
+          <div className="pt-3 mt-3 border-t border-[#eadfcc]">
+            {open && (
+              <p className="px-3 pb-2 text-[10px] uppercase tracking-normal font-semibold text-[#9a8b77]">
+                لوحة الإدارة
+              </p>
+            )}
+            {adminItems.map((item) => renderNavItem(item, "gold"))}
+          </div>
+        )}
       </nav>
 
       {/* Settings at bottom */}

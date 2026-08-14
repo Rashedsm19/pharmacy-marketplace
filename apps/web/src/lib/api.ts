@@ -255,6 +255,17 @@ export const adminApi = {
   getSettings: () => apiClient.get("/admin/settings"),
   updateSetting: (key: string, value: unknown) =>
     apiClient.put(`/admin/settings/${key}`, { value }),
+  // Cross-pharmacy visibility — super admin only
+  allInventory: (params?: Record<string, unknown>) =>
+    apiClient.get("/admin/inventory", { params }),
+  draftProducts: (params?: Record<string, unknown>) =>
+    apiClient.get("/admin/products/drafts", { params }),
+  promoteDraft: (
+    id: string,
+    data?: { name?: string; name_ar?: string; sku?: string; barcode?: string }
+  ) => apiClient.post(`/admin/products/drafts/${id}/promote`, data ?? {}),
+  allImports: (params?: Record<string, unknown>) =>
+    apiClient.get("/admin/imports", { params }),
 };
 
 export const disputesApi = {

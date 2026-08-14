@@ -12,7 +12,14 @@
     "logout": "Logout",
     "disputes": "Disputes",
     "importInventory": "Import inventory",
-    "apiKeys": "API integration"
+    "apiKeys": "API integration",
+    "adminCompliance": "Compliance review",
+    "adminInventory": "Platform inventory",
+    "adminDrafts": "Draft products",
+    "adminImports": "Imports",
+    "adminModeration": "Listing moderation",
+    "adminAudit": "Audit log",
+    "adminSettings": "Platform settings"
   },
   "auth": {
     "login": "Facility Login",
