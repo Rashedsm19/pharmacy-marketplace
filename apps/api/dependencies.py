@@ -4,6 +4,7 @@ FastAPI dependency injectors: DB session, current user, role guards.
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from typing import Annotated, AsyncGenerator
 
 import jwt
@@ -11,6 +12,7 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.context import ActorContext, actor_context
 from auth.jwt import TokenData, decode_token
 from database import AsyncSessionLocal
 from models.user import User, UserRole
@@ -85,10 +87,100 @@ async def get_current_user(
             detail="User not found or inactive",
         )
 
+    await _establish_actor(db, user, token_data)
     return user
 
 
+async def _establish_actor(db, user: User, token_data: TokenData) -> None:
+    """Record who is behind this request, and validate an impersonated one.
+
+    Everything downstream re-derives the pharmacy from the signed-in user's
+    membership, so returning the customer's own row is what gives support their
+    screens. The checks here are the guard rails around that.
+    """
+    from models.impersonation import ImpersonationSession
+
+    if not token_data.act_sub:
+        actor_context.set(ActorContext(user_id=user.id))
+        return
+
+    expired = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="انتهت جلسة الدعم",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    # The administrator must still be a live platform administrator. There is no
+    # token revocation list in this system, so this check is the revocation:
+    # disable the admin and every session they opened dies on its next request.
+    admin = await db.get(User, uuid.UUID(token_data.act_sub))
+    if (
+        admin is None
+        or admin.deleted_at is not None
+        or not admin.is_active
+        or admin.role != UserRole.SUPER_ADMIN
+    ):
+        raise expired
+
+    # Re-checked here and not only when the session was opened: the target may
+    # have been promoted since, and support must never end up holding a platform
+    # administrator's session.
+    if user.role == UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="لا يمكن انتحال حساب مدير منصة",
+        )
+
+    session = (
+        await db.get(ImpersonationSession, uuid.UUID(token_data.imp_sid))
+        if token_data.imp_sid
+        else None
+    )
+    now = datetime.now(timezone.utc)
+    if (
+        session is None
+        or session.ended_at is not None
+        or session.expires_at <= now
+        or session.target_user_id != user.id
+    ):
+        raise expired
+
+    actor_context.set(
+        ActorContext(
+            user_id=user.id,
+            impersonator_id=admin.id,
+            impersonator_email=admin.email,
+            session_id=session.id,
+        )
+    )
+
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_actor_context() -> ActorContext:
+    return actor_context.get() or ActorContext()
+
+
+ActorCtx = Annotated[ActorContext, Depends(get_actor_context)]
+
+
+def forbid_impersonation(context: ActorCtx) -> ActorContext:
+    """Block the few actions that must not be taken inside someone's account.
+
+    Issuing an API key is the clearest one: the key is shown once and keeps
+    working long after the impersonation session ends, so it would turn a
+    time-limited look at an account into permanent access to it.
+    """
+    if context.is_impersonated:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="هذا الإجراء غير متاح أثناء تصفّح حساب عميل",
+        )
+    return context
+
+
+NotImpersonating = Annotated[ActorContext, Depends(forbid_impersonation)]
 
 
 # ── Optional Current User (for public routes with optional auth) ───────────────

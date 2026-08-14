@@ -9,6 +9,8 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.context import actor_context
+
 from models.audit import AuditLog
 
 
@@ -37,6 +39,14 @@ def json_safe(value: Any) -> Any:
     return str(value)
 
 
+def _with_actor(notes: str | None, context) -> str | None:
+    """Stamp an impersonated action with the administrator really behind it."""
+    if context is None or not context.is_impersonated:
+        return notes
+    stamp = f"[نفّذه الدعم: {context.impersonator_email} — جلسة {context.session_id}]"
+    return f"{notes} {stamp}" if notes else stamp
+
+
 class AuditService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
@@ -54,6 +64,14 @@ class AuditService:
         user_agent: str | None = None,
         notes: str | None = None,
     ) -> AuditLog:
+        # If support is operating inside a customer's account, say so on the row
+        # itself. The actor stays the customer — that is who the action was
+        # performed as, and it is what every existing caller passes — but an
+        # entry that does not reveal the platform was driving would make this
+        # trail less trustworthy than it was before impersonation existed.
+        context = actor_context.get()
+        notes = _with_actor(notes, context)
+
         log = AuditLog(
             id=uuid.uuid4(),
             actor_id=actor_id,

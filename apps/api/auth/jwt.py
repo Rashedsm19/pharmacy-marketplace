@@ -21,15 +21,34 @@ class TokenData(BaseModel):
     token_type: Literal["access", "refresh"] = "access"
     jti: str = ""     # unique token ID (for revocation)
 
+    # ── Impersonation ─────────────────────────────────────────────────────
+    # Set only when support is operating inside a customer's account. Absent on
+    # every ordinary token, so tokens issued before this existed still decode.
+    act_sub: str | None = None      # the real administrator's user id
+    act_email: str | None = None    # carried so audit and UI need no extra query
+    imp_sid: str | None = None      # impersonation session id — the kill switch
+
 
 def create_access_token(
     user_id: uuid.UUID,
     email: str,
     role: str,
     org_id: uuid.UUID | None = None,
+    *,
+    impersonator_id: uuid.UUID | None = None,
+    impersonator_email: str | None = None,
+    session_id: uuid.UUID | None = None,
+    expires_minutes: int | None = None,
 ) -> str:
+    """Mint an access token.
+
+    The impersonation arguments are keyword-only with defaults so every existing
+    caller is unaffected, and the claims are added only when support is actually
+    acting as someone — an absent claim is what "not impersonating" looks like.
+    """
     now = datetime.now(timezone.utc)
-    expire = now + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    minutes = expires_minutes or settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+    expire = now + timedelta(minutes=minutes)
     payload = {
         "sub": str(user_id),
         "email": email,
@@ -40,6 +59,10 @@ def create_access_token(
         "iat": now,
         "exp": expire,
     }
+    if impersonator_id is not None:
+        payload["act_sub"] = str(impersonator_id)
+        payload["act_email"] = impersonator_email
+        payload["imp_sid"] = str(session_id) if session_id else None
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
@@ -76,4 +99,7 @@ def decode_token(token: str) -> TokenData:
         org_id=payload.get("org_id"),
         token_type=payload.get("token_type", "access"),
         jti=payload.get("jti", ""),
+        act_sub=payload.get("act_sub"),
+        act_email=payload.get("act_email"),
+        imp_sid=payload.get("imp_sid"),
     )

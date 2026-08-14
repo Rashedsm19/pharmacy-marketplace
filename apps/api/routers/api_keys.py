@@ -11,7 +11,7 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, Request, status
 
-from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
+from dependencies import CurrentUser, DbSession, NotImpersonating, OrgAdminOrAbove
 from models.api_key import ApiKeyScope
 from models.user import UserRole
 from repositories.organization import MembershipRepository
@@ -73,6 +73,10 @@ async def create_key(
     request: Request,
     current_user: OrgAdminOrAbove,
     db: DbSession,
+    # A key is shown once and keeps working long after a support session ends,
+    # so issuing one from inside a customer's account would turn a time-limited
+    # look at it into permanent access.
+    _not_impersonating: NotImpersonating = None,
 ) -> ApiKeyCreated:
     org_id = await _require_org(current_user, db)
     service = ApiKeyService(db)
