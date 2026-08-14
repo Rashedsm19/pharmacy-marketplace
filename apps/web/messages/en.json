@@ -10,7 +10,9 @@
     "admin": "Platform Admin",
     "settings": "Settings",
     "logout": "Logout",
-    "disputes": "Disputes"
+    "disputes": "Disputes",
+    "importInventory": "Import inventory",
+    "apiKeys": "API integration"
   },
   "auth": {
     "login": "Facility Login",

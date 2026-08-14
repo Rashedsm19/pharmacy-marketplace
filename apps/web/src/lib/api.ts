@@ -280,3 +280,29 @@ export const disputesApi = {
     });
   },
 };
+
+export const importsApi = {
+  downloadTemplate: () =>
+    apiClient.get("/inventory/import/template", { responseType: "blob" }),
+  capacity: () => apiClient.get("/inventory/import/capacity"),
+  upload: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient.post("/inventory/import", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  list: (params?: Record<string, unknown>) =>
+    apiClient.get("/inventory/import", { params }),
+  get: (id: string) => apiClient.get(`/inventory/import/${id}`),
+  downloadErrors: (id: string) =>
+    apiClient.get(`/inventory/import/${id}/errors`, { responseType: "blob" }),
+};
+
+export const apiKeysApi = {
+  scopes: () => apiClient.get("/api-keys/scopes"),
+  list: () => apiClient.get("/api-keys"),
+  create: (data: { name: string; scopes: string[]; expires_at?: string | null }) =>
+    apiClient.post("/api-keys", data),
+  revoke: (id: string) => apiClient.delete(`/api-keys/${id}`),
+};
