@@ -102,6 +102,7 @@ def _register_routers(app: FastAPI) -> None:
     from routers.branches import router as branches_router
     from routers.products import router as products_router
     from routers.inventory import router as inventory_router
+    from routers.imports import router as imports_router
     from routers.listings import router as listings_router
     from routers.offers import router as offers_router
     from routers.reservations import router as reservations_router
@@ -118,6 +119,8 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(orgs_router, prefix=prefix)
     app.include_router(branches_router, prefix=prefix)
     app.include_router(products_router, prefix=prefix)
+    # Before the inventory router so /inventory/import stays its own namespace.
+    app.include_router(imports_router, prefix=prefix)
     app.include_router(inventory_router, prefix=prefix)
     app.include_router(listings_router, prefix=prefix)
     app.include_router(offers_router, prefix=prefix)

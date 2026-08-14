@@ -7,6 +7,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, status
 
 from dependencies import CurrentUser, DbSession, SuperAdmin
+from models.user import UserRole
 from repositories.product import ProductCategoryRepository, ProductRepository
 from schemas.common import PaginatedResponse
 from schemas.product import (
@@ -76,12 +77,21 @@ async def list_products(
     page: int = 1,
     page_size: int = 20,
 ):
+    # A pharmacy sees the shared catalogue plus the products it imported itself;
+    # a platform admin sees everything.
+    org_id = None
+    if current_user.role != UserRole.SUPER_ADMIN:
+        from repositories.organization import MembershipRepository
+
+        org_id = await MembershipRepository(db).get_user_org_id(current_user.id)
+
     repo = ProductRepository(db)
     rows, total = await repo.list_active(
         search=search,
         category_id=category_id,
         offset=(page - 1) * page_size,
         limit=page_size,
+        org_id=org_id,
     )
     return PaginatedResponse(
         items=[ProductOut.model_validate(r) for r in rows],
@@ -119,6 +129,16 @@ async def get_product(product_id: uuid.UUID, db: DbSession, current_user: Curren
     product = await repo.get(product_id)
     if not product or product.deleted_at:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+
+    # A private product belongs to one pharmacy; fetching it by id must not be a
+    # way around that. Reported as not found rather than forbidden, so the id
+    # itself does not confirm the product exists.
+    if product.owner_organization_id is not None and current_user.role != UserRole.SUPER_ADMIN:
+        from repositories.organization import MembershipRepository
+
+        org_id = await MembershipRepository(db).get_user_org_id(current_user.id)
+        if org_id != product.owner_organization_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return ProductOut.model_validate(product)
 
 

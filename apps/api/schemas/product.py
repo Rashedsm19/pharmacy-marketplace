@@ -90,3 +90,9 @@ class ProductOut(ProductBase):
     created_at: datetime
     updated_at: datetime
     category: ProductCategoryOut | None = None
+
+    # NULL owner means the shared catalogue; a draft is a private product
+    # awaiting review before it joins it.
+    owner_organization_id: uuid.UUID | None = None
+    is_draft: bool = False
+    source: str = "catalog"

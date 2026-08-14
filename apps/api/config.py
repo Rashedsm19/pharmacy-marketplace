@@ -87,6 +87,21 @@ class Settings(BaseSettings):
     AWS_SECRET_ACCESS_KEY: str = ""
     MAX_UPLOAD_SIZE_MB: int = 10
 
+    # ── Inventory import ──────────────────────────────────────────────────
+    # A spreadsheet of ten thousand medicines is a few megabytes, not ten.
+    MAX_IMPORT_SIZE_MB: int = 25
+    # The ceiling a single pharmacy may hold, checked before an import starts
+    # so the customer is told up front rather than halfway through.
+    MAX_INVENTORY_ITEMS_PER_ORG: int = 10000
+    # Rows written per flush; large enough to be fast, small enough to survive
+    # a small instance.
+    IMPORT_BATCH_SIZE: int = 500
+    # Errors kept on the job row itself; the rest live in the errors file.
+    IMPORT_MAX_INLINE_ERRORS: int = 50
+    # How often the worker looks for a queued file. Someone is watching a
+    # progress bar, so this is seconds rather than minutes.
+    IMPORT_POLL_INTERVAL_SECONDS: int = 20
+
     # ── Email (Resend / SMTP stub) ────────────────────────────────────────
     EMAIL_BACKEND: str = "stub"       # stub | resend | smtp
     RESEND_API_KEY: str = ""

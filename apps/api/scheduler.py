@@ -228,6 +228,49 @@ async def retry_invoice_clearance() -> None:
             logger.error("Invoice clearance retry failed: %s", exc)
 
 
+async def process_import_jobs() -> None:
+    """Pick up queued inventory imports and run them.
+
+    Jobs are claimed with a row lock and SKIP LOCKED so that two instances — or
+    two ticks that overlap because a big file is still running — never process
+    the same file twice. One job per tick keeps a ten thousand row import from
+    starving everything else on a small instance.
+    """
+    from sqlalchemy import select
+
+    from database import AsyncSessionLocal
+    from models.import_job import ImportJob, ImportStatus
+    from services.import_service import process_job
+
+    async with AsyncSessionLocal() as db:
+        try:
+            job = (
+                await db.execute(
+                    select(ImportJob)
+                    .where(ImportJob.status == ImportStatus.QUEUED)
+                    .order_by(ImportJob.created_at)
+                    .limit(1)
+                    .with_for_update(skip_locked=True)
+                )
+            ).scalar_one_or_none()
+            if job is None:
+                return
+
+            logger.info("Processing import job %s (%s)", job.id, job.filename)
+            await process_job(db, job)
+            logger.info(
+                "Import job %s finished: %s (+%d batches, ~%d updated, %d failed)",
+                job.id,
+                job.status,
+                job.created_batches,
+                job.updated_batches,
+                job.failed_rows,
+            )
+        except Exception as exc:  # noqa: BLE001
+            await db.rollback()
+            logger.error("Import worker failed: %s", exc)
+
+
 def create_scheduler() -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
@@ -250,5 +293,16 @@ def create_scheduler() -> AsyncIOScheduler:
         id="reservation_sweep",
         replace_existing=True,
         misfire_grace_time=300,
+    )
+    scheduler.add_job(
+        process_import_jobs,
+        trigger=IntervalTrigger(seconds=settings.IMPORT_POLL_INTERVAL_SECONDS),
+        id="import_worker",
+        replace_existing=True,
+        # A customer is watching a progress bar; a missed tick should run now,
+        # and only one instance of the worker may run at a time.
+        misfire_grace_time=60,
+        max_instances=1,
+        coalesce=True,
     )
     return scheduler
