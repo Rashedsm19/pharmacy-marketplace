@@ -7,7 +7,7 @@ import uuid
 from typing import Annotated, AsyncGenerator
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -143,3 +143,73 @@ def require_org_admin_or_above(current_user: CurrentUser) -> User:
 
 
 OrgAdminOrAbove = Annotated[User, Depends(require_org_admin_or_above)]
+
+
+# ── API Key Authentication ────────────────────────────────────────────────────
+#
+# The external endpoints are called by a customer's own system, which has no
+# user and no session. It presents a key in X-API-Key, and what comes back is an
+# organization rather than a user — everything downstream is scoped to it
+# exactly as a logged-in request would be.
+
+class ApiKeyContext:
+    """The authenticated caller behind an API key."""
+
+    def __init__(self, key, organization_id: uuid.UUID, scopes: list[str]) -> None:
+        self.key = key
+        self.organization_id = organization_id
+        self.scopes = scopes
+
+    def has(self, scope: str) -> bool:
+        return scope in self.scopes
+
+
+async def get_api_key_context(request: Request, db: DbSession) -> ApiKeyContext:
+    from models.organization import OrganizationStatus, PharmacyOrganization
+    from services.api_key_service import ApiKeyService
+
+    presented = request.headers.get("X-API-Key") or ""
+    if not presented:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="مفتاح API مطلوب في ترويسة X-API-Key",
+            headers={"WWW-Authenticate": "ApiKey"},
+        )
+
+    service = ApiKeyService(db)
+    key = await service.authenticate(presented)
+    if key is None:
+        # One message for missing, wrong, expired and revoked alike: which of
+        # those it is would tell a guesser whether a key ever existed.
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="مفتاح API غير صالح أو ملغى",
+            headers={"WWW-Authenticate": "ApiKey"},
+        )
+
+    organization = await db.get(PharmacyOrganization, key.organization_id)
+    if organization is None or organization.status != OrganizationStatus.APPROVED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="المنشأة غير معتمدة أو موقوفة",
+        )
+
+    await service.record_use(key, request.client.host if request.client else None)
+    return ApiKeyContext(key, key.organization_id, list(key.scopes or []))
+
+
+ApiKeyAuth = Annotated[ApiKeyContext, Depends(get_api_key_context)]
+
+
+def require_scope(scope: str):
+    """Guard an external endpoint with the scope its key must carry."""
+
+    async def _guard(context: ApiKeyAuth) -> ApiKeyContext:
+        if not context.has(scope):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"المفتاح لا يملك صلاحية {scope}",
+            )
+        return context
+
+    return _guard

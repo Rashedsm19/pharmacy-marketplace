@@ -246,6 +246,11 @@ class ImportProcessor:
         )
 
     async def run(self, content: bytes, filename: str) -> None:
+        """Import an uploaded file."""
+        await self.run_rows(excel_service.read_rows(content, filename))
+
+    async def run_rows(self, rows) -> None:
+        """Import any stream of parsed rows — a spreadsheet or an API payload."""
         await self.load_branches()
         await self.matcher.load()
 
@@ -255,7 +260,7 @@ class ImportProcessor:
         capped = False
 
         processed = 0
-        for row in excel_service.read_rows(content, filename):
+        for row in rows:
             processed += 1
             try:
                 data = self.validate(row)
