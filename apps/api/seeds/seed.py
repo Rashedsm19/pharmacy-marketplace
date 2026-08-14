@@ -53,12 +53,22 @@ async def _seed_all(db) -> None:
     today = date.today()
 
     # ── Super Admins ──────────────────────────────────────────────────────
+    #
+    # These passwords are for a developer's own machine and for the test suite.
+    # They are NOT production credentials: production runs with
+    # SEED_ON_STARTUP=false and its administrators are created out of band with
+    # `python -m seeds.create_superadmin`. Writing a real password here once put
+    # a live super admin into a public repository, so it must not happen again —
+    # override with SEED_ADMIN_PASSWORD / SEED_OWNER_PASSWORD if this seed is
+    # ever run anywhere that matters.
+    admin_password = os.getenv("SEED_ADMIN_PASSWORD", "Admin@12345")
+    owner_password = os.getenv("SEED_OWNER_PASSWORD", "123123123")
     admin = User(
         id=uuid.uuid4(),
         email="admin@pharmacy-marketplace.sa",
         phone="+966500000001",
         full_name="Super Administrator",
-        hashed_password=hash_password("Admin@12345"),
+        hashed_password=hash_password(admin_password),
         role=UserRole.SUPER_ADMIN,
         is_active=True,
         is_email_verified=True,
@@ -74,7 +84,7 @@ async def _seed_all(db) -> None:
         email="rhm@gmail.com",
         phone="+966500000099",
         full_name="Rashed — Super Admin",
-        hashed_password=hash_password("123123123"),
+        hashed_password=hash_password(owner_password),
         role=UserRole.SUPER_ADMIN,
         is_active=True,
         is_email_verified=True,

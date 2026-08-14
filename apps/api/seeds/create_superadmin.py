@@ -11,6 +11,7 @@ re-asserts the super_admin role rather than creating a duplicate.
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -20,7 +21,9 @@ from sqlalchemy import select
 from database import AsyncSessionLocal
 
 DEFAULT_EMAIL = "rhm@gmail.com"
-DEFAULT_PASSWORD = "123123123"
+# Never a real password: pass one on the command line, or set
+# SUPERADMIN_PASSWORD. A default that works is a default that ships.
+DEFAULT_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "")
 DEFAULT_NAME = "Rashed — Super Admin"
 DEFAULT_PHONE = "+966500000099"
 
@@ -77,6 +80,12 @@ async def create_superadmin(
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if len(args) < 2 and not DEFAULT_PASSWORD:
+        print(
+            "استخدم: python -m seeds.create_superadmin <البريد> <كلمة المرور>\n"
+            "او اضبط SUPERADMIN_PASSWORD في البيئة."
+        )
+        raise SystemExit(2)
     asyncio.run(
         create_superadmin(
             args[0] if len(args) > 0 else DEFAULT_EMAIL,
