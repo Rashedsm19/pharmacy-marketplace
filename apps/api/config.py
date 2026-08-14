@@ -102,6 +102,11 @@ class Settings(BaseSettings):
     # progress bar, so this is seconds rather than minutes.
     IMPORT_POLL_INTERVAL_SECONDS: int = 20
 
+    # ── Support console ───────────────────────────────────────────────────
+    # A support-issued reset link is handed over by phone or WhatsApp, so it
+    # lives shorter than one the customer requested themselves.
+    ADMIN_RESET_LINK_TTL_MINUTES: int = 30
+
     # ── Email (Resend / SMTP stub) ────────────────────────────────────────
     EMAIL_BACKEND: str = "stub"       # stub | resend | smtp
     RESEND_API_KEY: str = ""

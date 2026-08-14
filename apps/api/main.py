@@ -113,6 +113,7 @@ def _register_routers(app: FastAPI) -> None:
     from routers.reports import router as reports_router
     from routers.admin import router as admin_router
     from routers.notifications import router as notifications_router
+    from routers.support import router as support_router
     from routers.api_keys import router as api_keys_router
     from routers.external import router as external_router
 
@@ -134,6 +135,9 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(reports_router, prefix=prefix)
     app.include_router(admin_router, prefix=prefix)
     app.include_router(notifications_router, prefix=prefix)
+    # After the admin router: both use the /admin prefix and the paths differ,
+    # but registration order is what decides a tie.
+    app.include_router(support_router, prefix=prefix)
     app.include_router(api_keys_router, prefix=prefix)
     # Authenticated by X-API-Key rather than a session — a customer's own system.
     app.include_router(external_router, prefix=prefix)

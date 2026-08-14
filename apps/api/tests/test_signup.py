@@ -159,10 +159,33 @@ async def test_forgot_password_issues_a_token(client):
             await db.execute(select(User).where(User.email == payload["email"]))
         ).scalar_one()
         assert user.password_reset_token, "no reset token was issued"
-        token = user.password_reset_token
+        stored = user.password_reset_token
+
+    # What is stored is a digest, not the token. A reset token is a temporary
+    # password; anyone who can read the table must not be able to use it.
+    assert len(stored) == 64, "expected a sha-256 digest"
+    replayed = await client.post(
+        "/auth/reset-password",
+        json={"token": stored, "new_password": "Stolen@2026"},
+    )
+    assert replayed.status_code == 400, "the stored value must not work as a token"
+
+    # The real token only exists in flight, so mint one the way the service does
+    # and confirm the round trip still works for the customer.
+    from database import AsyncSessionLocal as Session
+    from services.auth_service import AuthService
+
+    async with Session() as db:
+        target = (
+            await db.execute(select(User).where(User.email == payload["email"]))
+        ).scalar_one()
+        token, _, _ = await AuthService(db).issue_password_reset(
+            target, send_email=False
+        )
+        await db.commit()
 
     reset = await client.post(
-        "/reset-password".replace("/reset-password", "/auth/reset-password"),
+        "/auth/reset-password",
         json={"token": token, "new_password": "Changed@2026"},
     )
     assert reset.status_code == 200, reset.text

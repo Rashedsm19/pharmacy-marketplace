@@ -43,6 +43,11 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # Set when support deletes an account. The email column is UNIQUE and the
+    # constraint counts soft-deleted rows, so a deletion has to release the
+    # address or the person can never be registered again; this keeps the
+    # original so a restore can put it back.
+    former_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     password_reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
     password_reset_expires: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
