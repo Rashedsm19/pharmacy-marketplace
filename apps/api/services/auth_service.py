@@ -216,6 +216,18 @@ class AuthService:
             )
 
         org_id = await self.membership_repo.get_user_org_id(user.id)
+
+        # The same gate login applies. Without it a pharmacy suspended for a
+        # compliance failure kept minting fresh access tokens for the whole
+        # refresh window — seven days of trading after being stopped.
+        if org_id is not None and user.role != UserRole.SUPER_ADMIN:
+            organization = await self.db.get(PharmacyOrganization, org_id)
+            if organization is not None and organization.status in _BLOCKED_STATUSES:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=_BLOCKED_STATUSES[organization.status],
+                )
+
         access_token = create_access_token(user.id, user.email, user.role, org_id)
         return RefreshResponse(access_token=access_token)
 

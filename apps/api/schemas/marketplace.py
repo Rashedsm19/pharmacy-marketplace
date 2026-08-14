@@ -41,7 +41,10 @@ class ListingUpdate(BaseModel):
     allow_partial_purchase: bool | None = None
     min_purchase_quantity: int | None = Field(None, ge=1)
     expires_at: datetime | None = None
-    status: ListingStatus | None = None
+    # Deliberately not editable here. A seller who could PATCH status straight
+    # back to ACTIVE could undo a platform removal, and could flip a RESERVED
+    # listing to SOLD and strand a buyer's live reservation. Status changes go
+    # through the endpoints that own the transition.
 
 
 class ListingOut(ListingBase):

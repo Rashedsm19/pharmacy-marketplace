@@ -21,7 +21,7 @@ const registerSchema = z.object({
   org_name_ar: z.string().optional(),
   commercial_registration_number: z.string().min(5, "رقم السجل التجاري مطلوب"),
   license_number: z.string().optional(),
-  org_email: z.string().email("البريد الإلكتروني للمنظمة غير صحيح"),
+  org_email: z.string().email("البريد الإلكتروني للمنشأة غير صحيح"),
   org_phone: z.string().min(9, "رقم الهاتف مطلوب"),
   org_address: z.string().optional(),
   org_city: z.string().min(2, "المدينة مطلوبة"),
@@ -139,7 +139,7 @@ export default function RegisterPage() {
               <Field label="رقم الترخيص" error={errors.license_number?.message}>
                 <input {...register("license_number")} placeholder="LIC-XXXXXXXXX (اختياري)" className={inputCls} dir="ltr" />
               </Field>
-              <Field label="البريد الإلكتروني للمنظمة" error={errors.org_email?.message}>
+              <Field label="البريد الإلكتروني للمنشأة" error={errors.org_email?.message}>
                 <input {...register("org_email")} type="email" className={inputCls} dir="ltr" />
               </Field>
               <Field label="رقم هاتف المنشأة" error={errors.org_phone?.message}>

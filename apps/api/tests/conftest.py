@@ -29,6 +29,9 @@ os.environ.setdefault("EMAIL_BACKEND", "stub")
 os.environ.setdefault("WHATSAPP_BACKEND", "stub")
 os.environ.setdefault("REQUIRE_APPCHECK", "false")
 os.environ.setdefault("REQUIRE_CLOUDFLARE", "false")
+# The suite signs in dozens of times in seconds; the throttle is not what
+# these tests are for, and it has its own.
+os.environ.setdefault("THROTTLE_AUTH", "false")
 
 from httpx import ASGITransport, AsyncClient  # noqa: E402
 

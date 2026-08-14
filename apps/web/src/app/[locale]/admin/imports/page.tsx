@@ -118,7 +118,7 @@ export default function AdminImportsPage() {
           }
         >
           {isLoading ? (
-            <p className="px-6 py-10 text-sm text-[#8a9089]">جار التحميل…</p>
+            <p className="px-6 py-10 text-sm text-[#8a9089]">جاري التحميل…</p>
           ) : rows.length === 0 ? (
             <EmptyState
               icon={Upload}

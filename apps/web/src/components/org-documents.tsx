@@ -184,7 +184,7 @@ export function OrgDocumentsUpload({
               className="flex items-center gap-1.5 rounded-lg bg-[#0aa39b] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#07877f] disabled:opacity-50"
             >
               <Upload className="h-3.5 w-3.5" />
-              {busy === type ? "جار الرفع…" : stored ? "استبدال" : "رفع"}
+              {busy === type ? "جاري الرفع…" : stored ? "استبدال" : "رفع"}
             </button>
           </div>
         </div>

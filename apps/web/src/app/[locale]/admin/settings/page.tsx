@@ -119,7 +119,7 @@ export default function AdminSettingsPage() {
         />
 
         {isLoading ? (
-          <p className="text-sm text-[#8a9089]">جار التحميل…</p>
+          <p className="text-sm text-[#8a9089]">جاري التحميل…</p>
         ) : (
           Object.entries(groups).map(([group, items]) => (
             <SectionCard key={group} title={group} noPadding>

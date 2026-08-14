@@ -68,7 +68,7 @@ export default function AdminDisputesPage() {
     <Shell>
       <div className="space-y-5">
         <PageHeader
-          title="طابور النزاعات"
+          title="النزاعات المعلقة"
           subtitle={`بلاغات تنتظر قرار المنصة — الأقدم أولا${disputes.length ? ` · ${disputes.length}` : ""}`}
         />
 

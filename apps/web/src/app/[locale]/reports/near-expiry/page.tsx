@@ -58,9 +58,9 @@ export default function NearExpiryReportPage() {
             onChange={(e) => setDays(Number(e.target.value))}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            <option value={30}>خلال 30 يوم</option>
-            <option value={90}>خلال 90 يوم</option>
-            <option value={180}>خلال 180 يوم</option>
+            <option value={30}>خلال 30 يوما</option>
+            <option value={90}>خلال 90 يوما</option>
+            <option value={180}>خلال 180 يوما</option>
           </select>
         </div>
 
@@ -69,9 +69,9 @@ export default function NearExpiryReportPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { label: "إجمالي الدفعات", value: report.summary.total_batches, color: "text-gray-900" },
-              { label: "أقل من 30 يوم", value: report.summary.critical, color: "text-red-600" },
-              { label: "30-90 يوم", value: report.summary.warning, color: "text-orange-600" },
-              { label: "90-180 يوم", value: report.summary.notice, color: "text-yellow-600" },
+              { label: "أقل من 30 يوما", value: report.summary.critical, color: "text-red-600" },
+              { label: "30-90 يوما", value: report.summary.warning, color: "text-orange-600" },
+              { label: "90-180 يوما", value: report.summary.notice, color: "text-yellow-600" },
             ].map((item) => (
               <div key={item.label} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                 <p className="text-gray-400 text-xs">{item.label}</p>

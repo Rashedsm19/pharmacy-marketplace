@@ -4,7 +4,8 @@ APScheduler setup — near-expiry scan job runs every 6 hours.
 from __future__ import annotations
 
 import logging
-from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
+from datetime import date, datetime, timedelta, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -106,8 +107,23 @@ async def _auto_list_batch(db, batch, days: int) -> None:
     if not batch.unit_cost:
         return
 
-    discount = rule.auto_listing_discount_pct / 100
-    asking_price = float(batch.unit_cost) * (1 - discount) * batch.quantity_available
+    # Both of these were wrong and each was severe on its own.
+    #
+    # `auto_listing_discount_pct` is Numeric, so it reads back as Decimal, and
+    # `float * Decimal` raises TypeError. That exception propagated to the scan's
+    # handler, which rolls the whole tick back — so a single auto-listable batch
+    # silently killed near-expiry alerting for the entire platform, every six
+    # hours, permanently.
+    #
+    # And the price was computed for the whole lot while every consumer reads it
+    # per unit: `transaction_service` multiplies it by quantity again. A batch of
+    # 120 at 12.50 would have billed 144,000 riyals instead of 1,200 — and that
+    # figure goes onto a signed tax invoice.
+    discount = Decimal(str(rule.auto_listing_discount_pct or 0)) / Decimal("100")
+    unit_price = (Decimal(str(batch.unit_cost)) * (Decimal("1") - discount)).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+    asking_price = float(unit_price)
 
     product_name = batch.product.name if batch.product else "Product"
     listing = MarketplaceListing(
@@ -238,12 +254,31 @@ async def process_import_jobs() -> None:
     """
     from sqlalchemy import select
 
+    from sqlalchemy import update as sql_update
+
     from database import AsyncSessionLocal
     from models.import_job import ImportJob, ImportStatus
     from services.import_service import process_job
 
     async with AsyncSessionLocal() as db:
         try:
+            # A job left PROCESSING by a redeploy would sit there for ever:
+            # the claim query only looks at QUEUED and nothing ever revisits it.
+            # Anything that has been "processing" far longer than any real file
+            # takes is put back in the queue.
+            stale_before = datetime.now(timezone.utc) - timedelta(minutes=30)
+            requeued = await db.execute(
+                sql_update(ImportJob)
+                .where(
+                    ImportJob.status == ImportStatus.PROCESSING,
+                    ImportJob.started_at < stale_before,
+                )
+                .values(status=ImportStatus.QUEUED, started_at=None)
+            )
+            if requeued.rowcount:
+                logger.warning("Requeued %d stalled import job(s)", requeued.rowcount)
+                await db.commit()
+
             job = (
                 await db.execute(
                     select(ImportJob)

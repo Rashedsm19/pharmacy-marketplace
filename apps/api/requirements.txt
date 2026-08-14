@@ -36,5 +36,5 @@ resend==2.5.1
 openpyxl==3.1.5
 
 # Utilities
-python-multipart==0.0.17
+python-multipart==0.0.20
 python-dotenv==1.0.1

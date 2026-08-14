@@ -67,9 +67,17 @@ async function proxy(request: NextRequest, context: RouteContext) {
   }
 
   // The API sleeps on the free plan, so the first request after an idle period can
-  // be refused or dropped while it wakes. Without this the fetch throws and Next
-  // answers with a bare "Internal Server Error" that tells the user nothing.
-  const MAX_ATTEMPTS = 3;
+  // be refused or dropped while it wakes. Without a retry the fetch throws and
+  // Next answers with a bare "Internal Server Error" that tells the user nothing.
+  //
+  // But only a read may be retried. A write that timed out may well have been
+  // received and committed — the timeout says nothing about whether the server
+  // acted — and replaying it turned one submitted offer into three, one
+  // inventory import into three (tripling a pharmacy's stock), and one completed
+  // transaction into duplicate tax invoices. Nothing in the API is idempotent,
+  // so the retry has to stop at the methods that are idempotent by definition.
+  const isRead = request.method === "GET" || request.method === "HEAD";
+  const MAX_ATTEMPTS = isRead ? 3 : 1;
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {

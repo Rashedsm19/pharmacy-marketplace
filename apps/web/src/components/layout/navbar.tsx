@@ -129,7 +129,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                       {user.role === "super_admin"
                         ? "مدير المنصة"
                         : user.role === "org_admin"
-                        ? "مدير منظمة"
+                        ? "مدير منشأة"
                         : user.role === "pharmacist"
                         ? "صيدلي"
                         : user.role}

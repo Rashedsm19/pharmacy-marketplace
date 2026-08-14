@@ -36,7 +36,7 @@ export function ExpiryBadge({
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", zoneDots[zone])} />
       <span>{zoneLabels[zone]}</span>
-      {showDays && <span className="tabular-nums">— {daysUntilExpiry} يوم</span>}
+      {showDays && <span className="tabular-nums">— {daysUntilExpiry} يوما</span>}
     </span>
   );
 }

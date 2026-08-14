@@ -132,7 +132,7 @@ export default function InventoryImportPage() {
       setActiveJobId(job.id);
       setMessage({
         kind: "ok",
-        text: "تم رفع الملف — جار المعالجة، ويمكنك متابعة التقدم أدناه.",
+        text: "تم رفع الملف — جاري المعالجة، ويمكنك متابعة التقدم أدناه.",
       });
       queryClient.invalidateQueries({ queryKey: ["import-jobs"] });
     },
@@ -227,7 +227,7 @@ export default function InventoryImportPage() {
         {/* ── The three steps, in order ───────────────────────────────── */}
         <div className="grid gap-4 lg:grid-cols-3">
           <SectionCard
-            title="١ · نزل القالب"
+            title="١ · تنزيل القالب"
             subtitle="أعمدة جاهزة، وفروعك مدرجة في قائمة منسدلة"
           >
             <p className="text-sm text-[#5f665f] leading-relaxed mb-4">
@@ -250,7 +250,7 @@ export default function InventoryImportPage() {
             </button>
           </SectionCard>
 
-          <SectionCard title="٢ · عبئ أصنافك" subtitle="من نظامك أو يدويا">
+          <SectionCard title="٢ · ادخال الاصناف" subtitle="من نظامك أو يدويا">
             <ul className="text-sm text-[#5f665f] space-y-2.5 leading-relaxed">
               <li className="flex gap-2">
                 <span className="text-brand-600 font-semibold">•</span>
@@ -471,7 +471,7 @@ export default function InventoryImportPage() {
                 </p>
               </>
             ) : (
-              <p className="text-sm text-[#8a9089]">جار الحساب…</p>
+              <p className="text-sm text-[#8a9089]">جاري الحساب…</p>
             )}
           </SectionCard>
 
@@ -557,7 +557,7 @@ export default function InventoryImportPage() {
               <EmptyState
                 icon={Clock}
                 title="لم تستورد أي ملف بعد"
-                description="نزل القالب، عبئ أصنافك، ثم ارفعه — وستظهر العملية هنا."
+                description="حمل القالب، وادخل اصنافك، ثم ارفعه — وستظهر العملية هنا."
               />
             )}
           </SectionCard>

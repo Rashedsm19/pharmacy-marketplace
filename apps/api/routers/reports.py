@@ -185,7 +185,7 @@ async def report_top_products(
     from models.inventory import InventoryBatch
     from models.product import Product
 
-    await _get_org_id(current_user, db)
+    org_id = await _get_org_id(current_user, db)
 
     q = (
         select(
@@ -197,6 +197,10 @@ async def report_top_products(
         )
         .join(InventoryBatch, Product.id == InventoryBatch.product_id)
         .join(MarketplaceListing, InventoryBatch.id == MarketplaceListing.batch_id)
+        # The org was resolved and then thrown away, so every pharmacist could
+        # read the platform-wide ranking — which products competitors list and
+        # how often. Every other report in this file scopes; this one did not.
+        .where(*( [InventoryBatch.organization_id == org_id] if org_id else [] ))
         .group_by(Product.id)
         .order_by(func.count(MarketplaceListing.id).desc())
         .limit(limit)

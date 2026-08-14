@@ -42,6 +42,35 @@ class ListingService:
 
         # Validate quantity
         batch = await self.batch_repo.get_by_org(data.batch_id, org_id)
+        # Stock already committed to another live listing is not available to
+        # this one. Without this the same batch could back unlimited listings and
+        # be sold more than once, with the arithmetic quietly absorbing the
+        # phantom units at receipt time.
+        from sqlalchemy import func as _func, select as _select
+
+        from models.marketplace import MarketplaceListing as _Listing
+
+        already = int(
+            await self.db.scalar(
+                _select(_func.coalesce(_func.sum(_Listing.quantity_available), 0)).where(
+                    _Listing.batch_id == data.batch_id,
+                    _Listing.status.in_(
+                        [ListingStatus.DRAFT, ListingStatus.ACTIVE, ListingStatus.RESERVED]
+                    ),
+                    _Listing.deleted_at.is_(None),
+                )
+            )
+            or 0
+        )
+        free = batch.quantity_available - already
+        if data.quantity_listed > free:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"الكمية المتاحة للعرض {max(free, 0)} فقط — "
+                    f"{already} وحدة معروضة بالفعل من هذه التشغيلة"
+                ),
+            )
         if data.quantity_listed > batch.quantity_available:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

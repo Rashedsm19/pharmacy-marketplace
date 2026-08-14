@@ -134,9 +134,9 @@ export default function RecoverableValueReportPage() {
               <div className="divide-y divide-slate-100">
                 {[
                   { zone: "green" as const, label: "صالح (180+ يوم)", value: report.by_zone.green, days: 200 },
-                  { zone: "yellow" as const, label: "تنبيه (90-180 يوم)", value: report.by_zone.yellow, days: 120 },
-                  { zone: "orange" as const, label: "تحذير (30-90 يوم)", value: report.by_zone.orange, days: 60 },
-                  { zone: "red" as const, label: "حرج (أقل من 30 يوم)", value: report.by_zone.red, days: 15 },
+                  { zone: "yellow" as const, label: "تنبيه (90-180 يوما)", value: report.by_zone.yellow, days: 120 },
+                  { zone: "orange" as const, label: "تحذير (30-90 يوما)", value: report.by_zone.orange, days: 60 },
+                  { zone: "red" as const, label: "حرج (أقل من 30 يوما)", value: report.by_zone.red, days: 15 },
                 ].map((item) => (
                   <div
                     key={item.zone}

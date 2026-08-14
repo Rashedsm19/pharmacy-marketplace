@@ -43,9 +43,9 @@ export default function TopProductsReportPage() {
             onChange={(e) => setPeriod(e.target.value as typeof period)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            <option value="30">آخر 30 يوم</option>
-            <option value="90">آخر 90 يوم</option>
-            <option value="180">آخر 180 يوم</option>
+            <option value="30">آخر 30 يوما</option>
+            <option value="90">آخر 90 يوما</option>
+            <option value="180">آخر 180 يوما</option>
             <option value="365">آخر سنة</option>
           </select>
           <select

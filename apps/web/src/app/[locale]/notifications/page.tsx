@@ -17,9 +17,9 @@ const TYPE_LABELS: Record<string, string> = {
   reservation_expired: "انتهى الحجز",
   transaction_dispatched: "تم الشحن",
   transaction_completed: "اكتملت المعاملة",
-  near_expiry_180: "تنبيه: 180 يوم على الانتهاء",
-  near_expiry_90: "تحذير: 90 يوم على الانتهاء",
-  near_expiry_30: "حرج: 30 يوم على الانتهاء",
+  near_expiry_180: "تنبيه: 180 يوما على الانتهاء",
+  near_expiry_90: "تحذير: 90 يوما على الانتهاء",
+  near_expiry_30: "حرج: 30 يوما على الانتهاء",
   org_approved: "تمت الموافقة على منشأتك",
   org_rejected: "تم رفض طلب منشأتك",
 };

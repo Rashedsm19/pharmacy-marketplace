@@ -250,7 +250,7 @@ export default function IntegrationDocsPage() {
         </SectionCard>
 
         {/* ── Endpoint table ──────────────────────────────────────────── */}
-        <SectionCard title="النقاط المتاحة" noPadding>
+        <SectionCard title="المسارات المتاحة" noPadding>
           <div id="endpoints" className="scroll-mt-24 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-[#fdfbf7] text-[#8a9089]">

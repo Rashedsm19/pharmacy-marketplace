@@ -35,9 +35,9 @@ export const expiryZoneHex = {
 export const expiryZoneLabels = {
   ar: {
     green: "صالح (180+ يوم)",
-    yellow: "تنبيه (90-180 يوم)",
-    orange: "تحذير (30-90 يوم)",
-    red: "حرج (أقل من 30 يوم)",
+    yellow: "تنبيه (90-180 يوما)",
+    orange: "تحذير (30-90 يوما)",
+    red: "حرج (أقل من 30 يوما)",
   },
   en: {
     green: "Healthy (180+ days)",

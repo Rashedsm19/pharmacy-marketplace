@@ -63,7 +63,7 @@ export default function ImpersonationBanner() {
           className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full bg-white/15 hover:bg-white/25 text-sm font-medium disabled:opacity-60 shrink-0"
         >
           <LogOut className="h-3.5 w-3.5" />
-          {leaving ? "جار الخروج…" : "خروج من الحساب"}
+          {leaving ? "جاري الخروج…" : "خروج من الحساب"}
         </button>
       </div>
     </div>

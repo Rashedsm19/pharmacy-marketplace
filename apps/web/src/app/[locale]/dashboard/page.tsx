@@ -35,7 +35,7 @@ const statusLabelMap: Record<string, string> = {
   pending: "بانتظار الرد",
   accepted: "مقبول",
   rejected: "مرفوض",
-  cancelled: "ملغي",
+  cancelled: "ملغى",
   expired: "منتهي",
 };
 

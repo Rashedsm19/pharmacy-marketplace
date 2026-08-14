@@ -52,9 +52,9 @@ export default function NearExpiryPage() {
                 onChange={(e) => setDays(Number(e.target.value))}
                 className="h-9 px-3 bg-white ring-1 ring-inset ring-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                <option value={30}>30 يوم</option>
-                <option value={90}>90 يوم</option>
-                <option value={180}>180 يوم</option>
+                <option value={30}>30 يوما</option>
+                <option value={90}>90 يوما</option>
+                <option value={180}>180 يوما</option>
               </select>
             </div>
           }
@@ -64,21 +64,21 @@ export default function NearExpiryPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <KpiCard
             icon={AlertOctagon}
-            label="حرج (< 30 يوم)"
+            label="حرج (< 30 يوما)"
             value={redCount}
             tone="critical"
             hint="دفعة"
           />
           <KpiCard
             icon={AlertTriangle}
-            label="تحذير (30-90 يوم)"
+            label="تحذير (30-90 يوما)"
             value={orangeCount}
             tone="warning"
             hint="دفعة"
           />
           <KpiCard
             icon={BellRing}
-            label="تنبيه (90-180 يوم)"
+            label="تنبيه (90-180 يوما)"
             value={yellowCount}
             tone="notice"
             hint="دفعة"

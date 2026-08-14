@@ -126,8 +126,11 @@ export const inventoryApi = {
 export const listingsApi = {
   list: (params?: Record<string, unknown>) =>
     apiClient.get("/listings", { params }),
+  // There is no /listings/mine on the API — that request fell through to
+  // /listings/{listing_id} and returned 422, so a pharmacy with live listings
+  // was told it had none on the screen for managing them.
   listMine: (params?: Record<string, unknown>) =>
-    apiClient.get("/listings/mine", { params }),
+    apiClient.get("/listings", { params: { ...params, my_listings: true } }),
   create: (data: Record<string, unknown>) =>
     apiClient.post("/listings", data),
   get: (id: string) => apiClient.get(`/listings/${id}`),

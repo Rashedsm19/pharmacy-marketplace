@@ -28,6 +28,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { apiKeysApi } from "@/lib/api";
+import { errorMessage } from "@/lib/errors";
 import { formatDate } from "@/lib/utils";
 
 type ApiKey = {
@@ -88,7 +89,15 @@ export default function ApiKeysPage() {
     mutationFn: (id: string) => apiKeysApi.revoke(id),
     onSuccess: () => {
       setConfirmRevoke(null);
+      setError(null);
       queryClient.invalidateQueries({ queryKey: ["api-keys"] });
+    },
+    // Silence here was the worst kind: the spinner stopped, the key still read
+    // "نشط", and the person believed a leaked key had been revoked when it had
+    // not.
+    onError: (err: unknown) => {
+      setConfirmRevoke(null);
+      setError(errorMessage(err, "تعذر إلغاء المفتاح — المفتاح ما زال فعالا"));
     },
   });
 
@@ -196,7 +205,7 @@ export default function ApiKeysPage() {
         {creating && (
           <SectionCard
             title="إنشاء مفتاح"
-            subtitle="سم المفتاح باسم النظام الذي سيستخدمه، وامنحه أقل الصلاحيات اللازمة"
+            subtitle="اختر للمفتاح اسم النظام الذي سيستخدمه، وامنحه أقل الصلاحيات اللازمة"
           >
             <form
               onSubmit={(event) => {
@@ -300,7 +309,7 @@ export default function ApiKeysPage() {
         {/* ── The keys ────────────────────────────────────────────────── */}
         <SectionCard title="المفاتيح" subtitle="ألغ أي مفتاح فور الاشتباه في تسريبه" noPadding>
           {isLoading ? (
-            <p className="px-6 py-8 text-sm text-[#8a9089]">جار التحميل…</p>
+            <p className="px-6 py-8 text-sm text-[#8a9089]">جاري التحميل…</p>
           ) : keys.length === 0 ? (
             <EmptyState
               icon={KeyRound}

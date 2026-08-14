@@ -21,7 +21,14 @@
     "adminAudit": "سجل التدقيق",
     "adminSettings": "إعدادات المنصة",
     "adminCustomers": "العملاء",
-    "adminUsers": "حسابات المستخدمين"
+    "adminUsers": "حسابات المستخدمين",
+    "myOffers": "عروضي المقدمة",
+    "myReservations": "حجوزاتي",
+    "myTransactions": "صفقاتي",
+    "products": "كتالوج المنتجات",
+    "reportsAll": "كل التقارير",
+    "adminCategories": "فئات المنتجات",
+    "adminDisputes": "نزاعات المنصة"
   },
   "auth": {
     "login": "دخول المنشآت",
@@ -108,7 +115,7 @@
     "pending": "قيد الانتظار",
     "accepted": "مقبول",
     "rejected": "مرفوض",
-    "cancelled": "ملغي",
+    "cancelled": "ملغى",
     "expired": "منتهي"
   },
   "reservations": {

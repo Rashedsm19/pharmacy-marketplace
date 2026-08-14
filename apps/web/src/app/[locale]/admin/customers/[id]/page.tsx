@@ -154,7 +154,7 @@ export default function CustomerFilePage() {
     mutationFn: ({ file, reason }: { file: File; reason: string }) =>
       adminApi.importForCustomer(orgId, file, reason).then((r) => r.data),
     onSuccess: () => {
-      toast.success("أدرج الملف في طابور المعالجة وأبلغ العميل");
+      toast.success("أدرج الملف في قائمة المعالجة وأبلغ العميل");
       refresh();
     },
     onError: fail("تعذر رفع الملف"),
@@ -217,7 +217,7 @@ export default function CustomerFilePage() {
   if (isLoading) {
     return (
       <Shell>
-        <p className="text-sm text-[#8a9089]">جار التحميل…</p>
+        <p className="text-sm text-[#8a9089]">جاري التحميل…</p>
       </Shell>
     );
   }

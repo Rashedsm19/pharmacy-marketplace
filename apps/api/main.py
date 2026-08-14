@@ -49,8 +49,12 @@ def create_app() -> FastAPI:
     from middleware.logging import LoggingMiddleware
     from middleware.cloudflare import CloudflareGuardMiddleware
     from middleware.appcheck import AppCheckMiddleware
+    from middleware.throttle import LoginThrottleMiddleware
 
     app.add_middleware(LoggingMiddleware)
+
+    # Inside the logger so throttled attempts still appear in the access log.
+    app.add_middleware(LoginThrottleMiddleware, enabled=settings.THROTTLE_AUTH)
 
     app.add_middleware(
         CORSMiddleware,
@@ -84,6 +88,41 @@ def create_app() -> FastAPI:
         await _stop_scheduler()
         from httpx_client import close_http_client
         await close_http_client()
+
+    # ── Validation errors ─────────────────────────────────────────────────
+    from fastapi.exceptions import RequestValidationError
+
+    @app.exception_handler(RequestValidationError)
+    async def _validation_error(request, exc: RequestValidationError):
+        """Return one readable sentence instead of FastAPI's array of objects.
+
+        The default `detail` is a list of dicts. Clients here type it as a string
+        and render it, so a validation failure put an object where React expected
+        text and blanked the page — including the sign-in screen. One Arabic
+        sentence naming the field is both correct for the client and more use to
+        the person reading it.
+        """
+        parts: list[str] = []
+        for error in exc.errors()[:4]:
+            field = ".".join(str(p) for p in error.get("loc", ()) if p != "body")
+            parts.append(f"{field}: {error.get('msg', '')}" if field else str(error.get("msg", "")))
+        # Only the parts that are safe to serialise: pydantic puts the original
+        # exception object into `ctx`, which no JSON encoder will take.
+        fields = [
+            {
+                "field": ".".join(str(p) for p in e.get("loc", ()) if p != "body"),
+                "message": str(e.get("msg", "")),
+                "type": str(e.get("type", "")),
+            }
+            for e in exc.errors()[:10]
+        ]
+        return ORJSONResponse(
+            status_code=422,
+            content={
+                "detail": "البيانات المرسلة غير مقبولة — " + "؛ ".join(parts),
+                "fields": fields,
+            },
+        )
 
     # ── Health endpoint ───────────────────────────────────────────────────
     @app.get("/health", tags=["Health"])

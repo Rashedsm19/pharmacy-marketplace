@@ -102,6 +102,10 @@ class Settings(BaseSettings):
     # progress bar, so this is seconds rather than minutes.
     IMPORT_POLL_INTERVAL_SECONDS: int = 20
 
+    # Rate limiting on the authentication endpoints. Off only for tests,
+    # which sign in far faster than any person would.
+    THROTTLE_AUTH: bool = True
+
     # ── Support console ───────────────────────────────────────────────────
     # A support-issued reset link is handed over by phone or WhatsApp, so it
     # lives shorter than one the customer requested themselves.

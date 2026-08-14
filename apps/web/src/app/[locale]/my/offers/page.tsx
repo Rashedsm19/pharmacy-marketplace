@@ -123,7 +123,7 @@ export default function MyOffersPage() {
                         <Link
                           href={`/${locale}/marketplace/${offer.listing_id}`}
                           className="text-brand-600 hover:text-brand-700 p-1 rounded"
-                          title="عرض العرض"
+                          title="فتح العرض"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>

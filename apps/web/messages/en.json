@@ -21,7 +21,14 @@
     "adminAudit": "Audit log",
     "adminSettings": "Platform settings",
     "adminCustomers": "Customers",
-    "adminUsers": "User accounts"
+    "adminUsers": "User accounts",
+    "myOffers": "My bids",
+    "myReservations": "My reservations",
+    "myTransactions": "My transactions",
+    "products": "Product catalogue",
+    "reportsAll": "All reports",
+    "adminCategories": "Product categories",
+    "adminDisputes": "Platform disputes"
   },
   "auth": {
     "login": "Facility Login",
