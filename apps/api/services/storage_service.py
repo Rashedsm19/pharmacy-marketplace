@@ -42,7 +42,7 @@ class StorageService:
         self.root = Path(settings.STORAGE_LOCAL_PATH)
 
     async def save_document(
-        self, file: UploadFile, organization_id: uuid.UUID, doc_type: str
+        self, file: UploadFile, organization_id: uuid.UUID, doc_type: str, db=None
     ) -> str:
         if file.content_type not in ALLOWED_TYPES:
             raise HTTPException(
@@ -82,11 +82,76 @@ class StorageService:
         target_dir.mkdir(parents=True, exist_ok=True)
         name = f"{doc_type}-{uuid.uuid4().hex}{suffix}"
         (target_dir / name).write_bytes(content)
+        path = f"{organization_id}/{name}"
+
+        # The disk here does not survive a deploy, and a licence that vanishes
+        # while the record still claims it was submitted is worse than one that
+        # was never uploaded. Keep the bytes with the record.
+        await self.persist(path, content, file.content_type or "application/octet-stream",
+                           organization_id, db)
 
         logger.info(
             "Stored %s document for org=%s (%d bytes)", doc_type, organization_id, len(content)
         )
-        return f"{organization_id}/{name}"
+        return path
+
+    async def persist(
+        self, path: str, content: bytes, content_type: str,
+        organization_id: uuid.UUID | None, db=None,
+    ) -> None:
+        """Keep a durable copy of a file that regulation expects to still exist."""
+        if db is None:
+            return
+        from sqlalchemy import select as _select
+
+        from models.stored_file import StoredFile
+
+        existing = (
+            await db.execute(_select(StoredFile).where(StoredFile.path == path))
+        ).scalar_one_or_none()
+        if existing is not None:
+            existing.content = content
+            existing.size_bytes = len(content)
+            existing.content_type = content_type
+            return
+        db.add(
+            StoredFile(
+                id=uuid.uuid4(),
+                path=path,
+                organization_id=organization_id,
+                content_type=content_type,
+                size_bytes=len(content),
+                content=content,
+            )
+        )
+        await db.flush()
+
+    async def read(self, stored_path: str, db=None) -> tuple[bytes, str]:
+        """The file's bytes, from disk if present and from the database if not.
+
+        Disk first because it is cheaper; the database is what makes the answer
+        correct after a deploy has wiped the disk.
+        """
+        try:
+            return self.resolve(stored_path).read_bytes(), "application/octet-stream"
+        except HTTPException:
+            pass
+
+        if db is not None:
+            from sqlalchemy import select as _select
+
+            from models.stored_file import StoredFile
+
+            row = (
+                await db.execute(_select(StoredFile).where(StoredFile.path == stored_path))
+            ).scalar_one_or_none()
+            if row is not None:
+                return row.content, row.content_type
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="الملف غير موجود — اطلب من المنشأة رفعه من جديد",
+        )
 
     async def save_import_file(
         self, file: UploadFile, organization_id: uuid.UUID

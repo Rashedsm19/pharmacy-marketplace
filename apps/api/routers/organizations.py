@@ -4,7 +4,9 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
-from fastapi.responses import FileResponse
+from pathlib import Path
+
+from fastapi import Response
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove, SuperAdmin
 from models.user import UserRole
@@ -294,7 +296,7 @@ async def upload_my_document(
     if not org:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
 
-    stored = await storage_service.save_document(file, org_id, doc_type)
+    stored = await storage_service.save_document(file, org_id, doc_type, db)
     setattr(org, field, stored)
     await db.flush()
 
@@ -337,8 +339,17 @@ async def download_document(
     if not stored:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="لم يرفع هذا المستند بعد")
 
-    path = storage_service.resolve(stored)
-    return FileResponse(path, filename=f"{doc_type}-{org_id}{path.suffix}")
+    # Reads through to the durable copy, so a deploy that wiped the disk does
+    # not turn an approved pharmacy's licence into "file not found".
+    content, content_type = await storage_service.read(stored, db)
+    suffix = Path(stored).suffix or ".pdf"
+    return Response(
+        content=content,
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{doc_type}-{org_id}{suffix}"'
+        },
+    )
 
 
 @router.delete("/me/documents/{doc_type}", response_model=MessageResponse)

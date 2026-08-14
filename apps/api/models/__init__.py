@@ -42,3 +42,4 @@ from models.settings import PlatformSettings  # noqa: F401
 from models.import_job import ImportJob, ImportStatus, ImportSource  # noqa: F401
 from models.api_key import ApiKey, ApiKeyScope  # noqa: F401
 from models.impersonation import ImpersonationSession  # noqa: F401
+from models.stored_file import StoredFile  # noqa: F401

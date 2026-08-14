@@ -127,7 +127,37 @@ def create_app() -> FastAPI:
     # ── Health endpoint ───────────────────────────────────────────────────
     @app.get("/health", tags=["Health"])
     async def health() -> dict:
+        """Liveness: the process is up and answering."""
         return {"status": "ok", "version": settings.APP_VERSION}
+
+    @app.get("/ready", tags=["Health"])
+    async def ready() -> ORJSONResponse:
+        """Readiness: the process can actually serve a request.
+
+        The health check never touched the database, so the platform could sit
+        there reporting healthy with its database unreachable or its pool
+        exhausted, and nothing upstream would restart or flag it. This one
+        answers the question that matters.
+        """
+        from sqlalchemy import text as _text
+
+        from database import AsyncSessionLocal
+
+        checks: dict[str, str] = {}
+        try:
+            async with AsyncSessionLocal() as session:
+                await session.execute(_text("SELECT 1"))
+            checks["database"] = "ok"
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Readiness check failed: %s", exc)
+            checks["database"] = "unavailable"
+
+        checks["scheduler"] = "running" if _scheduler and _scheduler.running else "stopped"
+        healthy = checks["database"] == "ok" and checks["scheduler"] == "running"
+        return ORJSONResponse(
+            status_code=200 if healthy else 503,
+            content={"status": "ready" if healthy else "degraded", "checks": checks},
+        )
 
     # ── Router registration ───────────────────────────────────────────────
     _register_routers(app)
@@ -241,7 +271,11 @@ async def _start_scheduler() -> None:
         _scheduler.start()
         logger.info("APScheduler started")
     except Exception as exc:
-        logger.warning("Scheduler failed to start: %s", exc)
+        # Logged at error, not warning: with the scheduler down there is no
+        # near-expiry scanning, no reservation sweep, no invoice retry and no
+        # import worker — customers' uploads sit queued for ever behind a green
+        # health check. /ready reports it so it cannot pass unnoticed.
+        logger.error("Scheduler failed to start — background jobs are NOT running: %s", exc)
 
 
 async def _stop_scheduler() -> None:

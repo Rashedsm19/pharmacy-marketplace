@@ -10,9 +10,9 @@ from __future__ import annotations
 import logging
 import uuid
 from datetime import datetime, timezone
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
@@ -49,11 +49,25 @@ class InvoiceService:
             )
             return None
 
+        # Serialise the whole seller, not just the last invoice row. `FOR UPDATE`
+        # on the previous invoice locks nothing at all when a seller is issuing
+        # their first one, so two concurrent first sales both took icv=1 and the
+        # unique index rejected the second — which failed the flush, poisoned the
+        # session, and rolled back the entire goods-received confirmation. The
+        # buyer saw a 500 and the delivery was recorded as never happening.
+        await self.db.execute(
+            text("SELECT pg_advisory_xact_lock(hashtext('invoice_chain'), hashtext(:seller))"),
+            {"seller": str(seller.id)},
+        )
         icv, previous_hash = await self._chain_position(seller.id)
 
         subtotal = Decimal(str(tx.total_amount))
         vat_rate = Decimal(str(settings.VAT_RATE_PCT))
-        vat_amount = (subtotal * vat_rate / Decimal("100")).quantize(Decimal("0.01"))
+        # ZATCA specifies half-up; the default here was banker's rounding, which
+        # put 4.54 on an invoice where 4.55 is correct.
+        vat_amount = (subtotal * vat_rate / Decimal("100")).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
         total_with_vat = subtotal + vat_amount
 
         issued_at = datetime.now(timezone.utc)

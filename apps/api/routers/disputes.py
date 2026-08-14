@@ -172,7 +172,7 @@ async def upload_evidence(
     if org_id not in (tx.buyer_organization_id, tx.seller_organization_id):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
-    dispute.evidence_url = await storage_service.save_document(file, org_id, "dispute")
+    dispute.evidence_url = await storage_service.save_document(file, org_id, "dispute", db)
     await db.flush()
     return _to_out(await _reload(db, dispute.id))
 

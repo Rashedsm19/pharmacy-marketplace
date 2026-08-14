@@ -240,7 +240,7 @@ async def download_errors(
 
     if job.error_file_path:
         try:
-            content = storage_service.resolve(job.error_file_path).read_bytes()
+            content, _ = await storage_service.read(job.error_file_path, db)
         except HTTPException:
             # The file aged out of a container's disk; rebuild it from the row.
             content = excel_service.build_errors_workbook(list(job.errors or []))

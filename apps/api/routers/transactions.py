@@ -134,7 +134,7 @@ async def attach_temperature_log(
     from services.storage_service import storage_service
 
     org_id = await _get_org_id(current_user, db)
-    stored = await storage_service.save_document(file, org_id, "temperature")
+    stored = await storage_service.save_document(file, org_id, "temperature", db)
     svc = TransactionService(db)
     tx = await svc.attach_temperature_log(
         tx_id,
