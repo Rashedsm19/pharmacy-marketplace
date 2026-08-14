@@ -26,6 +26,24 @@ logger = logging.getLogger("api.excel")
 BRAND_TEAL = "FF0AA39B"
 HEADER_TEXT = "FFFFFFFF"
 NOTE_FILL = "FFF7F1E6"
+GUIDE_FILL = "FFEFF6F5"
+GUIDE_TEXT = "FF3F6B67"
+
+# The template ships two guide rows above the customer's data: one explaining
+# each column, one showing a filled example. Both begin with this marker in the
+# first column, and the reader skips any row that carries it.
+#
+# This is not decoration. Before the marker existed, the example row sat at row 2
+# and read_rows started at row 2 — so a customer who did the natural thing (type
+# beneath the example) imported "Amoxicillin 500mg / BTH-2026-114 / 120 units" as
+# real stock, and every weekly re-upload reset it back to 120 because the batch
+# key matched. The marker is what makes the guide rows inert.
+GUIDE_MARKER = "⟪"
+GUIDE_NOTE = "⟪شرح⟫"
+GUIDE_EXAMPLE = "⟪مثال⟫"
+
+# Row 1 headers, row 2 explanation, row 3 example, row 4 onward is the customer.
+FIRST_DATA_ROW = 4
 
 
 @dataclass(frozen=True)
@@ -96,22 +114,41 @@ def build_template(branch_names: list[str]) -> bytes:
         cell.alignment = centre
         sheet.column_dimensions[get_column_letter(index)].width = column.width
     sheet.row_dimensions[1].height = 34
-    sheet.freeze_panes = "A2"
+    sheet.freeze_panes = f"A{FIRST_DATA_ROW}"
 
-    # One filled row, so the expected shape is visible rather than described.
+    # Row 2 — what to write in each column, so the answer is beside the question
+    # rather than on another sheet.
+    guide_fill = PatternFill("solid", fgColor=GUIDE_FILL)
+    guide_font = Font(italic=True, size=10, color=GUIDE_TEXT)
+    top_right = Alignment(horizontal="right", vertical="top", wrap_text=True)
+    for index, column in enumerate(COLUMNS, start=1):
+        duty = "إلزامي" if column.required else "اختياري"
+        text = f"{duty} — {column.help_ar}"
+        if index == 1:
+            text = f"{GUIDE_NOTE} {text}"
+        cell = sheet.cell(row=2, column=index, value=text)
+        cell.fill = guide_fill
+        cell.font = guide_font
+        cell.alignment = top_right
+    sheet.row_dimensions[2].height = 58
+
+    # Row 3 — the same thing filled in, because a shape is easier to copy than
+    # to infer from a description.
     example_fill = PatternFill("solid", fgColor=NOTE_FILL)
     for index, column in enumerate(COLUMNS, start=1):
         value = column.example
         if column.key == "branch_name" and branch_names:
             value = branch_names[0]
-        cell = sheet.cell(row=2, column=index, value=value)
+        if index == 1:
+            value = f"{GUIDE_EXAMPLE} {value}"
+        cell = sheet.cell(row=3, column=index, value=value)
         cell.fill = example_fill
         if column.key == "expiry_date":
             cell.number_format = "YYYY-MM-DD"
 
     # Dates typed into a text column are the most common import failure.
     date_column = get_column_letter(COLUMNS.index(next(c for c in COLUMNS if c.key == "expiry_date")) + 1)
-    for row in range(2, 5002):
+    for row in range(3, 5002):
         sheet[f"{date_column}{row}"].number_format = "YYYY-MM-DD"
 
     if branch_names:
@@ -125,7 +162,9 @@ def build_template(branch_names: list[str]) -> bytes:
             validation.error = "اختر فرعاً من القائمة"
             validation.errorTitle = "فرع غير معروف"
             sheet.add_data_validation(validation)
-            validation.add(f"{branch_column}2:{branch_column}5001")
+            # From the first real row: the guide rows are not the customer's to
+            # validate, and the example already holds a valid branch.
+            validation.add(f"{branch_column}{FIRST_DATA_ROW}:{branch_column}5001")
 
     _write_instructions(workbook, branch_names)
     buffer = io.BytesIO()
@@ -145,7 +184,9 @@ def _write_instructions(workbook: Workbook, branch_names: list[str]) -> None:
 
     lines = [
         "املأ ورقة «البيانات» صفاً لكل تشغيلة — لا صفاً لكل دواء.",
-        "الصف الثاني مثال توضيحي: احذفه قبل الرفع أو اكتب فوقه.",
+        "ابدأ الكتابة من الصف الرابع.",
+        "الصفان الثاني والثالث شرح ومثال، ويُتجاهلان تلقائياً عند الرفع — "
+        "اتركهما أو احذفهما، لن يدخلا مخزونك.",
         "الأعمدة المعلّمة بنجمة إلزامية، وما عداها اختياري.",
         "الصف الذي فيه خطأ لا يُسقط الملف — يُتخطّى ويصلك في ملف الأخطاء بسببه ورقم سطره.",
         "رفع الملف مرة أخرى بنفس أرقام التشغيلات يحدّث الكميات ولا يكرّرها.",
@@ -203,6 +244,23 @@ def _normalise_header(text: str) -> str:
     return "".join(str(text).split()).strip().lower()
 
 
+def is_guide_row(raw) -> bool:
+    """True for the template's own explanation and example rows.
+
+    They are marked in the first cell rather than inferred from styling, because
+    the workbook is read with `values_only=True` — fills and fonts are never
+    loaded, so a colour could not be detected even if we wanted it to be. A real
+    medicine name never opens with the marker.
+    """
+    if not raw:
+        return False
+    for cell in raw:
+        if cell is None or str(cell).strip() == "":
+            continue
+        return str(cell).lstrip().startswith(GUIDE_MARKER)
+    return False
+
+
 def read_rows(content: bytes, filename: str) -> Iterator[ParsedRow]:
     """Stream the uploaded file row by row.
 
@@ -228,6 +286,8 @@ def read_rows(content: bytes, filename: str) -> Iterator[ParsedRow]:
         for line_number, raw in enumerate(rows, start=2):
             if raw is None or all(cell is None or str(cell).strip() == "" for cell in raw):
                 continue
+            if is_guide_row(raw):
+                continue
             values = {
                 key: raw[index] if index < len(raw) else None
                 for key, index in mapping.items()
@@ -251,6 +311,9 @@ def _read_csv(content: bytes) -> Iterator[ParsedRow]:
 
     for line_number, raw in enumerate(reader, start=2):
         if not any(str(cell).strip() for cell in raw):
+            continue
+        # Saving the template as CSV keeps the guide rows; they stay inert.
+        if is_guide_row(raw):
             continue
         yield ParsedRow(
             line_number=line_number,

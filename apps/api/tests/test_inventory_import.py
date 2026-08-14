@@ -498,3 +498,83 @@ async def test_an_admin_uploading_is_told_where_imports_belong(client, admin_tok
     )
     assert refused.status_code == 403
     assert "حساب المنشأة" in refused.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_the_downloaded_template_imports_nothing_by_itself(client, seller_token):
+    """Regression, and the worst bug this feature had.
+
+    The template used to carry its example at row 2 while the reader started at
+    row 2. A customer who typed beneath the example — the natural thing to do —
+    imported "Amoxicillin 500mg / BTH-2026-114 / 120" as real stock, and every
+    weekly re-upload reset it to 120 again because the batch key matched.
+    """
+    from services.excel_service import read_rows
+
+    response = await client.get("/inventory/import/template", headers=auth(seller_token))
+    assert response.status_code == 200
+
+    rows = list(read_rows(response.content, "template.xlsx"))
+    assert rows == [], f"the blank template must import nothing, got {len(rows)} row(s)"
+
+
+@pytest.mark.asyncio
+async def test_the_template_explains_every_column_before_the_example(client, seller_token):
+    from services.excel_service import COLUMNS, GUIDE_EXAMPLE, GUIDE_NOTE
+
+    response = await client.get("/inventory/import/template", headers=auth(seller_token))
+    sheet = load_workbook(io.BytesIO(response.content))["البيانات"]
+
+    guide = [sheet.cell(row=2, column=i).value for i in range(1, len(COLUMNS) + 1)]
+    assert str(guide[0]).startswith(GUIDE_NOTE)
+    assert len([g for g in guide if g]) == len(COLUMNS), "every column must be explained"
+    # Each one says whether it is required, in the customer's language.
+    assert all(("إلزامي" in str(g)) or ("اختياري" in str(g)) for g in guide)
+
+    example = [sheet.cell(row=3, column=i).value for i in range(1, len(COLUMNS) + 1)]
+    assert str(example[0]).startswith(GUIDE_EXAMPLE)
+    assert example[4], "the example must show a real expiry date"
+
+
+@pytest.mark.asyncio
+async def test_a_customer_filling_the_template_imports_only_their_rows(
+    client, seller_token
+):
+    """The whole point: guide rows stay, the customer's row lands, once."""
+    from openpyxl import load_workbook as open_wb
+
+    from services.excel_service import FIRST_DATA_ROW
+
+    branch = await a_branch_name(client, seller_token)
+    code = unique("TPL")
+
+    downloaded = await client.get(
+        "/inventory/import/template", headers=auth(seller_token)
+    )
+    workbook = open_wb(io.BytesIO(downloaded.content))
+    sheet = workbook["البيانات"]
+    for index, value in enumerate(
+        [
+            f"دواء القالب {code}", None, code, code,
+            (date.today() + timedelta(days=95)).isoformat(), 33, 7.5, branch,
+            None, None, None, None,
+        ],
+        start=1,
+    ):
+        sheet.cell(row=FIRST_DATA_ROW, column=index, value=value)
+
+    buffer = io.BytesIO()
+    workbook.save(buffer)
+    job = await upload(client, seller_token, buffer.getvalue(), name="filled.xlsx")
+
+    assert job["total_rows"] == 1, "the guide rows must not be counted as data"
+    assert job["created_batches"] == 1
+    assert job["failed_rows"] == 0
+
+    rows = await find_batches(client, seller_token, code)
+    assert len(rows) == 1
+    assert rows[0]["quantity"] == 33
+
+    # And nothing resembling the shipped example got in.
+    phantom = await find_batches(client, seller_token, "BTH-2026-114")
+    assert phantom == [], "the template's example leaked into inventory"
