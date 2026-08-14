@@ -19,7 +19,9 @@
     "adminImports": "عمليات الاستيراد",
     "adminModeration": "مراقبة العروض",
     "adminAudit": "سجل التدقيق",
-    "adminSettings": "إعدادات المنصة"
+    "adminSettings": "إعدادات المنصة",
+    "adminCustomers": "العملاء",
+    "adminUsers": "حسابات المستخدمين"
   },
   "auth": {
     "login": "دخول المنشآت",

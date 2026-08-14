@@ -266,6 +266,44 @@ export const adminApi = {
   ) => apiClient.post(`/admin/products/drafts/${id}/promote`, data ?? {}),
   allImports: (params?: Record<string, unknown>) =>
     apiClient.get("/admin/imports", { params }),
+
+  // ── Support console ─────────────────────────────────────────────────────
+  customers: (params?: Record<string, unknown>) =>
+    apiClient.get("/admin/customers", { params }),
+  customer: (orgId: string) => apiClient.get(`/admin/customers/${orgId}`),
+  users: (params?: Record<string, unknown>) =>
+    apiClient.get("/admin/users", { params }),
+  user: (id: string) => apiClient.get(`/admin/users/${id}`),
+  resetLink: (id: string, reason: string) =>
+    apiClient.post(`/admin/users/${id}/reset-link`, { reason }),
+  deactivateUser: (id: string, reason: string) =>
+    apiClient.post(`/admin/users/${id}/deactivate`, { reason }),
+  activateUser: (id: string, reason: string) =>
+    apiClient.post(`/admin/users/${id}/activate`, { reason }),
+  deleteUser: (id: string, reason: string, force = false) =>
+    apiClient.delete(`/admin/users/${id}`, { params: { reason, force } }),
+  impersonate: (id: string, reason: string, minutes = 30) =>
+    apiClient.post(`/admin/users/${id}/impersonate`, { reason, minutes }),
+  endImpersonation: (sessionId: string) =>
+    apiClient.post(`/admin/impersonation/${sessionId}/end`),
+  impersonationSessions: (params?: Record<string, unknown>) =>
+    apiClient.get("/admin/impersonation/sessions", { params }),
+  reactivateOrg: (orgId: string, reason: string) =>
+    apiClient.post(`/admin/organizations/${orgId}/reactivate`, { reason }),
+  purgeOrg: (orgId: string, confirmName: string, reason: string) =>
+    apiClient.delete(`/admin/organizations/${orgId}`, {
+      data: { confirm_name: confirmName, reason },
+    }),
+  importForCustomer: (orgId: string, file: File, reason: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient.post(`/admin/organizations/${orgId}/imports`, form, {
+      params: { reason },
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  deleteBatch: (batchId: string, reason: string) =>
+    apiClient.delete(`/admin/inventory/batches/${batchId}`, { params: { reason } }),
 };
 
 export const disputesApi = {

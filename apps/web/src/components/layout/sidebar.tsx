@@ -22,6 +22,8 @@ import {
   Upload,
   KeyRound,
   Boxes,
+  Contact,
+  UsersRound,
   FileStack,
   ClipboardList,
   BadgeCheck,
@@ -60,6 +62,8 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
   // Every admin destination, not just approvals: the other screens existed but
   // nothing linked to them, so they were reachable only by typing the URL.
   const adminItems = [
+    { href: `/${locale}/admin/customers`, icon: Contact, label: t("adminCustomers") },
+    { href: `/${locale}/admin/users`, icon: UsersRound, label: t("adminUsers") },
     { href: `/${locale}/admin/approvals`, icon: Shield, label: t("admin") },
     { href: `/${locale}/admin/compliance`, icon: BadgeCheck, label: t("adminCompliance") },
     { href: `/${locale}/admin/inventory`, icon: Boxes, label: t("adminInventory") },

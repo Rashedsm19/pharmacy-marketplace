@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./sidebar";
 import Navbar from "./navbar";
+import ImpersonationBanner from "./impersonation-banner";
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,6 +31,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       )}
       <Sidebar open={sidebarOpen} onToggle={toggle} onNavigate={close} />
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        {/* Above the navbar and inside the scroll container, so it stays put. */}
+        <ImpersonationBanner />
         <Navbar onMenuToggle={toggle} />
         <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 sm:py-7">
           <div className="mx-auto max-w-[1400px] w-full">{children}</div>

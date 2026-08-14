@@ -19,7 +19,9 @@
     "adminImports": "Imports",
     "adminModeration": "Listing moderation",
     "adminAudit": "Audit log",
-    "adminSettings": "Platform settings"
+    "adminSettings": "Platform settings",
+    "adminCustomers": "Customers",
+    "adminUsers": "User accounts"
   },
   "auth": {
     "login": "Facility Login",
