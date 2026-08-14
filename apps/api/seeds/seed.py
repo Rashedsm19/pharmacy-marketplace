@@ -52,7 +52,7 @@ async def _seed_all(db) -> None:
 
     today = date.today()
 
-    # ── Super Admin ───────────────────────────────────────────────────────
+    # ── Super Admins ──────────────────────────────────────────────────────
     admin = User(
         id=uuid.uuid4(),
         email="admin@pharmacy-marketplace.sa",
@@ -65,6 +65,22 @@ async def _seed_all(db) -> None:
         email_verified_at=datetime.now(timezone.utc),
     )
     db.add(admin)
+
+    # The platform owner's own account. Seeded here so that a rebuilt database
+    # — which is how the deployment was lost once already — comes back with it
+    # rather than needing `python -m seeds.create_superadmin` afterwards.
+    owner = User(
+        id=uuid.uuid4(),
+        email="rhm@gmail.com",
+        phone="+966500000099",
+        full_name="Rashed — Super Admin",
+        hashed_password=hash_password("123123123"),
+        role=UserRole.SUPER_ADMIN,
+        is_active=True,
+        is_email_verified=True,
+        email_verified_at=datetime.now(timezone.utc),
+    )
+    db.add(owner)
     await db.flush()
 
     # ── Organizations ─────────────────────────────────────────────────────
@@ -454,7 +470,7 @@ async def _seed_all(db) -> None:
         ))
     await db.flush()
 
-    print("  ✔ 1 super admin, 3 users, 3 orgs, 5 branches created")
+    print("  ✔ 2 super admins, 3 users, 3 orgs, 5 branches created")
     print(f"  ✔ 30 products, {len(batches)} inventory batches created")
     print(f"  ✔ {len(listings)} listings, {len(offers)} offers, 5 transactions created")
 
