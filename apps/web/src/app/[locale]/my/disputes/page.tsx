@@ -27,14 +27,14 @@ export default function MyDisputesPage() {
     mutationFn: ({ id, text }: { id: string; text: string }) =>
       disputesApi.respond(id, text),
     onSuccess: () => {
-      toast.success("أُرسل ردّك");
+      toast.success("أرسل ردك");
       setRespondingId(null);
       setResponse("");
       qc.invalidateQueries({ queryKey: ["my-disputes"] });
     },
     onError: (err: unknown) => {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "تعذّر إرسال الرد");
+      toast.error(typeof detail === "string" ? detail : "تعذر إرسال الرد");
     },
   });
 
@@ -45,7 +45,7 @@ export default function MyDisputesPage() {
       <div className="space-y-5">
         <PageHeader
           title="النزاعات"
-          subtitle="بلاغات على معاملات منشأتك — المقدَّمة منك والواردة إليك"
+          subtitle="بلاغات على معاملات منشأتك — المقدمة منك والواردة إليك"
         />
 
         {isLoading ? (
@@ -56,7 +56,7 @@ export default function MyDisputesPage() {
           <EmptyState
             icon={AlertTriangle}
             title="لا توجد نزاعات"
-            description="لم يُفتح أي بلاغ على معاملات منشأتك. يمكنك فتح بلاغ من صفحة المعاملة عند وصول شحنة ناقصة أو تالفة."
+            description="لم يفتح أي بلاغ على معاملات منشأتك. يمكنك فتح بلاغ من صفحة المعاملة عند وصول شحنة ناقصة أو تالفة."
           />
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
@@ -71,7 +71,7 @@ export default function MyDisputesPage() {
 
                 {dispute.seller_response && (
                   <div className="mt-3 rounded-lg bg-[#f7f1e6] px-4 py-3">
-                    <p className="text-xs font-bold text-[#55605b] mb-1">ردّ الطرف الآخر</p>
+                    <p className="text-xs font-bold text-[#55605b] mb-1">رد الطرف الآخر</p>
                     <p className="text-sm text-[#1f2823]">{dispute.seller_response}</p>
                   </div>
                 )}
@@ -97,7 +97,7 @@ export default function MyDisputesPage() {
                           value={response}
                           onChange={(e) => setResponse(e.target.value)}
                           rows={3}
-                          placeholder="اكتب ردّك على البلاغ…"
+                          placeholder="اكتب ردك على البلاغ…"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                         />
                         <div className="flex gap-2">

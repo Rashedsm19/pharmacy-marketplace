@@ -335,7 +335,7 @@ async def download_document(
 
     stored = getattr(org, field)
     if not stored:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="لم يُرفع هذا المستند بعد")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="لم يرفع هذا المستند بعد")
 
     path = storage_service.resolve(stored)
     return FileResponse(path, filename=f"{doc_type}-{org_id}{path.suffix}")

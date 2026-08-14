@@ -61,7 +61,7 @@ export default function AdminSettingsPage() {
     },
     onError: (error: unknown) => {
       toast.error(
-        errorMessage(error, "تعذّر حفظ الإعداد")
+        errorMessage(error, "تعذر حفظ الإعداد")
       );
     },
   });
@@ -78,7 +78,7 @@ export default function AdminSettingsPage() {
 
   const display = (setting: Setting) => {
     if (setting.value_type === "boolean") {
-      return setting.value ? "مُفعّل" : "معطّل";
+      return setting.value ? "مفعل" : "معطل";
     }
     if (setting.value === null || setting.value === undefined) return "—";
     const number = Number(setting.value);
@@ -103,7 +103,7 @@ export default function AdminSettingsPage() {
 
     if (setting.value_type !== "boolean" && setting.value_type !== "text") {
       if (!Number.isFinite(value as number)) {
-        toast.error("القيمة يجب أن تكون رقماً");
+        toast.error("القيمة يجب أن تكون رقما");
         return;
       }
     }
@@ -119,7 +119,7 @@ export default function AdminSettingsPage() {
         />
 
         {isLoading ? (
-          <p className="text-sm text-[#8a9089]">جارٍ التحميل…</p>
+          <p className="text-sm text-[#8a9089]">جار التحميل…</p>
         ) : (
           Object.entries(groups).map(([group, items]) => (
             <SectionCard key={group} title={group} noPadding>
@@ -156,8 +156,8 @@ export default function AdminSettingsPage() {
                                 onChange={(event) => setDraft(event.target.value)}
                                 className="w-full h-10 px-3 rounded-xl bg-white ring-1 ring-inset ring-[#e1d3c0] text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                               >
-                                <option value="true">مُفعّل</option>
-                                <option value="false">معطّل</option>
+                                <option value="true">مفعل</option>
+                                <option value="false">معطل</option>
                               </select>
                             ) : (
                               <div className="flex items-center gap-2">

@@ -36,7 +36,7 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const STEPS = [
-  { id: 1, label: "بيانات المفوّض" },
+  { id: 1, label: "بيانات المفوض" },
   { id: 2, label: "بيانات المنشأة" },
   { id: 3, label: "بيانات الفرع" },
 ];

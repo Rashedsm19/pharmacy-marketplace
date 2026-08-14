@@ -591,7 +591,7 @@ async def promote_draft_product(
         # The catalogue already holds this code; the admin must supply another.
         raise HTTPException(
             status_code=http_status.HTTP_409_CONFLICT,
-            detail=f"الكود {attempted_sku} مستخدم في الكتالوج العام — اختر كوداً آخر",
+            detail=f"الكود {attempted_sku} مستخدم في الكتالوج العام — اختر كودا آخر",
         ) from None
 
     await AuditService(db).log(

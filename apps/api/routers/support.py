@@ -99,7 +99,7 @@ def _guard(admin: User, target: User, action: str) -> None:
     }:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="حساب مدير المنصة لا يُدار من وحدة الدعم",
+            detail="حساب مدير المنصة لا يدار من وحدة الدعم",
         )
 
 
@@ -294,9 +294,9 @@ async def issue_reset_link(
         expires_at=expires_at,
         email_sent=sent,
         notice=(
-            "أُرسل الرابط إلى بريد العميل."
+            "أرسل الرابط إلى بريد العميل."
             if sent
-            else "خدمة البريد غير مُفعّلة — انسخ الرابط وأرسله للعميل بنفسك."
+            else "خدمة البريد غير مفعلة — انسخ الرابط وأرسله للعميل بنفسك."
         ),
     )
 
@@ -370,7 +370,7 @@ async def deactivate_user(
     _guard(current_user, user, "deactivate")
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="الحساب معطّل بالفعل"
+            status_code=status.HTTP_409_CONFLICT, detail="الحساب معطل بالفعل"
         )
 
     user.is_active = False
@@ -467,8 +467,8 @@ async def delete_user(
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=(
-                    "هذا آخر حساب فعّال في المنشأة — حذفه يترك العميل بلا دخول. "
-                    "أضف force=true إن كنت متأكداً."
+                    "هذا آخر حساب فعال في المنشأة — حذفه يترك العميل بلا دخول. "
+                    "أضف force=true إن كنت متأكدا."
                 ),
             )
 
@@ -501,7 +501,7 @@ async def delete_user(
     return {
         "id": str(user.id),
         "deleted": True,
-        "message": f"حُذف الحساب وأُتيح البريد {before['email']} للتسجيل من جديد",
+        "message": f"حذف الحساب وأتيح البريد {before['email']} للتسجيل من جديد",
     }
 
 
@@ -527,7 +527,7 @@ async def restore_user(
     if taken is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"البريد {address} صار مستخدماً لحساب آخر — لا يمكن الاستعادة",
+            detail=f"البريد {address} صار مستخدما لحساب آخر — لا يمكن الاستعادة",
         )
 
     user.email = address
@@ -601,7 +601,7 @@ async def reactivate_organization(
     return {
         "id": str(organization.id),
         "status": "approved",
-        "message": "أُعيد تفعيل المنشأة ويستطيع مستخدموها الدخول",
+        "message": "أعيد تفعيل المنشأة ويستطيع مستخدموها الدخول",
     }
 
 
@@ -658,9 +658,9 @@ async def remove_listing(
             organization_id=listing.seller_organization_id,
             notification_type=NotificationType.LISTING_CANCELLED,
             title="A listing was removed by the platform",
-            title_ar="أُزيل عرضك من السوق",
+            title_ar="أزيل عرضك من السوق",
             body=f"Listing removed. Reason: {payload.reason}",
-            body_ar=f"أُزيل عرض «{listing.title_ar or listing.title}». السبب: {payload.reason}",
+            body_ar=f"أزيل عرض «{listing.title_ar or listing.title}». السبب: {payload.reason}",
             resource_type="listing",
             resource_id=listing.id,
         )
@@ -681,7 +681,7 @@ async def remove_listing(
     return {
         "id": str(listing.id),
         "status": "cancelled",
-        "message": "أُزيل العرض وأُبلغ البائع بالسبب",
+        "message": "أزيل العرض وأبلغ البائع بالسبب",
     }
 
 
@@ -729,20 +729,20 @@ async def delete_batch(
     if live_listing is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="على التشغيلة عرض قائم في السوق — أزل العرض أولاً",
+            detail="على التشغيلة عرض قائم في السوق — أزل العرض أولا",
         )
 
     if batch.quantity - batch.quantity_available > 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
-                f"جزء من الكمية محجوز أو مُباع "
+                f"جزء من الكمية محجوز أو مباع "
                 f"({batch.quantity - batch.quantity_available} وحدة) — لا يمكن الحذف"
             ),
         )
     if batch.status == BatchStatus.SOLD:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="التشغيلة مباعة — لا تُحذف"
+            status_code=status.HTTP_409_CONFLICT, detail="التشغيلة مباعة — لا تحذف"
         )
 
     active_reservation = await db.scalar(
@@ -756,7 +756,7 @@ async def delete_batch(
     if active_reservation is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="على التشغيلة حجز نشط من مشترٍ — لا يمكن الحذف",
+            detail="على التشغيلة حجز نشط من مشتر — لا يمكن الحذف",
         )
 
     sold_through = await db.scalar(
@@ -767,7 +767,7 @@ async def delete_batch(
     if sold_through is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="للتشغيلة صفقة مسجّلة — سجل المبيعات لا يُمس",
+            detail="للتشغيلة صفقة مسجلة — سجل المبيعات لا يمس",
         )
 
     organization = await db.get(PharmacyOrganization, batch.organization_id)
@@ -802,7 +802,7 @@ async def delete_batch(
         if organization
         else "—",
         deleted=True,
-        message="حُذفت التشغيلة وتحرّرت من سعة المخزون",
+        message="حذفت التشغيلة وتحررت من سعة المخزون",
     )
 
 
@@ -856,7 +856,7 @@ async def restore_batch(
         if organization
         else "—",
         deleted=False,
-        message="أُعيدت التشغيلة إلى مخزون العميل",
+        message="أعيدت التشغيلة إلى مخزون العميل",
     )
 
 
@@ -905,7 +905,7 @@ async def import_for_customer(
     if has_branch is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="لا يوجد فرع مسجّل للمنشأة — أضف فرعاً قبل الاستيراد",
+            detail="لا يوجد فرع مسجل للمنشأة — أضف فرعا قبل الاستيراد",
         )
 
     used = await count_org_items(db, org_id)
@@ -980,7 +980,7 @@ async def import_for_customer(
         "organization_id": str(org_id),
         "organization_name": organization.name_ar or organization.name,
         "status": "queued",
-        "message": "أُدرج الملف في طابور المعالجة وأُبلغ العميل",
+        "message": "أدرج الملف في طابور المعالجة وأبلغ العميل",
     }
 
 
@@ -1014,14 +1014,14 @@ async def impersonate(
     if not target.is_active:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="الحساب معطّل — فعّله أولاً إن أردت تصفّحه",
+            detail="الحساب معطل — فعله أولا إن أردت تصفحه",
         )
 
     organization, _ = await _org_of(db, target.id)
     if organization is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="الحساب بلا منشأة — لا توجد شاشات لتصفّحها",
+            detail="الحساب بلا منشأة — لا توجد شاشات لتصفحها",
         )
 
     now = datetime.now(timezone.utc)
@@ -1078,8 +1078,8 @@ async def impersonate(
         organization_id=organization.id,
         organization_name=session.organization_name or "",
         notice=(
-            f"أنت الآن تتصفّح حساب «{session.organization_name}» لمدة "
-            f"{payload.minutes} دقيقة. كل إجراء يُسجَّل باسمك."
+            f"أنت الآن تتصفح حساب «{session.organization_name}» لمدة "
+            f"{payload.minutes} دقيقة. كل إجراء يسجل باسمك."
         ),
     )
 
@@ -1113,10 +1113,10 @@ async def end_impersonation(
         actor_id=current_user.id,
         organization_id=session.organization_id,
         after_state={"session_id": str(session.id)},
-        notes=f"إنهاء تصفّح حساب {session.target_email}",
+        notes=f"إنهاء تصفح حساب {session.target_email}",
         **_client(request),
     )
-    return {"id": str(session.id), "ended": True, "message": "أُنهيت الجلسة"}
+    return {"id": str(session.id), "ended": True, "message": "أنهيت الجلسة"}
 
 
 @router.get("/impersonation/sessions", response_model=list[ImpersonationRow])
@@ -1652,7 +1652,7 @@ async def purge_organization(
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="أوقف المنشأة أولاً — الحذف النهائي لا يُطبَّق على منشأة عاملة",
+            detail="أوقف المنشأة أولا — الحذف النهائي لا يطبق على منشأة عاملة",
         )
 
     invoices = int(
@@ -1682,7 +1682,7 @@ async def purge_organization(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
                 f"للمنشأة {deals} صفقة و{invoices} فاتورة ضريبية. حذفها يكسر سلسلة "
-                "فواتير الطرف الآخر ويمحو سجلات ملزمة نظاماً — أوقف المنشأة بدل حذفها."
+                "فواتير الطرف الآخر ويمحو سجلات ملزمة نظاما — أوقف المنشأة بدل حذفها."
             ),
         )
 
@@ -1844,5 +1844,5 @@ async def purge_organization(
         organization_name=name,
         deleted=deleted,
         audit_log_id=entry.id,
-        message=f"حُذفت «{name}» نهائياً وبقي أثر الحذف في سجل التدقيق",
+        message=f"حذفت «{name}» نهائيا وبقي أثر الحذف في سجل التدقيق",
     )

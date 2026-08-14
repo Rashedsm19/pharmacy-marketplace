@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
             <CheckCircle className="h-16 w-16 text-brand-600 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-[#1f2a24] mb-2">تم إرسال الطلب</h2>
             <p className="text-[#6d746d] mb-6">
-              إذا كان البريد الإلكتروني مسجلاً، ستصلك رسالة تحتوي على رابط إعادة التعيين.
+              إذا كان البريد الإلكتروني مسجلا، ستصلك رسالة تحتوي على رابط إعادة التعيين.
             </p>
           </div>
         )}

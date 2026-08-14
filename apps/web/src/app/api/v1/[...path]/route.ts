@@ -93,7 +93,7 @@ async function proxy(request: NextRequest, context: RouteContext) {
 
   console.error(`[api-proxy] ${request.method} ${targetUrl.pathname} failed`, lastError);
   return NextResponse.json(
-    { detail: "تعذّر الوصول إلى الخادم. حاول مرة أخرى بعد قليل." },
+    { detail: "تعذر الوصول إلى الخادم. حاول مرة أخرى بعد قليل." },
     { status: 502 }
   );
 }

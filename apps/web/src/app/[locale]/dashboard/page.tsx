@@ -144,7 +144,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <SectionCard
             title={t("nearExpiryTable")}
-            subtitle="دفعات تتطلب قراراً تشغيلياً خلال 90 يوماً"
+            subtitle="دفعات تتطلب قرارا تشغيليا خلال 90 يوما"
             action={
               <Link
                 href={`/${locale}/inventory/near-expiry`}

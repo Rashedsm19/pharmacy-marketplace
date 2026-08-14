@@ -41,7 +41,7 @@
     "crNumber": "رقم السجل التجاري",
     "licenseNumber": "رقم الترخيص",
     "branchName": "اسم الفرع",
-    "step1": "بيانات المفوّض",
+    "step1": "بيانات المفوض",
     "step2": "بيانات المنشأة",
     "step3": "بيانات الفرع",
     "pendingTitle": "طلب الاعتماد قيد المراجعة",
@@ -74,7 +74,7 @@
     "branch": "الفرع",
     "daysLeft": "الأيام المتبقية",
     "fefoTitle": "توصية FEFO",
-    "fefoDesc": "الترتيب الموصى به للصرف (الأقرب للانتهاء أولاً)",
+    "fefoDesc": "الترتيب الموصى به للصرف (الأقرب للانتهاء أولا)",
     "storageStatus": "حالة التخزين",
     "unitCost": "سعر الوحدة",
     "supplier": "المورد"
@@ -91,7 +91,7 @@
     "expiryZone": "منطقة الانتهاء",
     "eligibilityCheck": "فحص الأهلية",
     "allPassed": "اجتازت جميع الشروط",
-    "failedRules": "شروط لم تُستوفَ",
+    "failedRules": "شروط لم تستوف",
     "listingTitle": "عنوان العرض",
     "description": "الوصف",
     "minOfferPrice": "أقل سعر مقبول",
@@ -131,7 +131,7 @@
     "nearExpiry": "قرب الانتهاء",
     "expiredLoss": "خسائر المنتهية",
     "recoverableValue": "القيمة القابلة للاسترداد",
-    "topProducts": "المنتجات الأكثر طلباً",
+    "topProducts": "المنتجات الأكثر طلبا",
     "branchComparison": "مقارنة الفروع"
   },
   "org": {

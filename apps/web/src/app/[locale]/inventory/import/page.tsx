@@ -132,13 +132,13 @@ export default function InventoryImportPage() {
       setActiveJobId(job.id);
       setMessage({
         kind: "ok",
-        text: "تم رفع الملف — جارٍ المعالجة، ويمكنك متابعة التقدّم أدناه.",
+        text: "تم رفع الملف — جار المعالجة، ويمكنك متابعة التقدم أدناه.",
       });
       queryClient.invalidateQueries({ queryKey: ["import-jobs"] });
     },
     onError: (error: unknown) => {
       const detail =
-        errorMessage(error, "تعذّر رفع الملف. حاول مرة أخرى.");
+        errorMessage(error, "تعذر رفع الملف. حاول مرة أخرى.");
       setMessage({ kind: "error", text: detail });
     },
   });
@@ -162,7 +162,7 @@ export default function InventoryImportPage() {
       }
       setMessage({
         kind: "error",
-        text: detail ?? "تعذّر تحميل القالب. حاول مرة أخرى.",
+        text: detail ?? "تعذر تحميل القالب. حاول مرة أخرى.",
       });
     },
   });
@@ -227,8 +227,8 @@ export default function InventoryImportPage() {
         {/* ── The three steps, in order ───────────────────────────────── */}
         <div className="grid gap-4 lg:grid-cols-3">
           <SectionCard
-            title="١ · نزّل القالب"
-            subtitle="أعمدة جاهزة، وفروعك مُدرجة في قائمة منسدلة"
+            title="١ · نزل القالب"
+            subtitle="أعمدة جاهزة، وفروعك مدرجة في قائمة منسدلة"
           >
             <p className="text-sm text-[#5f665f] leading-relaxed mb-4">
               القالب يحتوي على ورقتين: «البيانات» لتعبئة أصنافك، و«تعليمات» تشرح كل
@@ -250,12 +250,12 @@ export default function InventoryImportPage() {
             </button>
           </SectionCard>
 
-          <SectionCard title="٢ · عبّئ أصنافك" subtitle="من نظامك أو يدوياً">
+          <SectionCard title="٢ · عبئ أصنافك" subtitle="من نظامك أو يدويا">
             <ul className="text-sm text-[#5f665f] space-y-2.5 leading-relaxed">
               <li className="flex gap-2">
                 <span className="text-brand-600 font-semibold">•</span>
                 <span>
-                  أضف <strong className="text-[#1f2a24]">الباركود</strong> إن توفّر —
+                  أضف <strong className="text-[#1f2a24]">الباركود</strong> إن توفر —
                   فهو أدق وسيلة لمطابقة الدواء بكتالوجنا.
                 </span>
               </li>
@@ -272,7 +272,7 @@ export default function InventoryImportPage() {
               <li className="flex gap-2">
                 <span className="text-brand-600 font-semibold">•</span>
                 <span>
-                  ما لا نتعرّف عليه يُنشأ كمنتج خاص بمنشأتك — لا يُوقف الاستيراد.
+                  ما لا نتعرف عليه ينشأ كمنتج خاص بمنشأتك — لا يوقف الاستيراد.
                 </span>
               </li>
             </ul>
@@ -298,7 +298,7 @@ export default function InventoryImportPage() {
             >
               <FileSpreadsheet className="h-8 w-8 mx-auto text-[#a8927a] mb-2" />
               <p className="text-sm text-[#5f665f] mb-3">
-                اسحب الملف هنا أو اخترْه من جهازك
+                اسحب الملف هنا أو اختره من جهازك
               </p>
               <input
                 ref={inputRef}
@@ -374,8 +374,8 @@ export default function InventoryImportPage() {
             <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 ["تشغيلات جديدة", activeJob.created_batches, "text-emerald-700"],
-                ["تشغيلات محدَّثة", activeJob.updated_batches, "text-blue-700"],
-                ["أدوية مطابَقة", activeJob.matched_products, "text-[#1f2a24]"],
+                ["تشغيلات محدثة", activeJob.updated_batches, "text-blue-700"],
+                ["أدوية مطابقة", activeJob.matched_products, "text-[#1f2a24]"],
                 ["صفوف مرفوضة", activeJob.failed_rows, "text-red-700"],
               ].map(([label, value, tone]) => (
                 <div
@@ -400,7 +400,7 @@ export default function InventoryImportPage() {
               <div className="mt-5">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold text-[#1f2a24]">
-                    صفوف تحتاج تصحيحاً
+                    صفوف تحتاج تصحيحا
                   </h3>
                   {activeJob.has_error_file && (
                     <button
@@ -431,7 +431,7 @@ export default function InventoryImportPage() {
                 </ul>
                 {activeJob.errors.length > 8 && (
                   <p className="text-xs text-[#8a9089] mt-2">
-                    وهناك {(activeJob.failed_rows - 8).toLocaleString("ar-SA")} صفاً
+                    وهناك {(activeJob.failed_rows - 8).toLocaleString("ar-SA")} صفا
                     آخر في الملف المرفوض.
                   </p>
                 )}
@@ -471,7 +471,7 @@ export default function InventoryImportPage() {
                 </p>
               </>
             ) : (
-              <p className="text-sm text-[#8a9089]">جارٍ الحساب…</p>
+              <p className="text-sm text-[#8a9089]">جار الحساب…</p>
             )}
           </SectionCard>
 
@@ -557,7 +557,7 @@ export default function InventoryImportPage() {
               <EmptyState
                 icon={Clock}
                 title="لم تستورد أي ملف بعد"
-                description="نزّل القالب، عبّئ أصنافك، ثم ارفعه — وستظهر العملية هنا."
+                description="نزل القالب، عبئ أصنافك، ثم ارفعه — وستظهر العملية هنا."
               />
             )}
           </SectionCard>

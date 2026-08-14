@@ -22,7 +22,7 @@ export default async function PendingReviewPage({
         </div>
         <h1 className="text-2xl font-semibold text-[#1f2a24] mb-3">طلب الاعتماد قيد المراجعة</h1>
         <p className="text-[#6d746d] leading-relaxed mb-8">
-          شكراً لتسجيل منشأتك في MedSave. يخضع الطلب لمراجعة بيانات الترخيص والاعتماد، وسيتم إشعارك عبر
+          شكرا لتسجيل منشأتك في MedSave. يخضع الطلب لمراجعة بيانات الترخيص والاعتماد، وسيتم إشعارك عبر
           البريد الإلكتروني عند الموافقة خلال <strong>24–48 ساعة</strong>.
         </p>
 

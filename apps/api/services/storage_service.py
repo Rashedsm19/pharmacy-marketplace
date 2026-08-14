@@ -75,7 +75,7 @@ class StorageService:
             # pretending the document was stored.
             raise HTTPException(
                 status_code=status.HTTP_501_NOT_IMPLEMENTED,
-                detail=f"STORAGE_BACKEND={settings.STORAGE_BACKEND} غير مُفعّل",
+                detail=f"STORAGE_BACKEND={settings.STORAGE_BACKEND} غير مفعل",
             )
 
         target_dir = self.root / str(organization_id)

@@ -60,13 +60,13 @@ export default function AdminDraftsPage() {
       corrections?: { name_ar?: string; sku?: string; barcode?: string };
     }) => adminApi.promoteDraft(id, corrections),
     onSuccess: () => {
-      toast.success("أُضيف المنتج إلى الكتالوج العام");
+      toast.success("أضيف المنتج إلى الكتالوج العام");
       queryClient.invalidateQueries({ queryKey: ["admin-drafts"] });
       setEditing(null);
     },
     onError: (error: unknown) => {
       toast.error(
-        errorMessage(error, "تعذّر ضمّ المنتج")
+        errorMessage(error, "تعذر ضم المنتج")
       );
     },
   });
@@ -88,14 +88,14 @@ export default function AdminDraftsPage() {
       <div className="space-y-6">
         <PageHeader
           title="مسودات المنتجات"
-          subtitle="أدوية أنشأتها عمليات الاستيراد ولم تُطابَق بالكتالوج — راجعها وضمّها"
+          subtitle="أدوية أنشأتها عمليات الاستيراد ولم تطابق بالكتالوج — راجعها وضمها"
         />
 
         <div className="rounded-2xl bg-[#f4eadf] px-5 py-4">
           <p className="text-sm text-[#7b5411] leading-relaxed">
-            المسودة منتج <strong>خاص بالمنشأة</strong> التي استوردته: تعمل به فوراً،
-            ولا تراه المنشآت الأخرى. ضمّه للكتالوج العام يجعله متاحاً للجميع، ومخزون
-            المنشأة يبقى مرتبطاً به كما هو.
+            المسودة منتج <strong>خاص بالمنشأة</strong> التي استوردته: تعمل به فورا،
+            ولا تراه المنشآت الأخرى. ضمه للكتالوج العام يجعله متاحا للجميع، ومخزون
+            المنشأة يبقى مرتبطا به كما هو.
           </p>
         </div>
 
@@ -107,12 +107,12 @@ export default function AdminDraftsPage() {
           }
         >
           {isLoading ? (
-            <p className="px-6 py-10 text-sm text-[#8a9089]">جارٍ التحميل…</p>
+            <p className="px-6 py-10 text-sm text-[#8a9089]">جار التحميل…</p>
           ) : drafts.length === 0 ? (
             <EmptyState
               icon={CheckCheck}
               title="لا توجد مسودات"
-              description="كل ما استُورد حتى الآن طابق الكتالوج العام."
+              description="كل ما استورد حتى الآن طابق الكتالوج العام."
             />
           ) : (
             <>
@@ -184,7 +184,7 @@ export default function AdminDraftsPage() {
                             {promote.isPending && (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             )}
-                            ضمّ بعد التعديل
+                            ضم بعد التعديل
                           </button>
                           <button
                             type="button"
@@ -237,7 +237,7 @@ export default function AdminDraftsPage() {
                             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-sm ring-1 ring-inset ring-[#e1d3c0] text-[#5f665f] hover:bg-[#fbf7f0]"
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                            تعديل ثم ضمّ
+                            تعديل ثم ضم
                           </button>
                           <button
                             type="button"
@@ -250,7 +250,7 @@ export default function AdminDraftsPage() {
                             ) : (
                               <CheckCheck className="h-3.5 w-3.5" />
                             )}
-                            ضمّ للكتالوج
+                            ضم للكتالوج
                           </button>
                         </div>
                       </div>
@@ -289,7 +289,7 @@ export default function AdminDraftsPage() {
 
         <p className="text-xs text-[#8a9089] flex items-center gap-1.5">
           <FileStack className="h-3.5 w-3.5" />
-          إن كان الكود مستخدماً في الكتالوج العام، استخدم «تعديل ثم ضمّ» وأدخل كوداً
+          إن كان الكود مستخدما في الكتالوج العام، استخدم «تعديل ثم ضم» وأدخل كودا
           آخر.
         </p>
       </div>

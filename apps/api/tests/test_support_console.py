@@ -288,7 +288,7 @@ async def test_deleting_an_account_frees_its_email_for_reuse(client, admin_token
     deleted = await client.delete(
         f"/admin/users/{target['id']}",
         headers=auth(admin_token),
-        params={"reason": "الموظف غادر نهائياً", "force": True},
+        params={"reason": "الموظف غادر نهائيا", "force": True},
     )
     assert deleted.status_code == 200, deleted.text
     assert deleted.json()["deleted"] is True
@@ -440,7 +440,7 @@ async def test_removing_a_listing_works_and_returns_the_stock(client, admin_toke
     removed = await client.post(
         f"/admin/moderation/{listing_id}/remove",
         headers=auth(admin_token),
-        json={"reason": "معلومات مضلّلة في العرض"},
+        json={"reason": "معلومات مضللة في العرض"},
     )
     assert removed.status_code == 200, removed.text
     assert removed.json()["status"] == "cancelled"
@@ -518,7 +518,7 @@ async def test_support_can_delete_a_batch_and_restore_it(
     restored = await client.post(
         f"/admin/inventory/batches/{batch_id}/restore",
         headers=auth(admin_token),
-        json={"reason": "تبيّن أنها صحيحة"},
+        json={"reason": "تبين أنها صحيحة"},
     )
     assert restored.status_code == 200
     assert len(await find_batches(client, seller_token, code)) == 1

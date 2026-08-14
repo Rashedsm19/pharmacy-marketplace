@@ -17,7 +17,7 @@ const OUTCOMES = [
   {
     value: "resolved_refund",
     label: "قبول واسترداد",
-    hint: "تُعاد الكمية لمخزون البائع ويُسترد مقابلها",
+    hint: "تعاد الكمية لمخزون البائع ويسترد مقابلها",
     icon: <RotateCcw className="h-3.5 w-3.5" />,
     className: "bg-emerald-600 hover:bg-emerald-700",
   },
@@ -58,7 +58,7 @@ export default function AdminDisputesPage() {
     },
     onError: (err: unknown) => {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      toast.error(typeof detail === "string" ? detail : "تعذّر إصدار القرار");
+      toast.error(typeof detail === "string" ? detail : "تعذر إصدار القرار");
     },
   });
 
@@ -69,7 +69,7 @@ export default function AdminDisputesPage() {
       <div className="space-y-5">
         <PageHeader
           title="طابور النزاعات"
-          subtitle={`بلاغات تنتظر قرار المنصة — الأقدم أولاً${disputes.length ? ` · ${disputes.length}` : ""}`}
+          subtitle={`بلاغات تنتظر قرار المنصة — الأقدم أولا${disputes.length ? ` · ${disputes.length}` : ""}`}
         />
 
         {isLoading ? (
@@ -79,8 +79,8 @@ export default function AdminDisputesPage() {
         ) : disputes.length === 0 ? (
           <EmptyState
             icon={AlertTriangle}
-            title="لا بلاغات معلّقة"
-            description="لا يوجد نزاع ينتظر قراراً. ستظهر البلاغات الجديدة هنا فور فتحها."
+            title="لا بلاغات معلقة"
+            description="لا يوجد نزاع ينتظر قرارا. ستظهر البلاغات الجديدة هنا فور فتحها."
           />
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
@@ -95,7 +95,7 @@ export default function AdminDisputesPage() {
 
                 {dispute.seller_response && (
                   <div className="mt-3 rounded-lg bg-[#f7f1e6] px-4 py-3">
-                    <p className="text-xs font-bold text-[#55605b] mb-1">ردّ الطرف الآخر</p>
+                    <p className="text-xs font-bold text-[#55605b] mb-1">رد الطرف الآخر</p>
                     <p className="text-sm text-[#1f2823]">{dispute.seller_response}</p>
                   </div>
                 )}

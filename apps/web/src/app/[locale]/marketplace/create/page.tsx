@@ -94,7 +94,7 @@ export default function CreateListingPage() {
 
   const onSubmit = (data: ListingFormData) => {
     if (!eligibilityResult?.all_passed) {
-      toast.error("يجب اجتياز فحص الأهلية أولاً");
+      toast.error("يجب اجتياز فحص الأهلية أولا");
       return;
     }
     createListing.mutate(data);
@@ -105,7 +105,7 @@ export default function CreateListingPage() {
       <div className="space-y-6">
         <PageHeader
           title="نشر عرض جديد"
-          subtitle="اختر دفعة مؤهلة وحدد تفاصيل العرض، وسيتم فحص الأهلية تلقائياً قبل النشر"
+          subtitle="اختر دفعة مؤهلة وحدد تفاصيل العرض، وسيتم فحص الأهلية تلقائيا قبل النشر"
           back={
             <Link
               href={`/${locale}/my/listings`}

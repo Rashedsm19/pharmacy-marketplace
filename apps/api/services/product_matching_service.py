@@ -21,7 +21,7 @@ from models.product import Product, ProductCategory, ProductSource
 logger = logging.getLogger("api.matching")
 
 ARABIC_INDIC = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
-DIACRITICS = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭ]")
+DIACRITICS = re.compile(r"[ؐ-ؚ-ٟ-]")
 NON_ALNUM = re.compile(r"[^0-9a-zء-ي]+")
 
 # Alef and yaa are written several ways; treat them as one letter for matching.

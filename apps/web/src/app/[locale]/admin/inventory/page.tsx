@@ -41,10 +41,10 @@ type Row = {
 const ZONES: { value: string; label: string }[] = [
   { value: "", label: "كل الفترات" },
   { value: "expired", label: "منتهية" },
-  { value: "red", label: "أقل من ٣٠ يوماً" },
-  { value: "orange", label: "٣٠ – ٩٠ يوماً" },
-  { value: "yellow", label: "٩٠ – ١٨٠ يوماً" },
-  { value: "green", label: "أكثر من ١٨٠ يوماً" },
+  { value: "red", label: "أقل من ٣٠ يوما" },
+  { value: "orange", label: "٣٠ – ٩٠ يوما" },
+  { value: "yellow", label: "٩٠ – ١٨٠ يوما" },
+  { value: "green", label: "أكثر من ١٨٠ يوما" },
 ];
 
 const ZONE_STYLE: Record<string, string> = {
@@ -118,14 +118,14 @@ export default function AdminInventoryPage() {
               label="قرب الانتهاء"
               value={totals.near_expiry_batches.toLocaleString("ar-SA")}
               icon={TriangleAlert}
-              hint="خلال ١٨٠ يوماً"
+              hint="خلال ١٨٠ يوما"
               tone="warning"
             />
             <KpiCard
               label="منتهية بالفعل"
               value={totals.expired_batches.toLocaleString("ar-SA")}
               icon={PackageX}
-              hint="تحتاج إخراجاً من المخزون"
+              hint="تحتاج إخراجا من المخزون"
               tone="critical"
             />
           </div>
@@ -175,12 +175,12 @@ export default function AdminInventoryPage() {
           }
         >
           {isLoading ? (
-            <p className="px-6 py-10 text-sm text-[#8a9089]">جارٍ التحميل…</p>
+            <p className="px-6 py-10 text-sm text-[#8a9089]">جار التحميل…</p>
           ) : rows.length === 0 ? (
             <EmptyState
               icon={Boxes}
               title="لا توجد تشغيلات مطابقة"
-              description="غيّر التصفية أو ابحث بكلمة أخرى."
+              description="غير التصفية أو ابحث بكلمة أخرى."
             />
           ) : (
             <>

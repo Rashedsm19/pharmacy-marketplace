@@ -63,7 +63,7 @@ async def leave_rating(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="المعاملة غير موجودة")
 
     if org_id not in (tx.buyer_organization_id, tx.seller_organization_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="غير مخوَّل")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="غير مخول")
 
     # A rating has to be earned: nothing to judge before the goods arrive.
     if tx.status != TransactionStatus.COMPLETED:
@@ -82,7 +82,7 @@ async def leave_rating(
     ).scalar_one_or_none()
     if existing:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="سبق أن قيّمت هذه المعاملة"
+            status_code=status.HTTP_409_CONFLICT, detail="سبق أن قيمت هذه المعاملة"
         )
 
     rated_org_id = (

@@ -28,7 +28,7 @@ export default function TopProductsReportPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
             <Star className="h-6 w-6 text-yellow-500" />
-            <h1 className="text-2xl font-bold text-gray-900">أكثر المنتجات طلباً</h1>
+            <h1 className="text-2xl font-bold text-gray-900">أكثر المنتجات طلبا</h1>
           </div>
           <button className="flex items-center gap-2 border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">
             <Download className="h-4 w-4" />

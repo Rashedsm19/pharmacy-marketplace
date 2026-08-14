@@ -31,7 +31,7 @@ CATALOG: dict[str, SettingSpec] = {
         label_ar="عمولة المنصة",
         label_en="Platform fee",
         description_ar=(
-            "النسبة التي تحصّلها المنصة من قيمة كل عملية بيع مكتملة. "
+            "النسبة التي تحصلها المنصة من قيمة كل عملية بيع مكتملة. "
             "تغييرها يسري على العمليات الجديدة فقط."
         ),
         description_en=(
@@ -49,7 +49,7 @@ CATALOG: dict[str, SettingSpec] = {
         label_ar="أقل مدة متبقية للإدراج",
         label_en="Minimum days before expiry to list",
         description_ar=(
-            "لا يُسمح بإدراج دواء في السوق إذا تبقّى على انتهائه أقل من هذا "
+            "لا يسمح بإدراج دواء في السوق إذا تبقى على انتهائه أقل من هذا "
             "العدد من الأيام. يحمي المشتري من شراء ما لا يكفيه وقته."
         ),
         description_en=(
@@ -84,8 +84,8 @@ CATALOG: dict[str, SettingSpec] = {
         label_ar="إشعارات البريد الإلكتروني",
         label_en="Email notifications",
         description_ar=(
-            "إرسال الإشعارات بالبريد إضافةً إلى داخل المنصة. "
-            "يتطلب ضبط مزوّد البريد في إعدادات الخادم."
+            "إرسال الإشعارات بالبريد إضافة إلى داخل المنصة. "
+            "يتطلب ضبط مزود البريد في إعدادات الخادم."
         ),
         description_en=(
             "Send notifications by email as well as in-app. Requires an email "
@@ -194,7 +194,7 @@ def coerce(key: str, value: object) -> object:
         try:
             number = float(value)  # type: ignore[arg-type]
         except (TypeError, ValueError) as exc:
-            raise ValueError(f"{spec.label_ar}: القيمة يجب أن تكون رقماً") from exc
+            raise ValueError(f"{spec.label_ar}: القيمة يجب أن تكون رقما") from exc
         if spec.minimum is not None and number < spec.minimum:
             raise ValueError(f"{spec.label_ar}: أقل قيمة مسموحة {spec.minimum:g}")
         if spec.maximum is not None and number > spec.maximum:

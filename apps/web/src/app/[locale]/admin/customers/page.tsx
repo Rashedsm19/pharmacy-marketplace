@@ -123,7 +123,7 @@ export default function AdminCustomersPage() {
             tone="safe"
           />
           <KpiCard
-            label="تشغيلات تحتاج انتباهاً"
+            label="تشغيلات تحتاج انتباها"
             value={totals.risk.toLocaleString("ar-SA")}
             icon={TriangleAlert}
             hint="قرب الانتهاء أو منتهية"
@@ -173,12 +173,12 @@ export default function AdminCustomersPage() {
           }
         >
           {isLoading ? (
-            <p className="px-6 py-10 text-sm text-[#8a9089]">جارٍ التحميل…</p>
+            <p className="px-6 py-10 text-sm text-[#8a9089]">جار التحميل…</p>
           ) : rows.length === 0 ? (
             <EmptyState
               icon={Building2}
               title="لا توجد منشآت مطابقة"
-              description="غيّر التصفية أو ابحث بكلمة أخرى."
+              description="غير التصفية أو ابحث بكلمة أخرى."
             />
           ) : (
             <>
@@ -256,7 +256,7 @@ export default function AdminCustomersPage() {
                           <td className="px-3 py-3 text-xs text-[#8a9089] whitespace-nowrap">
                             {row.last_activity_at
                               ? formatDate(row.last_activity_at, locale)
-                              : "لم يُستخدم بعد"}
+                              : "لم يستخدم بعد"}
                             <div>
                               {row.imports.toLocaleString("ar-SA")} استيراد ·{" "}
                               {row.sales.toLocaleString("ar-SA")} بيع

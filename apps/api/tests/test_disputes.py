@@ -58,7 +58,7 @@ async def test_buyer_opens_a_dispute_and_seller_answers(client, seller_token, bu
     answered = await client.post(
         f"/disputes/{dispute['id']}/respond",
         headers=auth(seller_token),
-        json={"response": "شُحنت الكمية كاملة، وسنراجع مع شركة الشحن"},
+        json={"response": "شحنت الكمية كاملة، وسنراجع مع شركة الشحن"},
     )
     assert answered.status_code == 200
     assert answered.json()["status"] == "seller_responded"
@@ -131,7 +131,7 @@ async def test_refund_returns_the_disputed_units_to_the_seller(
     resolved = await client.post(
         f"/disputes/{dispute['id']}/resolve",
         headers=auth(admin_token),
-        json={"outcome": "resolved_refund", "notes": "قُبل البلاغ بعد مراجعة الأدلة"},
+        json={"outcome": "resolved_refund", "notes": "قبل البلاغ بعد مراجعة الأدلة"},
     )
     assert resolved.status_code == 200, resolved.text
     assert resolved.json()["refund_amount"] == pytest.approx(50.0)  # 2 units × 25.0
@@ -166,7 +166,7 @@ async def test_a_rejected_case_leaves_the_sale_standing(
             json={
                 "transaction_id": tx["id"],
                 "reason": "wrong_product",
-                "description": "المنتج الواصل مختلف عمّا في العرض",
+                "description": "المنتج الواصل مختلف عما في العرض",
             },
         )
     ).json()
@@ -247,7 +247,7 @@ async def test_only_platform_admins_resolve(client, seller_token, buyer_token):
     response = await client.post(
         f"/disputes/{dispute['id']}/resolve",
         headers=auth(seller_token),
-        json={"outcome": "resolved_rejected", "notes": "محاولة حسم من طرف غير مخوَّل"},
+        json={"outcome": "resolved_rejected", "notes": "محاولة حسم من طرف غير مخول"},
     )
     assert response.status_code == 403
 

@@ -26,7 +26,7 @@ def validate_vat_number(value: str | None) -> str | None:
         return None
     compact = value.replace(" ", "").replace("-", "")
     if not VAT_PATTERN.match(compact):
-        raise ValueError("الرقم الضريبي يجب أن يكون ١٥ رقماً يبدأ وينتهي بالرقم ٣")
+        raise ValueError("الرقم الضريبي يجب أن يكون ١٥ رقما يبدأ وينتهي بالرقم ٣")
     return compact
 
 
@@ -37,7 +37,7 @@ def validate_gln(value: str | None) -> str | None:
         return None
     compact = value.replace(" ", "").replace("-", "")
     if not compact.isdigit() or len(compact) != 13:
-        raise ValueError("رقم الموقع العالمي GLN يجب أن يكون ١٣ رقماً")
+        raise ValueError("رقم الموقع العالمي GLN يجب أن يكون ١٣ رقما")
 
     # GS1 check digit: weight the first 12 digits 3,1,3,1… from the right.
     digits = [int(d) for d in compact]

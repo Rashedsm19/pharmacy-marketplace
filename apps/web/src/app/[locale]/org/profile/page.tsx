@@ -23,12 +23,12 @@ const profileSchema = z.object({
   // before the request is sent.
   vat_number: z
     .string()
-    .regex(/^3\d{13}3$/, "الرقم الضريبي: ١٥ رقماً يبدأ وينتهي بـ٣")
+    .regex(/^3\d{13}3$/, "الرقم الضريبي: ١٥ رقما يبدأ وينتهي ب٣")
     .optional()
     .or(z.literal("")),
   gln: z
     .string()
-    .regex(/^\d{13}$/, "رقم الموقع العالمي GLN: ١٣ رقماً")
+    .regex(/^\d{13}$/, "رقم الموقع العالمي GLN: ١٣ رقما")
     .optional()
     .or(z.literal("")),
   license_expires_at: z.string().optional().or(z.literal("")),

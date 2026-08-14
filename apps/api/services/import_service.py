@@ -90,7 +90,7 @@ class ImportProcessor:
         if len(rows) == 1:
             self.default_branch_id = rows[0].id
         if not rows:
-            raise ValueError("لا يوجد فرع مسجّل للمنشأة — أضف فرعاً قبل الاستيراد")
+            raise ValueError("لا يوجد فرع مسجل للمنشأة — أضف فرعا قبل الاستيراد")
 
     # ── Per-row work ──────────────────────────────────────────────────────
 
@@ -122,7 +122,7 @@ class ImportProcessor:
             raise RowError("تاريخ الانتهاء مطلوب بصيغة YYYY-MM-DD")
         today = date.today()
         if expiry.year > today.year + MAX_EXPIRY_YEARS:
-            raise RowError("تاريخ الانتهاء غير منطقي — تحقّق من الصيغة")
+            raise RowError("تاريخ الانتهاء غير منطقي — تحقق من الصيغة")
 
         quantity = excel_service.coerce_int(values.get("quantity"))
         if quantity is None:
@@ -132,7 +132,7 @@ class ImportProcessor:
 
         unit_cost = excel_service.coerce_float(values.get("unit_cost"))
         if unit_cost is not None and unit_cost < 0:
-            raise RowError("سعر التكلفة لا يمكن أن يكون سالباً")
+            raise RowError("سعر التكلفة لا يمكن أن يكون سالبا")
 
         return {
             "name": name,
@@ -273,7 +273,7 @@ class ImportProcessor:
                         capped = True
                         self.record_error(
                             row.line_number,
-                            f"تم بلوغ الحد الأقصى ({ceiling} صنف) — لم يُضف هذا الصف",
+                            f"تم بلوغ الحد الأقصى ({ceiling} صنف) — لم يضف هذا الصف",
                             {
                                 "product_name": data["name"],
                                 "batch_number": data["batch_number"],
@@ -322,7 +322,7 @@ class ImportProcessor:
         if capped:
             self.job.failure_reason = (
                 f"تم بلوغ الحد الأقصى للمخزون ({ceiling} صنف). "
-                "احذف أصنافاً منتهية أو تواصل معنا لرفع الحد."
+                "احذف أصنافا منتهية أو تواصل معنا لرفع الحد."
             )
         self.job.status = (
             ImportStatus.COMPLETED_WITH_ERRORS if self.errors else ImportStatus.COMPLETED

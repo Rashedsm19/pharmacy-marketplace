@@ -41,7 +41,7 @@ async def _require_org(current_user, db) -> uuid.UUID:
     if current_user.role == UserRole.SUPER_ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="المفاتيح تُدار من حساب المنشأة",
+            detail="المفاتيح تدار من حساب المنشأة",
         )
     org_id = await MembershipRepository(db).get_user_org_id(current_user.id)
     if not org_id:

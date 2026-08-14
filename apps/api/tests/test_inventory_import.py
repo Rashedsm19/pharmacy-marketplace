@@ -410,7 +410,7 @@ async def test_a_csv_is_accepted_too(client, seller_token):
     expiry = (date.today() + timedelta(days=45)).isoformat()
     csv_text = (
         "اسم الدواء,الباركود / GTIN,كود المنتج لديك,رقم التشغيلة,تاريخ الانتهاء,"
-        "الكمية,سعر التكلفة,الفرع,المورّد,رقم أمر الشراء,يحتاج تبريد,ملاحظات\n"
+        "الكمية,سعر التكلفة,الفرع,المورد,رقم أمر الشراء,يحتاج تبريد,ملاحظات\n"
         f"دواء CSV {code},,{code},CSV-1,{expiry},9,4.5,{branch},,,,\n"
     )
     job = await upload(
@@ -456,7 +456,7 @@ async def test_a_missing_job_is_not_found(client, seller_token):
 
 @pytest.mark.asyncio
 async def test_the_platform_admin_can_still_download_the_template(client, admin_token):
-    """Regression: the admin got 403 and the screen said "تعذّر تحميل القالب".
+    """Regression: the admin got 403 and the screen said "تعذر تحميل القالب".
 
     An admin has no pharmacy, but the template is a blank form — only the branch
     dropdown needs an organization.

@@ -100,7 +100,7 @@ export default function AdminApprovalsPage() {
                   {rejectingId === org.id ? (
                     <div className="space-y-3">
                       <p className="font-medium text-slate-900">
-                        سبب الرفض لـ <span className="text-rose-700">{org.name_ar ?? org.name}</span>
+                        سبب الرفض ل <span className="text-rose-700">{org.name_ar ?? org.name}</span>
                       </p>
                       <textarea
                         value={rejectReason}

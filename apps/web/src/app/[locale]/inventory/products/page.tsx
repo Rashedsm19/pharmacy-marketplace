@@ -78,7 +78,7 @@ export default function ProductsPage() {
             },
             {
               key: "is_controlled",
-              header: "مقيّد",
+              header: "مقيد",
               render: (r: { is_controlled?: boolean; is_restricted?: boolean }) =>
                 r.is_controlled || r.is_restricted ? (
                   <Badge variant="danger">نعم</Badge>

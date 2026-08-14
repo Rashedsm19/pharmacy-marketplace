@@ -104,7 +104,7 @@ def password_reset_email(full_name: str, token: str) -> tuple[str, str, str]:
     link = f"{settings.FRONTEND_URL.rstrip('/')}/ar/reset-password?token={token}"
     subject = "إعادة تعيين كلمة المرور — MedSave"
     text = (
-        f"مرحباً {full_name}،\n\n"
+        f"مرحبا {full_name}،\n\n"
         "وصلنا طلب لإعادة تعيين كلمة مرور حسابك في منصة MedSave.\n"
         f"افتح الرابط التالي لتعيين كلمة مرور جديدة:\n\n{link}\n\n"
         "الرابط صالح لمدة ساعة واحدة. إن لم تطلب ذلك فتجاهل هذه الرسالة، "
@@ -112,7 +112,7 @@ def password_reset_email(full_name: str, token: str) -> tuple[str, str, str]:
         "منصة MedSave لتداول مخزون الصيدليات"
     )
     html = f"""<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9;color:#1F2823">
-  <p>مرحباً {full_name}،</p>
+  <p>مرحبا {full_name}،</p>
   <p>وصلنا طلب لإعادة تعيين كلمة مرور حسابك في منصة <strong>MedSave</strong>.</p>
   <p style="margin:26px 0">
     <a href="{link}" style="background:#0AA39B;color:#fff;text-decoration:none;

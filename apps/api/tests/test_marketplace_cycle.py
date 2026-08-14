@@ -83,14 +83,14 @@ async def test_full_trading_cycle(client, seller_token, buyer_token):
     dispatched = await client.post(
         f"/transactions/{tx_id}/dispatch",
         headers=auth(seller_token),
-        json={"delivery_tracking_number": "SMSA-TEST-1", "seller_notes": "شُحنت"},
+        json={"delivery_tracking_number": "SMSA-TEST-1", "seller_notes": "شحنت"},
     )
     assert dispatched.json()["status"] == "dispatched"
 
     completed = await client.post(
         f"/transactions/{tx_id}/confirm-receipt",
         headers=auth(buyer_token),
-        json={"buyer_notes": "استُلمت"},
+        json={"buyer_notes": "استلمت"},
     )
     assert completed.json()["status"] == "completed"
 

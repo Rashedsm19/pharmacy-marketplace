@@ -157,7 +157,7 @@ export default function RecoverableValueReportPage() {
         </div>
 
         {/* Top items table */}
-        <SectionCard title="أعلى المنتجات قيمةً للاسترداد" noPadding>
+        <SectionCard title="أعلى المنتجات قيمة للاسترداد" noPadding>
           {isLoading ? (
             <div className="p-5 space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (

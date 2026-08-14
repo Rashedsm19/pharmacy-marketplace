@@ -68,7 +68,7 @@ class DisputeService:
 
         # Either side may raise a case, but only the two sides of this trade.
         if org_id not in (tx.buyer_organization_id, tx.seller_organization_id):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="غير مخوَّل")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="غير مخول")
 
         # Checked before the status guard: opening a case is what moves the
         # transaction to DISPUTED, so "a case is already open" is the accurate
@@ -131,7 +131,7 @@ class DisputeService:
             ).scalar_one_or_none()
             if org and org.status == OrganizationStatus.APPROVED:
                 org.status = OrganizationStatus.SUSPENDED
-                org.suspension_reason = "بلاغ اشتباه بمنتج مزيّف — قيد التحقيق"
+                org.suspension_reason = "بلاغ اشتباه بمنتج مزيف — قيد التحقيق"
                 logger.warning("Suspended org %s after counterfeit report", counterparty_id)
 
         await self.db.flush()
@@ -140,9 +140,9 @@ class DisputeService:
             org_id,
             NotificationType.SYSTEM,
             "Dispute opened",
-            "فُتح نزاع على معاملة",
+            "فتح نزاع على معاملة",
             "A dispute was opened on one of your transactions.",
-            f"فُتح نزاع على المعاملة {tx.reference_number}. راجعه وقدّم ردّك.",
+            f"فتح نزاع على المعاملة {tx.reference_number}. راجعه وقدم ردك.",
             dispute.id,
         )
         await self.audit.log(
@@ -175,7 +175,7 @@ class DisputeService:
                 detail="الرد على النزاع من حق الطرف الآخر",
             )
         if org_id not in (tx.buyer_organization_id, tx.seller_organization_id):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="غير مخوَّل")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="غير مخول")
         if dispute.status not in OPEN_STATUSES:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="النزاع مغلق"
@@ -217,7 +217,7 @@ class DisputeService:
         dispute = await self._get(dispute_id)
         if dispute.status not in OPEN_STATUSES:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="النزاع محسوم مسبقاً"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="النزاع محسوم مسبقا"
             )
 
         tx = await self._transaction_for(dispute.transaction_id)
@@ -248,7 +248,7 @@ class DisputeService:
             await self._notify_org(
                 org_id,
                 "Dispute resolved",
-                "حُسم النزاع",
+                "حسم النزاع",
                 f"The dispute on {tx.reference_number} was resolved.",
                 f"صدر قرار في النزاع على المعاملة {tx.reference_number}.",
                 dispute.id,

@@ -79,7 +79,7 @@ export default function ApiKeysPage() {
     onError: (err: unknown) => {
       setError(
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-          "تعذّر إنشاء المفتاح."
+          "تعذر إنشاء المفتاح."
       );
     },
   });
@@ -99,7 +99,7 @@ export default function ApiKeysPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      setError("تعذّر النسخ — حدّد المفتاح وانسخه يدوياً.");
+      setError("تعذر النسخ — حدد المفتاح وانسخه يدويا.");
     }
   };
 
@@ -155,13 +155,13 @@ export default function ApiKeysPage() {
           <SectionCard
             className="ring-2 ring-brand-500"
             title="مفتاحك جاهز — انسخه الآن"
-            subtitle="لن يُعرض هذا المفتاح مرة أخرى بعد مغادرة الصفحة"
+            subtitle="لن يعرض هذا المفتاح مرة أخرى بعد مغادرة الصفحة"
           >
             <div className="flex items-start gap-3 rounded-xl bg-amber-50 ring-1 ring-inset ring-amber-200 px-4 py-3 mb-4">
               <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-sm text-amber-900 leading-relaxed">
-                نحن نحفظ بصمة مشفّرة للمفتاح فقط، ولا نحتفظ بنصّه — فلا يمكننا
-                إظهاره لك لاحقاً. إن فقدته، ألغِ هذا المفتاح وأنشئ غيره.
+                نحن نحفظ بصمة مشفرة للمفتاح فقط، ولا نحتفظ بنصه — فلا يمكننا
+                إظهاره لك لاحقا. إن فقدته، ألغ هذا المفتاح وأنشئ غيره.
               </p>
             </div>
 
@@ -196,7 +196,7 @@ export default function ApiKeysPage() {
         {creating && (
           <SectionCard
             title="إنشاء مفتاح"
-            subtitle="سمِّ المفتاح باسم النظام الذي سيستخدمه، وامنحه أقل الصلاحيات اللازمة"
+            subtitle="سم المفتاح باسم النظام الذي سيستخدمه، وامنحه أقل الصلاحيات اللازمة"
           >
             <form
               onSubmit={(event) => {
@@ -298,14 +298,14 @@ export default function ApiKeysPage() {
         )}
 
         {/* ── The keys ────────────────────────────────────────────────── */}
-        <SectionCard title="المفاتيح" subtitle="ألغِ أي مفتاح فور الاشتباه في تسريبه" noPadding>
+        <SectionCard title="المفاتيح" subtitle="ألغ أي مفتاح فور الاشتباه في تسريبه" noPadding>
           {isLoading ? (
-            <p className="px-6 py-8 text-sm text-[#8a9089]">جارٍ التحميل…</p>
+            <p className="px-6 py-8 text-sm text-[#8a9089]">جار التحميل…</p>
           ) : keys.length === 0 ? (
             <EmptyState
               icon={KeyRound}
               title="لا توجد مفاتيح بعد"
-              description="أنشئ مفتاحاً ليتمكّن نظامك من إرسال المخزون وقراءة ما يقترب انتهاؤه."
+              description="أنشئ مفتاحا ليتمكن نظامك من إرسال المخزون وقراءة ما يقترب انتهاؤه."
               action={
                 <button
                   type="button"
@@ -355,12 +355,12 @@ export default function ApiKeysPage() {
 
                     <div className="text-left shrink-0">
                       <p className="text-xs text-[#8a9089]">
-                        أُنشئ {formatDate(key.created_at, locale)}
+                        أنشئ {formatDate(key.created_at, locale)}
                       </p>
                       <p className="text-xs text-[#8a9089] mt-0.5">
                         {key.last_used_at
                           ? `آخر استخدام ${formatDate(key.last_used_at, locale)} · ${key.request_count.toLocaleString("ar-SA")} طلب`
-                          : "لم يُستخدم بعد"}
+                          : "لم يستخدم بعد"}
                       </p>
                       {key.is_active &&
                         (confirmRevoke === key.id ? (

@@ -29,7 +29,7 @@ from services.email_service import email_service, password_reset_email
 logger = logging.getLogger("api.auth")
 
 # An organization in one of these states cannot be signed into. The message says
-# which, because "الحساب معطّل" for a pharmacy still awaiting approval would send
+# which, because "الحساب معطل" for a pharmacy still awaiting approval would send
 # the customer to support for nothing.
 _BLOCKED_STATUSES: dict[OrganizationStatus, str] = {
     OrganizationStatus.SUSPENDED: "حساب المنشأة موقوف — تواصل مع الدعم",
@@ -50,19 +50,19 @@ class AuthService:
         if await self.user_repo.email_exists(data.email):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="هذا البريد الإلكتروني مسجّل مسبقاً",
+                detail="هذا البريد الإلكتروني مسجل مسبقا",
             )
 
         if await self.org_repo.cr_exists(data.commercial_registration_number):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="رقم السجل التجاري مسجّل مسبقاً لمنشأة أخرى",
+                detail="رقم السجل التجاري مسجل مسبقا لمنشأة أخرى",
             )
 
         if data.license_number and await self.org_repo.license_exists(data.license_number):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="رقم الترخيص مسجّل مسبقاً لمنشأة أخرى",
+                detail="رقم الترخيص مسجل مسبقا لمنشأة أخرى",
             )
 
         # Create org
@@ -137,7 +137,7 @@ class AuthService:
             await self.db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="تعذّر إتمام التسجيل — تحقق من أن البريد ورقم السجل التجاري ورقم الترخيص غير مستخدمة",
+                detail="تعذر إتمام التسجيل — تحقق من أن البريد ورقم السجل التجاري ورقم الترخيص غير مستخدمة",
             ) from exc
         return user
 
@@ -154,7 +154,7 @@ class AuthService:
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="الحساب معطّل — تواصل مع الدعم",
+                detail="الحساب معطل — تواصل مع الدعم",
             )
 
         # Get org_id
@@ -263,7 +263,7 @@ class AuthService:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="رابط الاستعادة غير صالح أو انتهت صلاحيته — اطلب رابطاً جديداً",
+                detail="رابط الاستعادة غير صالح أو انتهت صلاحيته — اطلب رابطا جديدا",
             )
         user.hashed_password = hash_password(new_password)
         user.password_reset_token = None

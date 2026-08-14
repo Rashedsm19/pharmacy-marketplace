@@ -39,14 +39,14 @@ const ROLE_LABEL: Record<string, string> = {
   super_admin: "مدير المنصة",
   org_admin: "مدير منشأة",
   pharmacist: "صيدلي",
-  viewer: "مطّلع",
+  viewer: "مطلع",
 };
 
 const ROLES = [
   { value: "", label: "كل الأدوار" },
   { value: "org_admin", label: "مدير منشأة" },
   { value: "pharmacist", label: "صيدلي" },
-  { value: "viewer", label: "مطّلع" },
+  { value: "viewer", label: "مطلع" },
   { value: "super_admin", label: "مدير المنصة" },
 ];
 
@@ -137,12 +137,12 @@ export default function AdminUsersPage() {
           }
         >
           {isLoading ? (
-            <p className="px-6 py-10 text-sm text-[#8a9089]">جارٍ التحميل…</p>
+            <p className="px-6 py-10 text-sm text-[#8a9089]">جار التحميل…</p>
           ) : rows.length === 0 ? (
             <EmptyState
               icon={Users}
               title="لا توجد حسابات مطابقة"
-              description="جرّب بريداً أو اسماً آخر."
+              description="جرب بريدا أو اسما آخر."
             />
           ) : (
             <>
@@ -172,7 +172,7 @@ export default function AdminUsersPage() {
                             ) : (
                               !row.is_active && (
                                 <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600">
-                                  معطّل
+                                  معطل
                                 </span>
                               )
                             )}

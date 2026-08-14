@@ -52,8 +52,8 @@ export default function ImpersonationBanner() {
         <div className="flex items-center gap-2 min-w-0">
           <Eye className="h-4 w-4 shrink-0" />
           <span className="text-sm truncate">
-            أنت تتصفّح حساب <strong>{session.organizationName}</strong> ({session.userEmail})
-            — كل إجراء يُسجَّل باسمك
+            أنت تتصفح حساب <strong>{session.organizationName}</strong> ({session.userEmail})
+            — كل إجراء يسجل باسمك
           </span>
         </div>
         <button
@@ -63,7 +63,7 @@ export default function ImpersonationBanner() {
           className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full bg-white/15 hover:bg-white/25 text-sm font-medium disabled:opacity-60 shrink-0"
         >
           <LogOut className="h-3.5 w-3.5" />
-          {leaving ? "جارٍ الخروج…" : "خروج من الحساب"}
+          {leaving ? "جار الخروج…" : "خروج من الحساب"}
         </button>
       </div>
     </div>

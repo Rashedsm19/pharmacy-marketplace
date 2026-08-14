@@ -57,9 +57,9 @@ export function describeError(error: unknown, fallback: string): Failure {
     }
     return {
       kind: "unreachable",
-      message: "تعذّر الوصول إلى الخادم",
+      message: "تعذر الوصول إلى الخادم",
       hint:
-        "لم يصل ردّ من الخادم. قد يكون قيد التحديث أو في وضع الخمول — أعد المحاولة بعد لحظات. " +
+        "لم يصل رد من الخادم. قد يكون قيد التحديث أو في وضع الخمول — أعد المحاولة بعد لحظات. " +
         "بياناتك التي أدخلتها سليمة.",
       retryable: true,
     };
@@ -82,8 +82,8 @@ export function describeError(error: unknown, fallback: string): Failure {
       kind: "server",
       message: "حدث خطأ في الخادم",
       hint: requestId
-        ? `أعد المحاولة، وإن تكرّر أرسل لنا رقم الطلب: ${requestId}`
-        : "أعد المحاولة، وإن تكرّر تواصل مع الدعم.",
+        ? `أعد المحاولة، وإن تكرر أرسل لنا رقم الطلب: ${requestId}`
+        : "أعد المحاولة، وإن تكرر تواصل مع الدعم.",
       status,
       requestId,
       retryable: true,

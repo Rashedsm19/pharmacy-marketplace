@@ -127,7 +127,7 @@ async def upload_inventory(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
                 f"بلغ مخزونك الحد الأقصى ({settings.MAX_INVENTORY_ITEMS_PER_ORG} صنف). "
-                "احذف أصنافاً منتهية أو تواصل معنا لرفع الحد."
+                "احذف أصنافا منتهية أو تواصل معنا لرفع الحد."
             ),
         )
 

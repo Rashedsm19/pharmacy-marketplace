@@ -21,7 +21,7 @@ async function openDocument(orgId: string, docType: DocType) {
     window.open(url, "_blank", "noopener");
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   } catch {
-    toast.error("تعذّر فتح المستند");
+    toast.error("تعذر فتح المستند");
   }
 }
 
@@ -63,7 +63,7 @@ export function OrgDocumentsView({
           ) : (
             <span className="flex items-center gap-1.5 text-xs font-bold text-[#b45309]">
               <AlertCircle className="h-3.5 w-3.5" />
-              لم يُرفع
+              لم يرفع
             </span>
           )}
         </div>
@@ -99,7 +99,7 @@ export function OrgDocumentsUpload({
       onChanged();
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      toast.error(typeof msg === "string" ? msg : "تعذّر رفع المستند");
+      toast.error(typeof msg === "string" ? msg : "تعذر رفع المستند");
     } finally {
       setBusy(null);
       if (inputs[docType].current) inputs[docType].current.value = "";
@@ -113,7 +113,7 @@ export function OrgDocumentsUpload({
       toast.success("تم حذف المستند");
       onChanged();
     } catch {
-      toast.error("تعذّر حذف المستند");
+      toast.error("تعذر حذف المستند");
     } finally {
       setBusy(null);
     }
@@ -184,7 +184,7 @@ export function OrgDocumentsUpload({
               className="flex items-center gap-1.5 rounded-lg bg-[#0aa39b] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#07877f] disabled:opacity-50"
             >
               <Upload className="h-3.5 w-3.5" />
-              {busy === type ? "جارٍ الرفع…" : stored ? "استبدال" : "رفع"}
+              {busy === type ? "جار الرفع…" : stored ? "استبدال" : "رفع"}
             </button>
           </div>
         </div>

@@ -75,7 +75,7 @@ export default function BatchDetailPage() {
               value={batch.is_opened ? "نعم" : "لا"}
             />
             <Detail
-              label="صُرف لمريض"
+              label="صرف لمريض"
               value={batch.is_patient_dispensed ? "نعم" : "لا"}
             />
           </div>
@@ -85,7 +85,7 @@ export default function BatchDetailPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="font-semibold text-gray-900 mb-2">توصية FEFO</h2>
           <p className="text-sm text-gray-500 mb-4">
-            الدفعات الموصى بصرفها أولاً (الأقرب للانتهاء)
+            الدفعات الموصى بصرفها أولا (الأقرب للانتهاء)
           </p>
           {!fefo?.length ? (
             <div className="flex items-center gap-2 text-gray-400 text-sm">

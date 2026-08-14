@@ -37,7 +37,7 @@ async def test_a_key_is_shown_once_and_never_stored(client, seller_token):
     plaintext = created["key"]
     assert plaintext.startswith("msk_live_")
     assert created["prefix"] == plaintext[: len(created["prefix"])]
-    assert "لن يُعرض مرة أخرى" in created["warning"]
+    assert "لن يعرض مرة أخرى" in created["warning"]
 
     # Listing keys must never hand the secret back.
     listed = await client.get("/api-keys", headers=auth(seller_token))

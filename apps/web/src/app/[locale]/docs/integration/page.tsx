@@ -147,7 +147,7 @@ export default function IntegrationDocsPage() {
           <ol className="space-y-4">
             {[
               {
-                title: "أنشئ مفتاحاً",
+                title: "أنشئ مفتاحا",
                 body: (
                   <>
                     من صفحة{" "}
@@ -158,17 +158,17 @@ export default function IntegrationDocsPage() {
                       مفاتيح الربط
                     </Link>
                     ، وامنحه <code className="text-xs">inventory:write</code> إن كان
-                    سيرسل مخزوناً و<code className="text-xs">inventory:read</code> إن
-                    كان سيقرأ. المفتاح يُعرض مرة واحدة فقط — احفظه في إعدادات نظامك،
+                    سيرسل مخزونا و<code className="text-xs">inventory:read</code> إن
+                    كان سيقرأ. المفتاح يعرض مرة واحدة فقط — احفظه في إعدادات نظامك،
                     لا في الكود.
                   </>
                 ),
               },
               {
-                title: "تحقّق أن المفتاح يعمل",
+                title: "تحقق أن المفتاح يعمل",
                 body: (
                   <>
-                    نادِ <code className="text-xs">/external/health</code>. إن رجع اسم
+                    ناد <code className="text-xs">/external/health</code>. إن رجع اسم
                     منشأتك فالربط سليم.
                   </>
                 ),
@@ -204,7 +204,7 @@ export default function IntegrationDocsPage() {
               >
                 ملف Excel
               </Link>{" "}
-              بدلاً منه — النتيجة نفسها تماماً.
+              بدلا منه — النتيجة نفسها تماما.
             </p>
           </div>
         </SectionCard>
@@ -217,8 +217,8 @@ export default function IntegrationDocsPage() {
           <div id="auth" className="scroll-mt-24">
             <p className="text-sm text-[#5f665f] leading-relaxed">
               أرسل المفتاح في ترويسة <code className="text-xs">X-API-Key</code>. لا
-              حاجة لتسجيل دخول ولا لجلسة، والمفتاح وحده يحدّد منشأتك — لذلك لا يوجد
-              أي معرِّف منشأة في أي طلب: لا يمكنك الوصول إلى بيانات منشأة أخرى ولا
+              حاجة لتسجيل دخول ولا لجلسة، والمفتاح وحده يحدد منشأتك — لذلك لا يوجد
+              أي معرف منشأة في أي طلب: لا يمكنك الوصول إلى بيانات منشأة أخرى ولا
               يمكن لأحد الوصول إلى بياناتك.
             </p>
 
@@ -241,8 +241,8 @@ export default function IntegrationDocsPage() {
 
             <div className="rounded-xl bg-amber-50 ring-1 ring-inset ring-amber-200 px-4 py-3 mt-4">
               <p className="text-sm text-amber-900 leading-relaxed">
-                نحفظ بصمة مشفّرة للمفتاح فقط ولا نحتفظ بنصّه، فلا يمكننا استرجاعه لك.
-                إن تسرّب المفتاح، ألغِه من صفحة المفاتيح — يتوقف عن العمل فوراً — ثم
+                نحفظ بصمة مشفرة للمفتاح فقط ولا نحتفظ بنصه، فلا يمكننا استرجاعه لك.
+                إن تسرب المفتاح، ألغه من صفحة المفاتيح — يتوقف عن العمل فورا — ثم
                 أنشئ غيره.
               </p>
             </div>
@@ -270,7 +270,7 @@ export default function IntegrationDocsPage() {
                   [
                     "POST /external/inventory/sync",
                     "inventory:write",
-                    "إرسال دفعة أصناف — تُضاف الجديدة وتُحدَّث الموجودة.",
+                    "إرسال دفعة أصناف — تضاف الجديدة وتحدث الموجودة.",
                   ],
                   [
                     "GET /external/inventory/near-expiry",
@@ -321,8 +321,8 @@ export default function IntegrationDocsPage() {
           <div id="sync" className="scroll-mt-24">
             <p className="text-sm text-[#5f665f] leading-relaxed mb-4">
               أرسل حتى ٥٠٠ صنف في الطلب الواحد. التكرار آمن: إذا أرسلت الصنف نفسه
-              مرة أخرى — نفس الفرع ونفس الدواء ونفس رقم التشغيلة — تُحدَّث الكمية ولا
-              تُضاف تشغيلة ثانية. لذلك يصلح هذا الطلب لمزامنة يومية مجدولة.
+              مرة أخرى — نفس الفرع ونفس الدواء ونفس رقم التشغيلة — تحدث الكمية ولا
+              تضاف تشغيلة ثانية. لذلك يصلح هذا الطلب لمزامنة يومية مجدولة.
             </p>
 
             <div className="overflow-x-auto rounded-xl ring-1 ring-[#eadfcc]">
@@ -340,13 +340,13 @@ export default function IntegrationDocsPage() {
                     name="product_name"
                     type="string"
                     required
-                    note="اسم الدواء عربي أو إنجليزي. نطابقه مع كتالوجنا، وما لا نتعرّف عليه يُنشأ كمنتج خاص بمنشأتك."
+                    note="اسم الدواء عربي أو إنجليزي. نطابقه مع كتالوجنا، وما لا نتعرف عليه ينشأ كمنتج خاص بمنشأتك."
                   />
                   <Field
                     name="batch_number"
                     type="string"
                     required
-                    note="رقم التشغيلة. هو مفتاح التحديث لاحقاً، فحافظ على ثباته."
+                    note="رقم التشغيلة. هو مفتاح التحديث لاحقا، فحافظ على ثباته."
                   />
                   <Field
                     name="expiry_date"
@@ -363,7 +363,7 @@ export default function IntegrationDocsPage() {
                   <Field
                     name="barcode"
                     type="string"
-                    note="الباركود أو GTIN. أدق وسيلة للمطابقة — أرسله متى توفّر."
+                    note="الباركود أو GTIN. أدق وسيلة للمطابقة — أرسله متى توفر."
                   />
                   <Field
                     name="sku"
@@ -373,7 +373,7 @@ export default function IntegrationDocsPage() {
                   <Field
                     name="branch_name"
                     type="string"
-                    note="اسم الفرع كما هو مسجّل لديك في المنصة. إن كان لديك فرع واحد فقط يمكن تركه فارغاً."
+                    note="اسم الفرع كما هو مسجل لديك في المنصة. إن كان لديك فرع واحد فقط يمكن تركه فارغا."
                   />
                   <Field name="unit_cost" type="number ≥ 0" note="سعر التكلفة للوحدة." />
                   <Field
@@ -384,7 +384,7 @@ export default function IntegrationDocsPage() {
                   <Field
                     name="supplier · purchase_order_number · notes"
                     type="string"
-                    note="بيانات مرجعية تُحفظ كما هي."
+                    note="بيانات مرجعية تحفظ كما هي."
                   />
                 </tbody>
               </table>
@@ -426,9 +426,9 @@ export default function IntegrationDocsPage() {
             />
 
             <p className="text-sm text-[#5f665f] leading-relaxed mt-4">
-              الصنف الفاسد لا يُسقط الدفعة: تُقبل بقية الأصناف، ويعود الفاشل في{" "}
+              الصنف الفاسد لا يسقط الدفعة: تقبل بقية الأصناف، ويعود الفاشل في{" "}
               <code className="text-xs">errors</code> مع{" "}
-              <code className="text-xs">index</code> يدلّ على موقعه في المصفوفة التي
+              <code className="text-xs">index</code> يدل على موقعه في المصفوفة التي
               أرسلتها.
             </p>
 
@@ -467,9 +467,9 @@ def sync(items):
         >
           <div id="near-expiry" className="scroll-mt-24">
             <p className="text-sm text-[#5f665f] leading-relaxed mb-3">
-              المعاملان <code className="text-xs">within_days</code> (افتراضياً ١٨٠)
-              و<code className="text-xs">limit</code> (افتراضياً ٢٠٠). النتيجة مرتّبة
-              بالأقرب انتهاءً أولاً.
+              المعاملان <code className="text-xs">within_days</code> (افتراضيا ١٨٠)
+              و<code className="text-xs">limit</code> (افتراضيا ٢٠٠). النتيجة مرتبة
+              بالأقرب انتهاء أولا.
             </p>
 
             <CodeBlock
@@ -500,10 +500,10 @@ def sync(items):
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
               {[
-                ["red", "أقل من ٣٠ يوماً", "bg-red-50 text-red-700 ring-red-200"],
-                ["orange", "٣٠ – ٩٠ يوماً", "bg-orange-50 text-orange-700 ring-orange-200"],
-                ["yellow", "٩٠ – ١٨٠ يوماً", "bg-amber-50 text-amber-800 ring-amber-200"],
-                ["green", "أكثر من ١٨٠ يوماً", "bg-emerald-50 text-emerald-700 ring-emerald-200"],
+                ["red", "أقل من ٣٠ يوما", "bg-red-50 text-red-700 ring-red-200"],
+                ["orange", "٣٠ – ٩٠ يوما", "bg-orange-50 text-orange-700 ring-orange-200"],
+                ["yellow", "٩٠ – ١٨٠ يوما", "bg-amber-50 text-amber-800 ring-amber-200"],
+                ["green", "أكثر من ١٨٠ يوما", "bg-emerald-50 text-emerald-700 ring-emerald-200"],
               ].map(([zone, label, style]) => (
                 <div
                   key={zone}
@@ -522,14 +522,14 @@ def sync(items):
         {/* ── Odoo ────────────────────────────────────────────────────── */}
         <SectionCard
           title="مثال عملي: أودو"
-          subtitle="قراءة التشغيلات من stock.lot وإرسالها يومياً"
+          subtitle="قراءة التشغيلات من stock.lot وإرسالها يوميا"
         >
           <div id="odoo" className="scroll-mt-24">
             <p className="text-sm text-[#5f665f] leading-relaxed mb-3">
               في أودو ١٦ فما فوق، تواريخ الانتهاء موجودة على{" "}
               <code className="text-xs">stock.lot</code> والكميات على{" "}
-              <code className="text-xs">stock.quant</code>. أضف الكود التالي كـ
-              <strong> Server Action</strong>، ثم اربطه بـ
+              <code className="text-xs">stock.quant</code>. أضف الكود التالي ك
+              <strong> Server Action</strong>، ثم اربطه ب
               <strong> Scheduled Action</strong> يومية.
             </p>
 
@@ -579,7 +579,7 @@ for start in range(0, len(items), 500):
                 <code dir="ltr" className="text-xs">
                   medsave.api_key
                 </code>{" "}
-                بدلاً من كتابته في الكود، وتأكّد أن أسماء المستودعات لديك تطابق أسماء
+                بدلا من كتابته في الكود، وتأكد أن أسماء المستودعات لديك تطابق أسماء
                 فروعك في المنصة.
               </p>
             </div>
@@ -602,22 +602,22 @@ for start in range(0, len(items), 500):
                   [
                     "401",
                     "المفتاح مفقود أو غير صالح أو ملغى.",
-                    "تحقّق من ترويسة X-API-Key، وأنشئ مفتاحاً جديداً إن كان ملغى.",
+                    "تحقق من ترويسة X-API-Key، وأنشئ مفتاحا جديدا إن كان ملغى.",
                   ],
                   [
                     "403",
                     "المفتاح لا يملك الصلاحية المطلوبة، أو المنشأة غير معتمدة.",
-                    "أنشئ مفتاحاً بالصلاحية الصحيحة، أو راجع حالة اعتماد منشأتك.",
+                    "أنشئ مفتاحا بالصلاحية الصحيحة، أو راجع حالة اعتماد منشأتك.",
                   ],
                   [
                     "409",
                     "بلغ مخزونك الحد الأقصى (١٠٬٠٠٠ صنف).",
-                    "احذف أصنافاً منتهية، أو تواصل معنا لرفع الحد.",
+                    "احذف أصنافا منتهية، أو تواصل معنا لرفع الحد.",
                   ],
                   [
                     "422",
                     "شكل الطلب غير صحيح — حقل ناقص أو نوع خاطئ.",
-                    "راجع جدول الحقول أعلاه؛ الرسالة تحدّد الحقل.",
+                    "راجع جدول الحقول أعلاه؛ الرسالة تحدد الحقل.",
                   ],
                   [
                     "429",
@@ -657,7 +657,7 @@ for start in range(0, len(items), 500):
               support@medsave.sa
             </a>{" "}
             مع رقم <code className="text-xs">job_id</code> من آخر استجابة — يكفي
-            لتتبّع ما حدث.
+            لتتبع ما حدث.
           </p>
         </div>
       </div>

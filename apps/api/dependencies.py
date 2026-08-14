@@ -175,7 +175,7 @@ def forbid_impersonation(context: ActorCtx) -> ActorContext:
     if context.is_impersonated:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="هذا الإجراء غير متاح أثناء تصفّح حساب عميل",
+            detail="هذا الإجراء غير متاح أثناء تصفح حساب عميل",
         )
     return context
 

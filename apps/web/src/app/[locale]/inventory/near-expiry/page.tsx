@@ -43,7 +43,7 @@ export default function NearExpiryPage() {
       <div className="space-y-6">
         <PageHeader
           title="الدفعات قرب انتهاء الصلاحية"
-          subtitle="ركّز على الدفعات الأكثر إلحاحاً قبل أن تنتهي"
+          subtitle="ركز على الدفعات الأكثر إلحاحا قبل أن تنتهي"
           actions={
             <div className="flex items-center gap-2">
               <label className="text-xs font-medium text-slate-600">عرض خلال</label>

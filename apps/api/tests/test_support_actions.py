@@ -172,7 +172,7 @@ async def test_support_can_work_inside_a_customer_account(
     assert opened.status_code == 200, opened.text
     session = opened.json()
     assert session["organization_name"]
-    assert "تتصفّح حساب" in session["notice"]
+    assert "تتصفح حساب" in session["notice"]
 
     # The session behaves exactly like the customer's own.
     as_customer = session["access_token"]
@@ -224,7 +224,7 @@ async def test_an_impersonated_action_names_the_administrator(client, admin_toke
         ).scalar_one_or_none()
 
     assert row is not None
-    assert row.notes and "نفّذه الدعم" in row.notes, (
+    assert row.notes and "نفذه الدعم" in row.notes, (
         "an impersonated action must record the administrator behind it"
     )
 
@@ -257,7 +257,7 @@ async def test_an_impersonated_session_cannot_mint_an_api_key(client, admin_toke
     opened = await client.post(
         f"/admin/users/{target['id']}/impersonate",
         headers=auth(admin_token),
-        json={"reason": "التحقق من منع إنشاء المفاتيح أثناء التصفّح"},
+        json={"reason": "التحقق من منع إنشاء المفاتيح أثناء التصفح"},
     )
     token = opened.json()["access_token"]
 
@@ -400,7 +400,7 @@ async def test_a_live_pharmacy_must_be_suspended_before_deletion(
         },
     )
     assert refused.status_code == 409
-    assert "أوقف المنشأة أولاً" in refused.json()["detail"]
+    assert "أوقف المنشأة أولا" in refused.json()["detail"]
 
 
 @pytest.mark.asyncio
@@ -473,7 +473,7 @@ async def test_a_pharmacy_cannot_delete_anything(client, seller_token):
             "DELETE",
             f"/admin/organizations/{uuid.uuid4()}",
             headers=auth(seller_token),
-            json={"confirm_name": "x", "reason": "محاولة غير مصرّح بها"},
+            json={"confirm_name": "x", "reason": "محاولة غير مصرح بها"},
         )
     ).status_code == 403
     assert io  # imported for the sheet helpers above

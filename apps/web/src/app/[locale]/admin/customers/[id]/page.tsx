@@ -49,10 +49,10 @@ type User = {
 
 const ZONE_LABEL: Record<string, string> = {
   expired: "منتهية",
-  red: "أقل من ٣٠ يوماً",
-  orange: "٣٠ – ٩٠ يوماً",
-  yellow: "٩٠ – ١٨٠ يوماً",
-  green: "أكثر من ١٨٠ يوماً",
+  red: "أقل من ٣٠ يوما",
+  orange: "٣٠ – ٩٠ يوما",
+  yellow: "٩٠ – ١٨٠ يوما",
+  green: "أكثر من ١٨٠ يوما",
 };
 
 const ZONE_STYLE: Record<string, string> = {
@@ -111,7 +111,7 @@ export default function CustomerFilePage() {
       setIssuedLink({ url: result.reset_url, email: user?.email ?? "" });
       toast.success(result.notice);
     },
-    onError: fail("تعذّر إصدار الرابط"),
+    onError: fail("تعذر إصدار الرابط"),
   });
 
   const toggleUser = useMutation({
@@ -121,7 +121,7 @@ export default function CustomerFilePage() {
       toast.success("تم تحديث الحساب");
       refresh();
     },
-    onError: fail("تعذّر تحديث الحساب"),
+    onError: fail("تعذر تحديث الحساب"),
   });
 
   const impersonate = useMutation({
@@ -147,26 +147,26 @@ export default function CustomerFilePage() {
       }
       window.location.href = `/${locale}/dashboard`;
     },
-    onError: fail("تعذّر فتح جلسة التصفّح"),
+    onError: fail("تعذر فتح جلسة التصفح"),
   });
 
   const uploadFor = useMutation({
     mutationFn: ({ file, reason }: { file: File; reason: string }) =>
       adminApi.importForCustomer(orgId, file, reason).then((r) => r.data),
     onSuccess: () => {
-      toast.success("أُدرج الملف في طابور المعالجة وأُبلغ العميل");
+      toast.success("أدرج الملف في طابور المعالجة وأبلغ العميل");
       refresh();
     },
-    onError: fail("تعذّر رفع الملف"),
+    onError: fail("تعذر رفع الملف"),
   });
 
   const reactivate = useMutation({
     mutationFn: (reason: string) => adminApi.reactivateOrg(orgId, reason),
     onSuccess: () => {
-      toast.success("أُعيد تفعيل المنشأة");
+      toast.success("أعيد تفعيل المنشأة");
       refresh();
     },
-    onError: fail("تعذّر إعادة التفعيل"),
+    onError: fail("تعذر إعادة التفعيل"),
   });
 
   const purge = useMutation({
@@ -176,14 +176,14 @@ export default function CustomerFilePage() {
       toast.success(result.message);
       router.push(`/${locale}/admin/customers`);
     },
-    onError: fail("تعذّر الحذف"),
+    onError: fail("تعذر الحذف"),
   });
 
   const runPending = () => {
     if (!pending) return;
     const text = reason.trim();
     if (text.length < pending.minimum) {
-      toast.error(`اكتب سبباً لا يقل عن ${pending.minimum} أحرف — يُحفظ في سجل التدقيق`);
+      toast.error(`اكتب سببا لا يقل عن ${pending.minimum} أحرف — يحفظ في سجل التدقيق`);
       return;
     }
     switch (pending.kind) {
@@ -217,14 +217,14 @@ export default function CustomerFilePage() {
   if (isLoading) {
     return (
       <Shell>
-        <p className="text-sm text-[#8a9089]">جارٍ التحميل…</p>
+        <p className="text-sm text-[#8a9089]">جار التحميل…</p>
       </Shell>
     );
   }
   if (!data) {
     return (
       <Shell>
-        <p className="text-sm text-[#8a9089]">لم يُعثر على المنشأة.</p>
+        <p className="text-sm text-[#8a9089]">لم يعثر على المنشأة.</p>
       </Shell>
     );
   }
@@ -325,8 +325,8 @@ export default function CustomerFilePage() {
             subtitle={`للحساب ${issuedLink.email} — صالح ٣٠ دقيقة`}
           >
             <p className="text-sm text-[#5f665f] mb-3">
-              خدمة البريد غير مُفعّلة على هذا التثبيت، فانسخ الرابط وأرسله للعميل
-              بنفسك. لن يُعرض مرة أخرى.
+              خدمة البريد غير مفعلة على هذا التثبيت، فانسخ الرابط وأرسله للعميل
+              بنفسك. لن يعرض مرة أخرى.
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <code
@@ -389,7 +389,7 @@ export default function CustomerFilePage() {
         <SectionCard
           noPadding
           title="المستخدمون"
-          subtitle="من هنا تحل أكثر حالات الدعم شيوعاً"
+          subtitle="من هنا تحل أكثر حالات الدعم شيوعا"
         >
           <ul className="divide-y divide-[#eadfcc]">
             {(data.users ?? []).map((user: User) => (
@@ -402,7 +402,7 @@ export default function CustomerFilePage() {
                     <span className="font-medium text-[#1f2a24]">{user.full_name}</span>
                     {!user.is_active && (
                       <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600">
-                        معطّل
+                        معطل
                       </span>
                     )}
                     {user.membership_role === "owner" && (
@@ -428,7 +428,7 @@ export default function CustomerFilePage() {
                       setPending({
                         kind: "reset",
                         userId: user.id,
-                        title: `إصدار رابط استعادة لـ ${user.full_name}`,
+                        title: `إصدار رابط استعادة ل ${user.full_name}`,
                         hint: "سبب الإصدار",
                         minimum: 5,
                       })
@@ -445,7 +445,7 @@ export default function CustomerFilePage() {
                       setPending({
                         kind: "impersonate",
                         userId: user.id,
-                        title: `تصفّح حساب ${user.full_name}`,
+                        title: `تصفح حساب ${user.full_name}`,
                         hint: "سبب الدخول — يظهر في سجل التدقيق (١٠ أحرف فأكثر)",
                         minimum: 10,
                       })
@@ -458,7 +458,7 @@ export default function CustomerFilePage() {
                     ) : (
                       <Eye className="h-3.5 w-3.5" />
                     )}
-                    تصفّح كالعميل
+                    تصفح كالعميل
                   </button>
                   <button
                     type="button"
@@ -502,8 +502,8 @@ export default function CustomerFilePage() {
 
           <SectionCard
             className="lg:col-span-2"
-            title="رفع ملف نيابةً عن العميل"
-            subtitle="يدخل مخزون العميل مباشرةً، ويُبلَّغ به"
+            title="رفع ملف نيابة عن العميل"
+            subtitle="يدخل مخزون العميل مباشرة، ويبلغ به"
           >
             <input
               ref={fileRef}
@@ -518,14 +518,14 @@ export default function CustomerFilePage() {
                   kind: "upload",
                   file,
                   title: `رفع ${file.name} إلى مخزون العميل`,
-                  hint: "سبب الرفع نيابةً عن العميل",
+                  hint: "سبب الرفع نيابة عن العميل",
                   minimum: 5,
                 });
               }}
             />
             <p className="text-sm text-[#5f665f] leading-relaxed mb-4">
               استخدمه حين يرسل العميل ملفه على الواتساب أو يعجز عن الرفع بنفسه.
-              يُسجَّل باسمك في سجل الاستيراد، ويصل العميل إشعار بأن الدعم عدّل مخزونه.
+              يسجل باسمك في سجل الاستيراد، ويصل العميل إشعار بأن الدعم عدل مخزونه.
             </p>
             <button
               type="button"
@@ -564,11 +564,11 @@ export default function CustomerFilePage() {
         <SectionCard
           className="ring-1 ring-red-200"
           title="الحذف النهائي"
-          subtitle="لا رجعة فيه — تُمحى المنشأة وكل بياناتها"
+          subtitle="لا رجعة فيه — تمحى المنشأة وكل بياناتها"
         >
           <p className="text-sm text-[#5f665f] leading-relaxed mb-4">
-            يُرفض إذا كان للمنشأة صفقات أو فواتير ضريبية، لأن فواتيرها مرتبطة بسلسلة
-            فواتير الطرف الآخر. أوقف المنشأة أولاً، ثم اكتب اسمها حرفياً للتأكيد.
+            يرفض إذا كان للمنشأة صفقات أو فواتير ضريبية، لأن فواتيرها مرتبطة بسلسلة
+            فواتير الطرف الآخر. أوقف المنشأة أولا، ثم اكتب اسمها حرفيا للتأكيد.
           </p>
           <div className="flex flex-col sm:flex-row gap-2">
             <input
@@ -586,7 +586,7 @@ export default function CustomerFilePage() {
               onClick={() =>
                 setPending({
                   kind: "purge" as Pending["kind"],
-                  title: `حذف «${org.name_ar || org.name}» نهائياً`,
+                  title: `حذف «${org.name_ar || org.name}» نهائيا`,
                   hint: "سبب الحذف النهائي (١٠ أحرف فأكثر)",
                   minimum: 10,
                 })

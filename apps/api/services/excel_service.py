@@ -12,6 +12,7 @@ from __future__ import annotations
 import csv
 import io
 import logging
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Iterator
@@ -60,14 +61,14 @@ class Column:
 # The order here is the order in the sheet, and the keys match BatchCreate.
 COLUMNS: tuple[Column, ...] = (
     Column("product_name", "اسم الدواء", "Medicine name", True, 34,
-           "الاسم كما هو لديك، عربي أو إنجليزي. يُستخدم للمطابقة مع الكتالوج.",
+           "الاسم كما هو لديك، عربي أو إنجليزي. يستخدم للمطابقة مع الكتالوج.",
            "Amoxicillin 500mg"),
     Column("barcode", "الباركود / GTIN", "Barcode / GTIN", False, 20,
-           "أدق وسيلة للمطابقة. إن توفّر فلا تتركه فارغاً.", "6281000000017"),
+           "أدق وسيلة للمطابقة. إن توفر فلا تتركه فارغا.", "6281000000017"),
     Column("sku", "كود المنتج لديك", "Your product code", False, 18,
-           "كودك الداخلي. يبقى مرجعاً لك ولا يُشارَك.", "MED-1042"),
+           "كودك الداخلي. يبقى مرجعا لك ولا يشارك.", "MED-1042"),
     Column("batch_number", "رقم التشغيلة", "Batch number", True, 18,
-           "مفتاح التحديث: رفع الملف مرة أخرى بالرقم نفسه يحدّث الكمية ولا يكرّرها.",
+           "مفتاح التحديث: رفع الملف مرة أخرى بالرقم نفسه يحدث الكمية ولا يكررها.",
            "BTH-2026-114"),
     Column("expiry_date", "تاريخ الانتهاء", "Expiry date", True, 16,
            "بصيغة YYYY-MM-DD أو كتاريخ Excel. ميلادي كما هو مطبوع على العلبة.",
@@ -75,10 +76,10 @@ COLUMNS: tuple[Column, ...] = (
     Column("quantity", "الكمية", "Quantity", True, 12,
            "عدد صحيح أكبر من صفر.", 120),
     Column("unit_cost", "سعر التكلفة", "Unit cost", False, 14,
-           "يُستخدم في تقدير القيمة القابلة للاسترداد.", 12.5),
+           "يستخدم في تقدير القيمة القابلة للاسترداد.", 12.5),
     Column("branch_name", "الفرع", "Branch", True, 24,
            "اختر من القائمة. الفروع مأخوذة من فروع منشأتك.", None),
-    Column("supplier", "المورّد", "Supplier", False, 22,
+    Column("supplier", "المورد", "Supplier", False, 22,
            "اختياري.", None),
     Column("purchase_order_number", "رقم أمر الشراء", "PO number", False, 18,
            "اختياري.", None),
@@ -159,7 +160,7 @@ def build_template(branch_names: list[str]) -> bytes:
         joined = ",".join(name.replace(",", " ") for name in branch_names)
         if len(joined) <= 250:
             validation = DataValidation(type="list", formula1=f'"{joined}"', allow_blank=False)
-            validation.error = "اختر فرعاً من القائمة"
+            validation.error = "اختر فرعا من القائمة"
             validation.errorTitle = "فرع غير معروف"
             sheet.add_data_validation(validation)
             # From the first real row: the guide rows are not the customer's to
@@ -183,14 +184,14 @@ def _write_instructions(workbook: Workbook, branch_names: list[str]) -> None:
     title.font = Font(bold=True, size=14, color="FF073F3C")
 
     lines = [
-        "املأ ورقة «البيانات» صفاً لكل تشغيلة — لا صفاً لكل دواء.",
+        "املأ ورقة «البيانات» صفا لكل تشغيلة — لا صفا لكل دواء.",
         "ابدأ الكتابة من الصف الرابع.",
-        "الصفان الثاني والثالث شرح ومثال، ويُتجاهلان تلقائياً عند الرفع — "
+        "الصفان الثاني والثالث شرح ومثال، ويتجاهلان تلقائيا عند الرفع — "
         "اتركهما أو احذفهما، لن يدخلا مخزونك.",
-        "الأعمدة المعلّمة بنجمة إلزامية، وما عداها اختياري.",
-        "الصف الذي فيه خطأ لا يُسقط الملف — يُتخطّى ويصلك في ملف الأخطاء بسببه ورقم سطره.",
-        "رفع الملف مرة أخرى بنفس أرقام التشغيلات يحدّث الكميات ولا يكرّرها.",
-        "الدواء غير الموجود في كتالوج المنصة يُضاف إلى مخزونك الخاص تلقائياً.",
+        "الأعمدة المعلمة بنجمة إلزامية، وما عداها اختياري.",
+        "الصف الذي فيه خطأ لا يسقط الملف — يتخطى ويصلك في ملف الأخطاء بسببه ورقم سطره.",
+        "رفع الملف مرة أخرى بنفس أرقام التشغيلات يحدث الكميات ولا يكررها.",
+        "الدواء غير الموجود في كتالوج المنصة يضاف إلى مخزونك الخاص تلقائيا.",
     ]
     for offset, line in enumerate(lines, start=3):
         sheet.cell(row=offset, column=1, value=f"• {line}").alignment = Alignment(wrap_text=True)
@@ -240,8 +241,16 @@ def _header_index(header_cells: list[object]) -> dict[str, int]:
     return mapping
 
 
+# Diacritics were removed from the product's Arabic, but a customer may still be
+# holding a template downloaded before that. Folding them here means both
+# spellings of a header map to the same column instead of the older file
+# silently losing whichever column it named.
+_HEADER_MARKS = re.compile(r"[\u064b-\u0652\u0670\u0640]")
+
+
 def _normalise_header(text: str) -> str:
-    return "".join(str(text).split()).strip().lower()
+    stripped = _HEADER_MARKS.sub("", str(text))
+    return "".join(stripped.split()).strip().lower()
 
 
 def is_guide_row(raw) -> bool:
@@ -281,7 +290,7 @@ def read_rows(content: bytes, filename: str) -> Iterator[ParsedRow]:
             return
         mapping = _header_index(header)
         if not mapping:
-            raise ValueError("لم يتم التعرّف على عناوين الأعمدة — استخدم القالب المرفق")
+            raise ValueError("لم يتم التعرف على عناوين الأعمدة — استخدم القالب المرفق")
 
         for line_number, raw in enumerate(rows, start=2):
             if raw is None or all(cell is None or str(cell).strip() == "" for cell in raw):
@@ -307,7 +316,7 @@ def _read_csv(content: bytes) -> Iterator[ParsedRow]:
         return
     mapping = _header_index(list(header))
     if not mapping:
-        raise ValueError("لم يتم التعرّف على عناوين الأعمدة — استخدم القالب المرفق")
+        raise ValueError("لم يتم التعرف على عناوين الأعمدة — استخدم القالب المرفق")
 
     for line_number, raw in enumerate(reader, start=2):
         if not any(str(cell).strip() for cell in raw):

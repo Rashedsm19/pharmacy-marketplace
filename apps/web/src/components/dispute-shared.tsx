@@ -25,7 +25,7 @@ export const REASON_LABELS: Record<string, string> = {
   wrong_product: "منتج مختلف",
   expiry_mismatch: "تاريخ انتهاء غير مطابق",
   cold_chain_breach: "إخلال بسلسلة التبريد",
-  suspected_counterfeit: "اشتباه بمنتج مزيّف",
+  suspected_counterfeit: "اشتباه بمنتج مزيف",
   not_received: "لم تصل الشحنة",
   other: "أخرى",
 };
@@ -36,9 +36,9 @@ export const STATUS_LABELS: Record<
 > = {
   open: { label: "مفتوح", variant: "warning" },
   seller_responded: { label: "بانتظار القرار", variant: "warning" },
-  resolved_refund: { label: "قُبل — استرداد", variant: "success" },
-  resolved_replacement: { label: "قُبل — استبدال", variant: "success" },
-  resolved_rejected: { label: "رُفض", variant: "danger" },
+  resolved_refund: { label: "قبل — استرداد", variant: "success" },
+  resolved_replacement: { label: "قبل — استبدال", variant: "success" },
+  resolved_rejected: { label: "رفض", variant: "danger" },
   withdrawn: { label: "مسحوب", variant: "default" },
 };
 
@@ -75,7 +75,7 @@ export function DisputeSummary({ dispute }: { dispute: Dispute }) {
           </span>
         )}
         {dispute.disputed_quantity != null && <span>الكمية: {dispute.disputed_quantity}</span>}
-        {dispute.raised_by_org_name && <span>مقدّم البلاغ: {dispute.raised_by_org_name}</span>}
+        {dispute.raised_by_org_name && <span>مقدم البلاغ: {dispute.raised_by_org_name}</span>}
       </div>
     </div>
   );

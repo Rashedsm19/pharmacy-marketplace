@@ -43,7 +43,7 @@ def _with_actor(notes: str | None, context) -> str | None:
     """Stamp an impersonated action with the administrator really behind it."""
     if context is None or not context.is_impersonated:
         return notes
-    stamp = f"[نفّذه الدعم: {context.impersonator_email} — جلسة {context.session_id}]"
+    stamp = f"[نفذه الدعم: {context.impersonator_email} — جلسة {context.session_id}]"
     return f"{notes} {stamp}" if notes else stamp
 
 
