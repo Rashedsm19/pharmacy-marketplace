@@ -14,6 +14,11 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  // Without this a request to a sleeping instance hangs forever and the screen
+  // sits on a spinner with nothing to tell the person. Sixty seconds is chosen
+  // to clear a cold start on the free tier and still fail while someone is
+  // still watching.
+  timeout: 60_000,
 });
 
 // Attach access token to every request
@@ -26,32 +31,56 @@ apiClient.interceptors.request.use((config) => {
 });
 
 // Refresh token on 401
+function signOut(): void {
+  Cookies.remove("access_token");
+  Cookies.remove("refresh_token");
+  if (typeof window !== "undefined") {
+    const locale = window.location.pathname.split("/")[1] || "ar";
+    window.location.href = `/${locale}/login`;
+  }
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // A session is only over when the server says so. A request that never got
+    // an answer means the network or the service is having a moment, and
+    // throwing the person back to the login screen for that is how a correct
+    // password ends up looking wrong.
+    if (!error.response) return Promise.reject(error);
+
+    // Never refresh while support is inside a customer's account: a refresh
+    // would mint the administrator's own token and replay the customer's
+    // request as the platform.
+    const impersonating =
+      typeof window !== "undefined" &&
+      Boolean(window.sessionStorage.getItem("support.session"));
+
+    if (error.response.status === 401 && !originalRequest._retry && !impersonating) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get("refresh_token");
       if (!refreshToken) {
-        Cookies.remove("access_token");
-        Cookies.remove("refresh_token");
-        window.location.href = "/ar/login";
+        signOut();
         return Promise.reject(error);
       }
 
       try {
-        const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
-          refresh_token: refreshToken,
+        const { data } = await axios.post(
+          `${BASE_URL}/auth/refresh`,
+          { refresh_token: refreshToken },
+          { timeout: 60_000 }
+        );
+        Cookies.set("access_token", data.access_token, {
+          expires: 1 / 48, // 30 min
+          sameSite: "strict",
         });
-        Cookies.set("access_token", data.access_token, { expires: 1 / 48 }); // 30 min
         apiClient.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
         return apiClient(originalRequest);
-      } catch {
-        Cookies.remove("access_token");
-        Cookies.remove("refresh_token");
-        window.location.href = "/ar/login";
+      } catch (refreshError) {
+        // Same rule again: only a refusal ends the session, not a failed trip.
+        if ((refreshError as { response?: unknown })?.response) signOut();
         return Promise.reject(error);
       }
     }

@@ -18,6 +18,7 @@ import { Loader2, Save, SlidersHorizontal } from "lucide-react";
 import Shell from "@/components/layout/shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
+import { errorMessage } from "@/lib/errors";
 import { adminApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 
@@ -60,8 +61,7 @@ export default function AdminSettingsPage() {
     },
     onError: (error: unknown) => {
       toast.error(
-        (error as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "تعذّر حفظ الإعداد"
+        errorMessage(error, "تعذّر حفظ الإعداد")
       );
     },
   });

@@ -33,6 +33,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { adminApi, authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
+import { errorMessage } from "@/lib/errors";
 import { beginImpersonation } from "@/lib/impersonation";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -97,11 +98,10 @@ export default function CustomerFilePage() {
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["admin-customer", orgId] });
 
+  // One classifier for every action here, so "the server is asleep" never
+  // reads as "the platform refused you".
   const fail = (fallback: string) => (error: unknown) =>
-    toast.error(
-      (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-        fallback
-    );
+    toast.error(errorMessage(error, fallback));
 
   const resetLink = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>

@@ -30,6 +30,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { importsApi } from "@/lib/api";
+import { errorMessage } from "@/lib/errors";
 import { formatDate } from "@/lib/utils";
 
 type ImportJob = {
@@ -137,8 +138,7 @@ export default function InventoryImportPage() {
     },
     onError: (error: unknown) => {
       const detail =
-        (error as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "تعذّر رفع الملف. حاول مرة أخرى.";
+        errorMessage(error, "تعذّر رفع الملف. حاول مرة أخرى.");
       setMessage({ kind: "error", text: detail });
     },
   });

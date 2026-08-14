@@ -19,6 +19,7 @@ import Shell from "@/components/layout/shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { errorMessage } from "@/lib/errors";
 import { adminApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 
@@ -65,8 +66,7 @@ export default function AdminDraftsPage() {
     },
     onError: (error: unknown) => {
       toast.error(
-        (error as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "تعذّر ضمّ المنتج"
+        errorMessage(error, "تعذّر ضمّ المنتج")
       );
     },
   });

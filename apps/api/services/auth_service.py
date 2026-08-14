@@ -146,7 +146,10 @@ class AuthService:
         if not user or not verify_password(data.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password",
+                # Deliberately the same message for an unknown address and a wrong
+                # password: telling them apart is how an attacker learns which
+                # emails are registered.
+                detail="البريد الإلكتروني أو كلمة المرور غير صحيحة",
             )
         if not user.is_active:
             raise HTTPException(
@@ -260,7 +263,7 @@ class AuthService:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid or expired reset token",
+                detail="رابط الاستعادة غير صالح أو انتهت صلاحيته — اطلب رابطاً جديداً",
             )
         user.hashed_password = hash_password(new_password)
         user.password_reset_token = None

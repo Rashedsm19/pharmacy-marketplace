@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,7 +10,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
-import { ShieldCheck, ArrowLeft } from "lucide-react";
+import { describeError, type Failure } from "@/lib/errors";
+import { ShieldCheck, ArrowLeft, AlertTriangle, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/brand-logo";
 
@@ -32,7 +34,12 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
 
+  // Kept on the page rather than only in a toast: when a sign-in fails the
+  // person needs to read it twice, and a toast is gone by then.
+  const [failure, setFailure] = useState<Failure | null>(null);
+
   const onSubmit = async (data: LoginForm) => {
+    setFailure(null);
     try {
       const res = await authApi.login(data.email, data.password);
       const { access_token, refresh_token, org_id } = res.data;
@@ -41,8 +48,11 @@ export default function LoginPage() {
       setUser({ ...meRes.data, org_id });
       router.push(`/${locale}/dashboard`);
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      toast.error(msg ?? "فشل تسجيل الدخول");
+      // "فشل تسجيل الدخول" for both a wrong password and a server that never
+      // answered is what made a correct password look wrong. Say which.
+      const described = describeError(err, "بيانات الدخول غير صحيحة");
+      setFailure(described);
+      toast.error(described.message);
     }
   };
 
@@ -71,6 +81,37 @@ export default function LoginPage() {
               أدِر المخزون القابل للتداول والعروض والتقارير التشغيلية من لوحة موحدة.
             </p>
           </div>
+
+          {failure && (
+            <div
+              role="alert"
+              className={`rounded-2xl px-4 py-3 mb-4 ring-1 ring-inset ${
+                failure.retryable
+                  ? "bg-amber-50 text-amber-900 ring-amber-200"
+                  : "bg-red-50 text-red-800 ring-red-200"
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                {failure.retryable ? (
+                  <WifiOff className="h-4 w-4 mt-0.5 shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{failure.message}</p>
+                  {failure.hint && (
+                    <p className="text-xs mt-1 leading-relaxed">{failure.hint}</p>
+                  )}
+                  {(failure.status || failure.requestId) && (
+                    <p dir="ltr" className="text-[11px] mt-1.5 font-mono opacity-70 text-right">
+                      {failure.status ? `HTTP ${failure.status}` : ""}
+                      {failure.requestId ? ` · ${failure.requestId}` : ""}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
