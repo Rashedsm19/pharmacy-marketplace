@@ -1,178 +1,237 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+/**
+ * Platform settings.
+ *
+ * These change how the marketplace behaves for everyone, so the screen's job is
+ * to make each one understandable before it is edited: what it means, in which
+ * unit, and within what range. The server supplies all of that — the screen
+ * only renders it, in both Arabic and English.
+ */
+
 import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocale } from "next-intl";
 import { toast } from "sonner";
+import { Loader2, Save, SlidersHorizontal } from "lucide-react";
+
 import Shell from "@/components/layout/shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 import { adminApi } from "@/lib/api";
-import { Loader2, Settings, Save } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
-type SettingValue = string | number | boolean;
-
-interface PlatformSetting {
+type Setting = {
+  id: string;
   key: string;
-  value: SettingValue;
-  description?: string;
-  value_type: "string" | "number" | "boolean";
-}
+  value: string | number | boolean | null;
+  label_ar: string;
+  label_en: string;
+  description_ar: string;
+  description_en: string;
+  value_type: "number" | "percent" | "boolean" | "text";
+  group_ar: string;
+  group_en: string;
+  unit_ar?: string | null;
+  minimum?: number | null;
+  maximum?: number | null;
+  updated_at: string;
+};
 
 export default function AdminSettingsPage() {
-  const qc = useQueryClient();
-  const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState<string>("");
+  const locale = useLocale();
+  const isArabic = locale.startsWith("ar");
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
 
-  const { data: settings, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<Setting[]>({
     queryKey: ["admin-settings"],
     queryFn: () => adminApi.getSettings().then((r) => r.data),
   });
 
-  const updateSetting = useMutation({
-    mutationFn: ({ key, value }: { key: string; value: SettingValue }) =>
+  const save = useMutation({
+    mutationFn: ({ key, value }: { key: string; value: unknown }) =>
       adminApi.updateSetting(key, value),
     onSuccess: () => {
       toast.success("تم حفظ الإعداد");
-      qc.invalidateQueries({ queryKey: ["admin-settings"] });
-      setEditingKey(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      setEditing(null);
     },
-    onError: () => toast.error("فشل حفظ الإعداد"),
+    onError: (error: unknown) => {
+      toast.error(
+        (error as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail ?? "تعذّر حفظ الإعداد"
+      );
+    },
   });
 
-  const settingsList: PlatformSetting[] = Array.isArray(settings) ? settings : [];
+  const settings = data ?? [];
 
-  const startEdit = (setting: PlatformSetting) => {
-    setEditingKey(setting.key);
-    setEditValue(String(setting.value));
-  };
+  // Grouping comes from the server, so a setting added later lands in the right
+  // place without touching this screen.
+  const groups = settings.reduce<Record<string, Setting[]>>((acc, setting) => {
+    const name = isArabic ? setting.group_ar : setting.group_en;
+    (acc[name] ??= []).push(setting);
+    return acc;
+  }, {});
 
-  const saveEdit = (setting: PlatformSetting) => {
-    let value: SettingValue = editValue;
-    if (setting.value_type === "number") value = Number(editValue);
-    if (setting.value_type === "boolean") value = editValue === "true";
-    updateSetting.mutate({ key: setting.key, value });
-  };
-
-  const SETTING_GROUPS: Record<string, string[]> = {
-    "قواعد الإدراج": [
-      "min_days_before_listing",
-      "max_listing_duration_days",
-      "min_listing_price",
-    ],
-    "العروض والحجز": [
-      "offer_expiry_hours",
-      "reservation_expiry_hours",
-      "max_offers_per_listing",
-    ],
-    "إشعارات الصلاحية": [
-      "expiry_alert_day_threshold_1",
-      "expiry_alert_day_threshold_2",
-      "expiry_alert_day_threshold_3",
-    ],
-    "عام": [],
-  };
-
-  const groupedSettings = (key: string) => {
-    for (const [group, keys] of Object.entries(SETTING_GROUPS)) {
-      if (keys.includes(key)) return group;
+  const display = (setting: Setting) => {
+    if (setting.value_type === "boolean") {
+      return setting.value ? "مُفعّل" : "معطّل";
     }
-    return "عام";
+    if (setting.value === null || setting.value === undefined) return "—";
+    const number = Number(setting.value);
+    const text = Number.isFinite(number)
+      ? number.toLocaleString("ar-SA")
+      : String(setting.value);
+    return setting.unit_ar ? `${text} ${setting.unit_ar}` : text;
   };
 
-  const groups: Record<string, PlatformSetting[]> = {};
-  settingsList.forEach((s) => {
-    const g = groupedSettings(s.key);
-    if (!groups[g]) groups[g] = [];
-    groups[g].push(s);
-  });
+  const beginEdit = (setting: Setting) => {
+    setEditing(setting.key);
+    setDraft(String(setting.value ?? ""));
+  };
+
+  const commit = (setting: Setting) => {
+    const value =
+      setting.value_type === "boolean"
+        ? draft === "true"
+        : setting.value_type === "text"
+        ? draft
+        : Number(draft);
+
+    if (setting.value_type !== "boolean" && setting.value_type !== "text") {
+      if (!Number.isFinite(value as number)) {
+        toast.error("القيمة يجب أن تكون رقماً");
+        return;
+      }
+    }
+    save.mutate({ key: setting.key, value });
+  };
 
   return (
     <Shell>
-      <div className="max-w-3xl space-y-6">
-        <div className="flex items-center gap-3">
-          <Settings className="h-6 w-6 text-purple-600" />
-          <h1 className="text-2xl font-bold text-gray-900">إعدادات المنصة</h1>
-        </div>
+      <div className="max-w-4xl space-y-6">
+        <PageHeader
+          title="إعدادات المنصة"
+          subtitle="قواعد تسري على جميع المنشآت — راجعها قبل التعديل"
+        />
 
         {isLoading ? (
-          <div className="flex items-center justify-center h-48">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
-          </div>
+          <p className="text-sm text-[#8a9089]">جارٍ التحميل…</p>
         ) : (
-          Object.entries(groups).map(([groupName, groupSettings]) => (
-            groupSettings.length > 0 && (
-              <div key={groupName} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50">
-                  <h2 className="font-semibold text-gray-700 text-sm">{groupName}</h2>
-                </div>
-                <div className="divide-y divide-gray-50">
-                  {groupSettings.map((setting) => (
-                    <div key={setting.key} className="px-5 py-4 flex items-center gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-sm" dir="ltr">{setting.key}</p>
-                        {setting.description && (
-                          <p className="text-xs text-gray-400 mt-0.5">{setting.description}</p>
-                        )}
+          Object.entries(groups).map(([group, items]) => (
+            <SectionCard key={group} title={group} noPadding>
+              <ul className="divide-y divide-[#eadfcc]">
+                {items.map((setting) => (
+                  <li key={setting.key} className="px-5 sm:px-6 py-4">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-[#1f2a24]">
+                          {setting.label_ar}
+                        </div>
+                        {/* The English name matters: an integrator reads the
+                            API and a Saudi admin reads Arabic. */}
+                        <div className="text-xs text-[#8a9089] mt-0.5">
+                          {setting.label_en}
+                        </div>
+                        <p className="text-sm text-[#5f665f] leading-relaxed mt-2 max-w-xl">
+                          {setting.description_ar}
+                        </p>
+                        <code
+                          dir="ltr"
+                          className="inline-block text-[11px] font-mono text-[#a8927a] mt-2"
+                        >
+                          {setting.key}
+                        </code>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {editingKey === setting.key ? (
-                          <>
+
+                      <div className="shrink-0 text-left min-w-[13rem]">
+                        {editing === setting.key ? (
+                          <div className="space-y-2">
                             {setting.value_type === "boolean" ? (
                               <select
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                className="px-2 py-1 border border-brand-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 w-24"
+                                value={draft}
+                                onChange={(event) => setDraft(event.target.value)}
+                                className="w-full h-10 px-3 rounded-xl bg-white ring-1 ring-inset ring-[#e1d3c0] text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                               >
-                                <option value="true">نعم</option>
-                                <option value="false">لا</option>
+                                <option value="true">مُفعّل</option>
+                                <option value="false">معطّل</option>
                               </select>
                             ) : (
-                              <input
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                type={setting.value_type === "number" ? "number" : "text"}
-                                dir="ltr"
-                                className="px-2 py-1 border border-brand-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 w-28"
-                              />
+                              <div className="flex items-center gap-2">
+                                <input
+                                  dir="ltr"
+                                  type={setting.value_type === "text" ? "text" : "number"}
+                                  value={draft}
+                                  min={setting.minimum ?? undefined}
+                                  max={setting.maximum ?? undefined}
+                                  onChange={(event) => setDraft(event.target.value)}
+                                  className="w-full h-10 px-3 rounded-xl bg-white ring-1 ring-inset ring-[#e1d3c0] text-sm text-right focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                />
+                                {setting.unit_ar && (
+                                  <span className="text-sm text-[#8a9089] shrink-0">
+                                    {setting.unit_ar}
+                                  </span>
+                                )}
+                              </div>
                             )}
-                            <button
-                              onClick={() => saveEdit(setting)}
-                              disabled={updateSetting.isPending}
-                              className="flex items-center gap-1 px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs font-medium disabled:opacity-60"
-                            >
-                              {updateSetting.isPending && editingKey === setting.key ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Save className="h-3 w-3" />
-                              )}
-                              حفظ
-                            </button>
-                            <button
-                              onClick={() => setEditingKey(null)}
-                              className="px-3 py-1 border border-gray-300 text-gray-600 rounded text-xs hover:bg-gray-50"
-                            >
-                              إلغاء
-                            </button>
-                          </>
+
+                            {(setting.minimum != null || setting.maximum != null) && (
+                              <p className="text-xs text-[#8a9089]">
+                                المدى المسموح: {setting.minimum ?? "—"} إلى{" "}
+                                {setting.maximum ?? "—"}
+                              </p>
+                            )}
+
+                            <div className="flex items-center gap-2 justify-end">
+                              <button
+                                type="button"
+                                onClick={() => commit(setting)}
+                                disabled={save.isPending}
+                                className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-60"
+                              >
+                                {save.isPending ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Save className="h-3.5 w-3.5" />
+                                )}
+                                حفظ
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditing(null)}
+                                className="h-9 px-4 rounded-full text-sm text-[#5f665f] hover:bg-[#fbf7f0]"
+                              >
+                                إلغاء
+                              </button>
+                            </div>
+                          </div>
                         ) : (
                           <>
-                            <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded" dir="ltr">
-                              {setting.value_type === "boolean"
-                                ? (setting.value ? "نعم" : "لا")
-                                : String(setting.value)}
-                            </span>
+                            <div className="text-2xl font-semibold text-[#1f2a24] tabular-nums">
+                              {display(setting)}
+                            </div>
+                            <div className="text-xs text-[#8a9089] mt-0.5">
+                              آخر تحديث {formatDate(setting.updated_at, locale)}
+                            </div>
                             <button
-                              onClick={() => startEdit(setting)}
-                              className="text-brand-600 hover:text-brand-700 text-xs font-medium"
+                              type="button"
+                              onClick={() => beginEdit(setting)}
+                              className="inline-flex items-center gap-1.5 mt-2 h-8 px-4 rounded-full text-sm ring-1 ring-inset ring-[#e1d3c0] text-[#5f665f] hover:bg-[#fbf7f0]"
                             >
+                              <SlidersHorizontal className="h-3.5 w-3.5" />
                               تعديل
                             </button>
                           </>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
           ))
         )}
       </div>

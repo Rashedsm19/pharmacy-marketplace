@@ -452,3 +452,49 @@ async def test_a_missing_job_is_not_found(client, seller_token):
         f"/inventory/import/{uuid.uuid4()}", headers=auth(seller_token)
     )
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_the_platform_admin_can_still_download_the_template(client, admin_token):
+    """Regression: the admin got 403 and the screen said "تعذّر تحميل القالب".
+
+    An admin has no pharmacy, but the template is a blank form — only the branch
+    dropdown needs an organization.
+    """
+    response = await client.get("/inventory/import/template", headers=auth(admin_token))
+    assert response.status_code == 200, response.text
+    assert response.headers["content-type"].startswith(XLSX)
+
+    workbook = load_workbook(io.BytesIO(response.content))
+    assert "البيانات" in workbook.sheetnames
+    assert "تعليمات" in workbook.sheetnames
+
+
+@pytest.mark.asyncio
+async def test_capacity_explains_rather_than_refuses_for_an_admin(client, admin_token):
+    """The screen needs an answer it can explain, not a failed request."""
+    response = await client.get("/inventory/import/capacity", headers=auth(admin_token))
+    assert response.status_code == 200
+    assert response.json()["can_import"] is False
+
+    listed = await client.get("/inventory/import", headers=auth(admin_token))
+    assert listed.status_code == 200
+    assert listed.json()["total"] == 0
+
+
+@pytest.mark.asyncio
+async def test_a_pharmacy_is_told_it_can_import(client, seller_token):
+    response = await client.get("/inventory/import/capacity", headers=auth(seller_token))
+    assert response.status_code == 200
+    assert response.json()["can_import"] is True
+
+
+@pytest.mark.asyncio
+async def test_an_admin_uploading_is_told_where_imports_belong(client, admin_token):
+    refused = await client.post(
+        "/inventory/import",
+        headers=auth(admin_token),
+        files={"file": ("x.xlsx", b"PK\x03\x04ignored", XLSX)},
+    )
+    assert refused.status_code == 403
+    assert "حساب المنشأة" in refused.json()["detail"]

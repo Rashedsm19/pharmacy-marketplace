@@ -55,3 +55,5 @@ class ImportCapacity(BaseModel):
     used: int
     limit: int
     remaining: int
+    # False for a platform admin, who has no stock of their own to import into.
+    can_import: bool = True

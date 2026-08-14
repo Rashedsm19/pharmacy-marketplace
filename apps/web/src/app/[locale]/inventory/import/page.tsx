@@ -146,8 +146,25 @@ export default function InventoryImportPage() {
   const templateMutation = useMutation({
     mutationFn: () => importsApi.downloadTemplate().then((r) => r.data),
     onSuccess: (data: Blob) => saveBlob(data, "نموذج-مخزون-MedSave.xlsx"),
-    onError: () =>
-      setMessage({ kind: "error", text: "تعذّر تحميل القالب. حاول مرة أخرى." }),
+    onError: async (error: unknown) => {
+      // The server's reason is far more useful than "try again", but an error
+      // on a blob request arrives as a Blob, so it has to be read back.
+      const body = (error as { response?: { data?: unknown } })?.response?.data;
+      let detail: string | undefined;
+      try {
+        if (body instanceof Blob) {
+          detail = JSON.parse(await body.text())?.detail;
+        } else if (body && typeof body === "object") {
+          detail = (body as { detail?: string }).detail;
+        }
+      } catch {
+        /* fall through to the generic message */
+      }
+      setMessage({
+        kind: "error",
+        text: detail ?? "تعذّر تحميل القالب. حاول مرة أخرى.",
+      });
+    },
   });
 
   const errorsMutation = useMutation({

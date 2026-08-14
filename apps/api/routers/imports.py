@@ -32,11 +32,19 @@ XLSX_MEDIA_TYPE = (
 )
 
 
+async def _org_or_none(current_user, db) -> uuid.UUID | None:
+    """The caller's pharmacy, or None for a platform admin who has none."""
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return None
+    return await MembershipRepository(db).get_user_org_id(current_user.id)
+
+
 async def _require_org(current_user, db) -> uuid.UUID:
+    """For the endpoints that genuinely write into one pharmacy's stock."""
     if current_user.role == UserRole.SUPER_ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="الاستيراد يتم من حساب المنشأة",
+            detail="الاستيراد يتم من حساب المنشأة، ومدير المنصة يتابعه من «عمليات الاستيراد»",
         )
     org_id = await MembershipRepository(db).get_user_org_id(current_user.id)
     if not org_id:
@@ -54,18 +62,26 @@ def _to_out(job: ImportJob) -> ImportJobOut:
 
 @router.get("/template")
 async def download_template(current_user: CurrentUser, db: DbSession) -> Response:
-    """The blank sheet, with this pharmacy's branches already in the dropdown."""
+    """The blank sheet, with this pharmacy's branches already in the dropdown.
+
+    Deliberately available to anyone signed in, including a platform admin with
+    no pharmacy of their own — the template is a blank form, and an admin has
+    every reason to download one to send to a customer. Only the branch dropdown
+    depends on having an organization.
+    """
     from sqlalchemy import select
 
-    org_id = await _require_org(current_user, db)
-    branches = (
-        await db.execute(
-            select(PharmacyBranch).where(
-                PharmacyBranch.organization_id == org_id,
-                PharmacyBranch.deleted_at.is_(None),
+    org_id = await _org_or_none(current_user, db)
+    branches = []
+    if org_id is not None:
+        branches = (
+            await db.execute(
+                select(PharmacyBranch).where(
+                    PharmacyBranch.organization_id == org_id,
+                    PharmacyBranch.deleted_at.is_(None),
+                )
             )
-        )
-    ).scalars().all()
+        ).scalars().all()
 
     content = excel_service.build_template([b.name_ar or b.name for b in branches])
     return Response(
@@ -79,10 +95,20 @@ async def download_template(current_user: CurrentUser, db: DbSession) -> Respons
 
 @router.get("/capacity", response_model=ImportCapacity)
 async def get_capacity(current_user: CurrentUser, db: DbSession) -> ImportCapacity:
-    org_id = await _require_org(current_user, db)
-    used = await count_org_items(db, org_id)
+    """How much room the pharmacy has left, and whether it can import at all.
+
+    Answers rather than refuses for a caller without a pharmacy, so the screen
+    can explain the situation instead of showing a failed request.
+    """
     limit = settings.MAX_INVENTORY_ITEMS_PER_ORG
-    return ImportCapacity(used=used, limit=limit, remaining=max(limit - used, 0))
+    org_id = await _org_or_none(current_user, db)
+    if org_id is None:
+        return ImportCapacity(used=0, limit=limit, remaining=0, can_import=False)
+
+    used = await count_org_items(db, org_id)
+    return ImportCapacity(
+        used=used, limit=limit, remaining=max(limit - used, 0), can_import=True
+    )
 
 
 @router.post("", response_model=ImportJobOut, status_code=status.HTTP_202_ACCEPTED)
@@ -144,9 +170,13 @@ async def list_jobs(
 ) -> ImportJobList:
     from sqlalchemy import func, select
 
-    org_id = await _require_org(current_user, db)
     page = max(page, 1)
     page_size = min(max(page_size, 1), 100)
+
+    org_id = await _org_or_none(current_user, db)
+    if org_id is None:
+        # A platform admin has no imports of their own; theirs is /admin/imports.
+        return ImportJobList(items=[], total=0, page=page, page_size=page_size)
 
     total = int(
         await db.scalar(

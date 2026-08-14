@@ -158,21 +158,35 @@ async def list_moderation_queue(
 
 @router.get("/settings")
 async def list_settings(db: DbSession, current_user: SuperAdmin):
+    """Platform settings, described well enough to be edited safely.
+
+    The stored shape is a key and a JSON blob, which tells an administrator
+    nothing — `marketplace.platform_fee_pct` with `{"value": 2}` does not say
+    whether 2 is a percentage or an amount. Each row therefore comes back with
+    its meaning in Arabic and English, its type, and its allowed range.
+    """
     from sqlalchemy import select
+
     from models.settings import PlatformSettings
-    result = await db.execute(select(PlatformSettings).order_by(PlatformSettings.category))
-    settings = result.scalars().all()
+    from services.settings_catalog import describe, unwrap
+
+    result = await db.execute(
+        select(PlatformSettings).order_by(PlatformSettings.category, PlatformSettings.key)
+    )
     return [
         {
             "id": str(s.id),
             "key": s.key,
-            "value": s.value,
+            # Unwrapped, so a screen can render it instead of "[object Object]".
+            "value": unwrap(s.value),
+            "raw_value": s.value,
             "value_text": s.value_text,
             "description": s.description,
             "category": s.category,
             "updated_at": s.updated_at.isoformat(),
+            **describe(s.key, s.value, s.description),
         }
-        for s in settings
+        for s in result.scalars().all()
     ]
 
 
@@ -184,23 +198,41 @@ async def upsert_setting(
     current_user: SuperAdmin,
     request: Request,
 ):
+    from fastapi import HTTPException, status as http_status
     from sqlalchemy import select
+
     from models.settings import PlatformSettings
     from services.audit_service import AuditService
+    from services.settings_catalog import coerce, unwrap
+
+    # The form submits text; store the type the setting is meant to hold, or a
+    # percentage silently becomes the string "2" and every later comparison
+    # against it is wrong.
+    try:
+        submitted = coerce(key, value.get("value"))
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST, detail=str(exc)
+        ) from exc
+
+    # Always the wrapped shape, matching what the seed writes — the two used to
+    # disagree, so a seeded row and an edited row were stored differently.
+    stored = {"value": submitted}
 
     result = await db.execute(select(PlatformSettings).where(PlatformSettings.key == key))
     setting = result.scalar_one_or_none()
 
     if setting:
-        before = {"value": setting.value}
-        setting.value = value.get("value")
-        setting.value_text = value.get("value_text")
+        before = {"value": unwrap(setting.value)}
+        setting.value = stored
+        if value.get("value_text") is not None:
+            setting.value_text = value.get("value_text")
         setting.updated_by_id = current_user.id
     else:
         setting = PlatformSettings(
             id=uuid.uuid4(),
             key=key,
-            value=value.get("value"),
+            value=stored,
             value_text=value.get("value_text"),
             description=value.get("description"),
             category=value.get("category", "general"),
@@ -218,11 +250,11 @@ async def upsert_setting(
         resource_id=setting.id,
         actor_id=current_user.id,
         before_state=before,
-        after_state={"key": key, "value": setting.value},
+        after_state={"key": key, "value": submitted},
         ip_address=request.client.host if request.client else None,
     )
 
-    return {"id": str(setting.id), "key": setting.key, "value": setting.value}
+    return {"id": str(setting.id), "key": setting.key, "value": submitted}
 
 
 # ── Cross-pharmacy visibility ─────────────────────────────────────────────────
