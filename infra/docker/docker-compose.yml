@@ -47,12 +47,12 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-pharmacy_marketplace}
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production-super-secret-key}
-      REFRESH_SECRET_KEY: ${REFRESH_SECRET_KEY:-change-me-refresh-secret}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-jwt-secret}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       REQUIRE_CLOUDFLARE: ${REQUIRE_CLOUDFLARE:-false}
       REQUIRE_APPCHECK: ${REQUIRE_APPCHECK:-false}
-      ENVIRONMENT: ${ENVIRONMENT:-development}
+      APP_ENV: ${APP_ENV:-development}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
     depends_on:
       postgres:

@@ -80,7 +80,7 @@ class NotificationService:
         from config import settings
         from models.notification import NotificationChannel
         from models.user import User
-        from services.email_service import email_service
+        from services.integrations.email_service import email_service
         from sqlalchemy import select
 
         if settings.EMAIL_BACKEND == "stub":

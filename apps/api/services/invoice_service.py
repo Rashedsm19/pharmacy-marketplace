@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import settings
 from models.invoice import Invoice, InvoiceStatus
 from models.transaction import Transaction
-from services.zatca_service import GENESIS_HASH, build_qr, hash_invoice, zatca_service
+from services.integrations.zatca_service import GENESIS_HASH, build_qr, hash_invoice, zatca_service
 
 logger = logging.getLogger("api.invoices")
 

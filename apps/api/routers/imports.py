@@ -23,7 +23,7 @@ from schemas.import_job import ImportCapacity, ImportJobList, ImportJobOut
 from services import excel_service
 from services.audit_service import AuditService
 from services.import_service import count_org_items
-from services.storage_service import storage_service
+from services.integrations.storage_service import storage_service
 
 router = APIRouter(prefix="/inventory/import", tags=["Inventory import"])
 

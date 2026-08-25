@@ -9,7 +9,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { Loader2, CheckCircle } from "lucide-react";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 
 const schema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),

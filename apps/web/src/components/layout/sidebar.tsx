@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 import { useAuthStore } from "@/lib/auth";
 import {
   LayoutDashboard,

@@ -9,7 +9,7 @@ import { useAuthStore } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 
 interface NavbarProps {
   onMenuToggle: () => void;

@@ -353,7 +353,7 @@ class ImportProcessor:
         return found is None
 
     def _write_error_file(self) -> None:
-        from services.storage_service import storage_service
+        from services.integrations.storage_service import storage_service
 
         try:
             content = excel_service.build_errors_workbook(self.errors)
@@ -369,7 +369,7 @@ class ImportProcessor:
 async def process_job(db: AsyncSession, job: ImportJob) -> None:
     """Run a claimed job, recording failure on the job rather than raising."""
     from services.notification_service import NotificationService
-    from services.storage_service import storage_service
+    from services.integrations.storage_service import storage_service
 
     job.status = ImportStatus.PROCESSING
     job.started_at = datetime.now(timezone.utc)

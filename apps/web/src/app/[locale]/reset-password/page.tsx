@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { Loader2 } from "lucide-react";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 
 const schema = z
   .object({

@@ -13,7 +13,7 @@ import { useAuthStore } from "@/lib/auth";
 import { describeError, type Failure } from "@/lib/errors";
 import { ShieldCheck, ArrowLeft, AlertTriangle, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 
 const loginSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),

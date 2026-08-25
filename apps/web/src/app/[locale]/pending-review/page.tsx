@@ -1,6 +1,6 @@
 import { Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 
 export default async function PendingReviewPage({
   params,

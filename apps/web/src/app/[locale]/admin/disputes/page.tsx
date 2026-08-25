@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { disputesApi } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
-import { Dispute, DisputeSummary } from "@/components/dispute-shared";
+import { Dispute, DisputeSummary } from "@/components/features/disputes/dispute-shared";
 
 const OUTCOMES = [
   {

@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 from sqlalchemy import select
 
-from services.zatca_service import GENESIS_HASH, build_qr, hash_invoice, parse_qr, zatca_service
+from services.integrations.zatca_service import GENESIS_HASH, build_qr, hash_invoice, parse_qr, zatca_service
 from tests.conftest import auth
 from tests.test_marketplace_cycle import _eligible_listing
 

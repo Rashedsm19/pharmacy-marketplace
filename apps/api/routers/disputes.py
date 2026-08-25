@@ -159,7 +159,7 @@ async def upload_evidence(
     file: UploadFile = File(...),
 ):
     """A photo or document supporting the claim — same validation as licences."""
-    from services.storage_service import storage_service
+    from services.integrations.storage_service import storage_service
 
     org_id = await _org_id(current_user, db)
     dispute = (

@@ -24,7 +24,7 @@ from repositories.notification import NotificationPreferenceRepository
 from repositories.organization import MembershipRepository, OrganizationRepository
 from repositories.user import UserRepository, hash_reset_token
 from schemas.auth import LoginRequest, LoginResponse, RegisterRequest, RefreshResponse
-from services.email_service import email_service, password_reset_email
+from services.integrations.email_service import email_service, password_reset_email
 
 logger = logging.getLogger("api.auth")
 

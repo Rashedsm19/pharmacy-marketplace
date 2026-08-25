@@ -281,7 +281,7 @@ async def upload_my_document(
     file: UploadFile = File(...),
 ):
     """Upload this organization's commercial registration or pharmacy licence."""
-    from services.storage_service import storage_service
+    from services.integrations.storage_service import storage_service
 
     field = _DOC_FIELDS.get(doc_type)
     if not field:
@@ -320,7 +320,7 @@ async def download_document(
     current_user: CurrentUser,
 ):
     """Readable by the owning organization and by platform admins — nobody else."""
-    from services.storage_service import storage_service
+    from services.integrations.storage_service import storage_service
 
     field = _DOC_FIELDS.get(doc_type)
     if not field:

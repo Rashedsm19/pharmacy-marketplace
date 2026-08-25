@@ -10,7 +10,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { Loader2, ChevronRight, ChevronLeft, Check } from "lucide-react";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo from "@/components/ui/brand-logo";
 
 const registerSchema = z.object({
   full_name: z.string().min(2, "الاسم مطلوب"),

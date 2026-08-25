@@ -131,7 +131,7 @@ async def attach_temperature_log(
     """
     from decimal import Decimal
 
-    from services.storage_service import storage_service
+    from services.integrations.storage_service import storage_service
 
     org_id = await _get_org_id(current_user, db)
     stored = await storage_service.save_document(file, org_id, "temperature", db)

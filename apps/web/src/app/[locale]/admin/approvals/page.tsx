@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { adminApi } from "@/lib/api";
-import { OrgDocumentsView } from "@/components/org-documents";
+import { OrgDocumentsView } from "@/components/features/organization/org-documents";
 import { formatDate } from "@/lib/utils";
 import { CheckCircle, XCircle, Building2, ChevronRight, ChevronLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";

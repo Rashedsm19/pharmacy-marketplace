@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { organizationsApi } from "@/lib/api";
-import { OrgDocumentsUpload } from "@/components/org-documents";
+import { OrgDocumentsUpload } from "@/components/features/organization/org-documents";
 import { Loader2, Building2, CheckCircle, AlertCircle, Clock, FileText } from "lucide-react";
 
 const profileSchema = z.object({
