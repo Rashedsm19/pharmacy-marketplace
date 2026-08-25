@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { describeError, type Failure } from "@/lib/errors";
-import { ShieldCheck, ArrowLeft, AlertTriangle, WifiOff } from "lucide-react";
+import { ShieldCheck, ArrowLeft, AlertTriangle, WifiOff, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/ui/brand-logo";
 
@@ -92,7 +92,9 @@ export default function LoginPage() {
               }`}
             >
               <div className="flex items-start gap-2">
-                {failure.retryable ? (
+                {failure.kind === "throttled" ? (
+                  <Clock className="h-4 w-4 mt-0.5 shrink-0" />
+                ) : failure.retryable ? (
                   <WifiOff className="h-4 w-4 mt-0.5 shrink-0" />
                 ) : (
                   <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
@@ -102,12 +104,16 @@ export default function LoginPage() {
                   {failure.hint && (
                     <p className="text-xs mt-1 leading-relaxed">{failure.hint}</p>
                   )}
-                  {(failure.status || failure.requestId) && (
-                    <p dir="ltr" className="text-[11px] mt-1.5 font-mono opacity-70 text-right">
-                      {failure.status ? `HTTP ${failure.status}` : ""}
-                      {failure.requestId ? ` · ${failure.requestId}` : ""}
-                    </p>
-                  )}
+                  <p dir="ltr" className="text-[11px] mt-1.5 font-mono opacity-70 text-right">
+                    {[
+                      failure.kind,
+                      failure.status ? `HTTP ${failure.status}` : null,
+                      failure.status && !failure.fromApi ? "not-from-api" : null,
+                      failure.requestId,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
                 </div>
               </div>
             </div>
