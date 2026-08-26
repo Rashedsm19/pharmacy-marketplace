@@ -46,8 +46,13 @@ services:
         value: INFO
       - key: RUN_MIGRATIONS_ON_STARTUP
         value: "true"
+      # The database was seeded long ago and the seed stops as soon as any user
+      # exists, so this has been a no-op for months. Left on, it was one empty
+      # user table away from creating super admins with the demo passwords that
+      # ship in the repository, because no seed password is set here. Off is the
+      # state seeds/seed.py always claimed production was in.
       - key: SEED_ON_STARTUP
-        value: "true"
+        value: "false"
       - key: NEAR_EXPIRY_SCAN_INTERVAL_HOURS
         value: "6"
       - key: NEAR_EXPIRY_THRESHOLDS_DAYS

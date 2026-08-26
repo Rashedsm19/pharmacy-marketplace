@@ -51,10 +51,16 @@ def create_app() -> FastAPI:
     from middleware.appcheck import AppCheckMiddleware
     from middleware.throttle import LoginThrottleMiddleware
 
-    app.add_middleware(LoggingMiddleware)
-
-    # Inside the logger so throttled attempts still appear in the access log.
+    # `add_middleware` prepends, so the LAST registered is the OUTERMOST. The
+    # throttle must therefore be registered BEFORE the logger to end up inside
+    # it. It was the other way round, and the comment claimed the outcome it did
+    # not produce: a 429 short-circuited outside the logger, so throttled
+    # attempts never reached the access log and — the part that cost us an
+    # afternoon — the 429 carried no X-Request-ID, the one field support asks
+    # for. The rate limit itself is unchanged; only who sees it is.
     app.add_middleware(LoginThrottleMiddleware, enabled=settings.THROTTLE_AUTH)
+
+    app.add_middleware(LoggingMiddleware)
 
     app.add_middleware(
         CORSMiddleware,
@@ -62,6 +68,12 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        # Neither is on the CORS safelist, so without this the browser hides both
+        # from JS. The frontend reads Retry-After to tell someone how long to
+        # wait, and X-Request-ID is what a bug report is traced by. Production is
+        # same-origin through the web proxy and unaffected; the documented local
+        # development setup talks to this API cross-origin and is not.
+        expose_headers=["X-Request-ID", "Retry-After"],
     )
 
     app.add_middleware(
@@ -122,6 +134,18 @@ def create_app() -> FastAPI:
                 "detail": "البيانات المرسلة غير مقبولة — " + "؛ ".join(parts),
                 "fields": fields,
             },
+        )
+
+    # Same rule, applied to the exceptions that carry structure of their own:
+    # `detail` stays a sentence, the structure goes in a sibling key.
+    from exceptions import StructuredHTTPException
+
+    @app.exception_handler(StructuredHTTPException)
+    async def _structured_error(request, exc: StructuredHTTPException):
+        return ORJSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail, exc.payload_key: exc.payload},
+            headers=getattr(exc, "headers", None),
         )
 
     # ── Health endpoint ───────────────────────────────────────────────────
@@ -221,7 +245,7 @@ async def _run_migrations_if_requested() -> None:
     Run via subprocess so alembic's own asyncio.run() doesn't collide with the
     server's running event loop.
     """
-    if os.getenv("RUN_MIGRATIONS_ON_STARTUP", "").lower() not in {"1", "true", "yes"}:
+    if not settings.RUN_MIGRATIONS_ON_STARTUP:
         return
     import asyncio as _asyncio
 
@@ -242,7 +266,7 @@ async def _run_migrations_if_requested() -> None:
 
 async def _seed_if_requested() -> None:
     """Run seed script on startup if SEED_ON_STARTUP=true (idempotent — skips if data exists)."""
-    if os.getenv("SEED_ON_STARTUP", "").lower() not in {"1", "true", "yes"}:
+    if not settings.SEED_ON_STARTUP:
         return
     try:
         from sqlalchemy import select, func

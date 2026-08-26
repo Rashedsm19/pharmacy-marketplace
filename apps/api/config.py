@@ -6,7 +6,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import List
 
-from pydantic import field_validator
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -110,6 +110,29 @@ class Settings(BaseSettings):
     # A support-issued reset link is handed over by phone or WhatsApp, so it
     # lives shorter than one the customer requested themselves.
     ADMIN_RESET_LINK_TTL_MINUTES: int = 30
+
+    # ── Startup behaviour and seeding ─────────────────────────────────────
+    # These five were read with `os.getenv`, and `.env` never reaches
+    # `os.environ` — pydantic-settings parses that file into this object and
+    # nothing else. So the file said to copy it and fill these in, and doing so
+    # did nothing at all, silently, because `extra="ignore"` swallows the key.
+    # Someone setting a strong seed password here kept the demo one.
+    #
+    # Reading them here fixes that without touching deployment: pydantic-settings
+    # ranks the real process environment ABOVE this file, and the process
+    # environment is what Render and CI supply.
+    RUN_MIGRATIONS_ON_STARTUP: bool = False
+    SEED_ON_STARTUP: bool = False
+
+    # SecretStr so a stray log line, traceback or `repr(settings)` prints
+    # `**********` instead of the password. Read with `.get_secret_value()`.
+    # The defaults are demo credentials for a developer machine and the test
+    # suite; `seeds/seed.py` refuses to use them when APP_ENV is production.
+    SEED_ADMIN_PASSWORD: SecretStr = SecretStr("Admin@12345")
+    SEED_OWNER_PASSWORD: SecretStr = SecretStr("123123123")
+    # No working default, deliberately: a default that works is a default that
+    # ships. `seeds/create_superadmin.py` refuses to run without one.
+    SUPERADMIN_PASSWORD: SecretStr = SecretStr("")
 
     # ── Email (Resend / SMTP stub) ────────────────────────────────────────
     EMAIL_BACKEND: str = "stub"       # stub | resend | smtp

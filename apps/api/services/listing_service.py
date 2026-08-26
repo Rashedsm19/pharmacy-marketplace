@@ -7,6 +7,7 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from exceptions import EligibilityRejected
 from models.inventory import BatchStatus
 from models.marketplace import ListingStatus, MarketplaceListing
 from repositories.inventory import InventoryBatchRepository
@@ -35,10 +36,7 @@ class ListingService:
         eligibility = await self.eligibility.check_listing_eligibility(data.batch_id, org_id)
         if not eligibility.all_passed:
             reasons = [r.reason for r in eligibility.rules if not r.passed and r.reason]
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail={"message": "Listing eligibility check failed", "reasons": reasons},
-            )
+            raise EligibilityRejected(reasons)
 
         # Validate quantity
         batch = await self.batch_repo.get_by_org(data.batch_id, org_id)

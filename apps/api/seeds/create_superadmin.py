@@ -11,19 +11,24 @@ re-asserts the super_admin role rather than creating a duplicate.
 from __future__ import annotations
 
 import asyncio
-import os
 import sys
 import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import select
 
+from config import settings
 from database import AsyncSessionLocal
 
 DEFAULT_EMAIL = "rhm@gmail.com"
 # Never a real password: pass one on the command line, or set
 # SUPERADMIN_PASSWORD. A default that works is a default that ships.
-DEFAULT_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "")
+#
+# Read through Settings rather than os.getenv, so that setting it in
+# `apps/api/.env` works — with os.getenv it silently did not, because
+# pydantic-settings parses that file into the Settings object and never into the
+# process environment. The real process environment still wins over the file.
+DEFAULT_PASSWORD = settings.SUPERADMIN_PASSWORD.get_secret_value()
 DEFAULT_NAME = "Rashed — Super Admin"
 DEFAULT_PHONE = "+966500000099"
 

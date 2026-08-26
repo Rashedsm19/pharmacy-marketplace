@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { apiBaseUrl } from "@/lib/api-base-url";
+
 type RouteContext = {
   params: Promise<{ path: string[] }>;
 };
@@ -19,21 +21,19 @@ const HOP_BY_HOP_HEADERS = new Set([
   "accept-encoding",
 ]);
 
-function apiBaseUrl() {
-  const configuredUrl =
-    process.env.API_URL ??
-    (process.env.NEXT_PUBLIC_API_URL?.startsWith("http")
-      ? process.env.NEXT_PUBLIC_API_URL
-      : undefined) ??
-    (process.env.NODE_ENV === "production" ? undefined : "http://localhost:8000/api/v1");
-
-  if (!configuredUrl) {
-    return null;
-  }
-
-  const trimmedUrl = configuredUrl.replace(/\/+$/, "");
-  return trimmedUrl.endsWith("/api/v1") ? trimmedUrl : `${trimmedUrl}/api/v1`;
-}
+/**
+ * Marks a response this route generated ITSELF, rather than one it forwarded.
+ *
+ * Without it the two are indistinguishable to the client: both arrive as JSON
+ * with a `detail` string, because that is the shape this application uses. So a
+ * backend outage — the proxy's own 502 — was read as an answer from the API and
+ * reported as a generic server error, with the Arabic text explaining the outage
+ * thrown away. Provenance has to be carried; it cannot be inferred from a body
+ * that was deliberately made to look the same.
+ *
+ * Only ever set on the two responses below. A forwarded response is untouched.
+ */
+const PROXY_ERROR_HEADER = "X-Api-Proxy-Error";
 
 function filteredHeaders(headers: Headers) {
   const nextHeaders = new Headers(headers);
@@ -45,9 +45,14 @@ async function proxy(request: NextRequest, context: RouteContext) {
   const baseUrl = apiBaseUrl();
 
   if (!baseUrl) {
+    // Arabic, because this reaches a person on the sign-in screen. The English
+    // cause goes in the header and the server log, where the person who can act
+    // on it will look — it is a deployment fault, not something a user can fix,
+    // which is why this one is not retryable.
+    console.error("[api-proxy] API_URL is not configured — no upstream to forward to");
     return NextResponse.json(
-      { detail: "API_URL is not configured" },
-      { status: 503 }
+      { detail: "الخدمة غير مهيأة بشكل صحيح. تواصل مع الدعم الفني." },
+      { status: 503, headers: { [PROXY_ERROR_HEADER]: "not-configured" } }
     );
   }
 
@@ -102,7 +107,7 @@ async function proxy(request: NextRequest, context: RouteContext) {
   console.error(`[api-proxy] ${request.method} ${targetUrl.pathname} failed`, lastError);
   return NextResponse.json(
     { detail: "تعذر الوصول إلى الخادم. حاول مرة أخرى بعد قليل." },
-    { status: 502 }
+    { status: 502, headers: { [PROXY_ERROR_HEADER]: "upstream-unreachable" } }
   );
 }
 

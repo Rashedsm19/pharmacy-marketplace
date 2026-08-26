@@ -10,7 +10,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
-import { describeError, type Failure } from "@/lib/errors";
+import { describeError, diagnosticsLine, type Failure } from "@/lib/errors";
 import { ShieldCheck, ArrowLeft, AlertTriangle, WifiOff, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/ui/brand-logo";
@@ -38,21 +38,37 @@ export default function LoginPage() {
   // person needs to read it twice, and a toast is gone by then.
   const [failure, setFailure] = useState<Failure | null>(null);
 
+  const fail = (err: unknown, fallback: string) => {
+    // "فشل تسجيل الدخول" for both a wrong password and a server that never
+    // answered is what made a correct password look wrong. Say which.
+    const described = describeError(err, fallback);
+    setFailure(described);
+    toast.error(described.message);
+  };
+
   const onSubmit = async (data: LoginForm) => {
     setFailure(null);
+
+    // Only this call can fail because of what was typed, so only this one may
+    // say so. The two used to share a try block, and a failure of `me()` — after
+    // `setTokens` had already stored a working session — told the person their
+    // credentials were wrong while they were in fact signed in.
+    let session: Awaited<ReturnType<typeof authApi.login>>;
     try {
-      const res = await authApi.login(data.email, data.password);
-      const { access_token, refresh_token, org_id } = res.data;
+      session = await authApi.login(data.email, data.password);
+    } catch (err: unknown) {
+      fail(err, "بيانات الدخول غير صحيحة");
+      return;
+    }
+
+    try {
+      const { access_token, refresh_token, org_id } = session.data;
       setTokens(access_token, refresh_token);
       const meRes = await authApi.me();
       setUser({ ...meRes.data, org_id });
       router.push(`/${locale}/dashboard`);
     } catch (err: unknown) {
-      // "فشل تسجيل الدخول" for both a wrong password and a server that never
-      // answered is what made a correct password look wrong. Say which.
-      const described = describeError(err, "بيانات الدخول غير صحيحة");
-      setFailure(described);
-      toast.error(described.message);
+      fail(err, "تم تسجيل الدخول لكن تعذر تحميل بيانات الحساب");
     }
   };
 
@@ -104,16 +120,18 @@ export default function LoginPage() {
                   {failure.hint && (
                     <p className="text-xs mt-1 leading-relaxed">{failure.hint}</p>
                   )}
-                  <p dir="ltr" className="text-[11px] mt-1.5 font-mono opacity-70 text-right">
-                    {[
-                      failure.kind,
-                      failure.status ? `HTTP ${failure.status}` : null,
-                      failure.status && !failure.fromApi ? "not-from-api" : null,
-                      failure.requestId,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
+                  {failure.reasons && failure.reasons.length > 0 && (
+                    <ul className="text-xs mt-1.5 list-disc ps-4 space-y-0.5">
+                      {failure.reasons.map((reason) => (
+                        <li key={reason}>{reason}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {diagnosticsLine(failure) && (
+                    <p dir="ltr" className="text-[11px] mt-1.5 font-mono opacity-70 text-right">
+                      {diagnosticsLine(failure)}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

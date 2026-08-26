@@ -36,6 +36,26 @@ LIMITS: dict[str, tuple[int, int]] = {
 }
 
 
+def _arabic_minutes(seconds: int) -> str:
+    """Render a wait in Arabic, rounding up.
+
+    Rounding down told someone to come back after "4 دقيقة" when 299 seconds were
+    left, so they returned early and were refused again. Round up: the wait may
+    read a few seconds long, never short.
+
+    Arabic counts in three forms, and the old text used the singular for every
+    number — "5 دقيقة" is not something a Saudi business writes.
+    """
+    minutes = -(-seconds // 60)  # ceil, without importing math for one call
+    if minutes <= 1:
+        return "دقيقة"
+    if minutes == 2:
+        return "دقيقتين"
+    if minutes <= 10:
+        return f"{minutes} دقائق"
+    return f"{minutes} دقيقة"
+
+
 class LoginThrottleMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, enabled: bool = True) -> None:
         super().__init__(app)
@@ -74,7 +94,7 @@ class LoginThrottleMiddleware(BaseHTTPMiddleware):
                 content={
                     "detail": (
                         "محاولات كثيرة خلال وقت قصير. "
-                        f"حاول مرة اخرى بعد {max(retry_after // 60, 1)} دقيقة."
+                        f"حاول مرة اخرى بعد {_arabic_minutes(retry_after)}."
                     )
                 },
                 headers={"Retry-After": str(retry_after)},

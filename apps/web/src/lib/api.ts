@@ -4,8 +4,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
+// `?.trim() ||` rather than `??`: an empty NEXT_PUBLIC_API_URL is not a base URL,
+// and `??` would have accepted one, leaving every request resolved against the
+// current page instead of the API. The same empty-string trap cost the proxy its
+// localhost fallback — see lib/api-base-url.ts.
 const BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL?.trim() ||
   (process.env.NODE_ENV === "production" ? "/api/v1" : "http://localhost:8000/api/v1")
 ).replace(/\/$/, "");
 

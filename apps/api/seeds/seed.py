@@ -54,15 +54,39 @@ async def _seed_all(db) -> None:
 
     # ── Super Admins ──────────────────────────────────────────────────────
     #
-    # These passwords are for a developer's own machine and for the test suite.
-    # They are NOT production credentials: production runs with
-    # SEED_ON_STARTUP=false and its administrators are created out of band with
-    # `python -m seeds.create_superadmin`. Writing a real password here once put
+    # These defaults are for a developer's own machine and for the test suite.
+    # They are NOT production credentials. Writing a real password here once put
     # a live super admin into a public repository, so it must not happen again —
-    # override with SEED_ADMIN_PASSWORD / SEED_OWNER_PASSWORD if this seed is
-    # ever run anywhere that matters.
-    admin_password = os.getenv("SEED_ADMIN_PASSWORD", "Admin@12345")
-    owner_password = os.getenv("SEED_OWNER_PASSWORD", "123123123")
+    # override with SEED_ADMIN_PASSWORD / SEED_OWNER_PASSWORD wherever this seed
+    # is run anywhere that matters.
+    #
+    # Saying that was not enough on its own. The comment used to claim production
+    # runs with SEED_ON_STARTUP=false; render.yaml sets it to "true" and supplies
+    # neither password, so an empty user table on production would have quietly
+    # created two super admins with the credentials printed above. It has not
+    # happened only because the seed stops when any user exists. A comment cannot
+    # enforce that, so the check below does: on production, a default password is
+    # refused outright rather than used.
+    from config import Settings, settings
+
+    admin_password = settings.SEED_ADMIN_PASSWORD.get_secret_value()
+    owner_password = settings.SEED_OWNER_PASSWORD.get_secret_value()
+
+    if settings.is_production:
+        defaults_in_use = [
+            name
+            for name, value in (
+                ("SEED_ADMIN_PASSWORD", admin_password),
+                ("SEED_OWNER_PASSWORD", owner_password),
+            )
+            if value == Settings.model_fields[name].default.get_secret_value()
+        ]
+        if defaults_in_use:
+            raise RuntimeError(
+                "Refusing to seed on production with built-in demo passwords: "
+                + ", ".join(defaults_in_use)
+                + ". Set them in the environment, or turn SEED_ON_STARTUP off."
+            )
     admin = User(
         id=uuid.uuid4(),
         email="admin@pharmacy-marketplace.sa",
