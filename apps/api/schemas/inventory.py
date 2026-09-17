@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -79,6 +80,7 @@ class NearExpiryRuleBase(BaseModel):
     auto_listing_discount_pct: float = Field(ge=0, le=100, default=20.0)
     notify_owner: bool = True
     notify_admin: bool = False
+    max_delivery_radius_km: float | None = Field(None, gt=0, le=5000)
 
 
 class NearExpiryRuleCreate(NearExpiryRuleBase):
@@ -94,6 +96,7 @@ class NearExpiryRuleUpdate(BaseModel):
     auto_listing_discount_pct: float | None = Field(None, ge=0, le=100)
     notify_owner: bool | None = None
     notify_admin: bool | None = None
+    max_delivery_radius_km: float | None = Field(None, gt=0, le=5000)
 
 
 class NearExpiryRuleOut(NearExpiryRuleBase):
@@ -101,6 +104,13 @@ class NearExpiryRuleOut(NearExpiryRuleBase):
     organization_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+
+
+class MovementCreate(BaseModel):
+    batch_id: uuid.UUID
+    movement_type: Literal["dispensed", "adjusted"]
+    quantity: int = Field(ge=1)
+    note: str | None = None
 
 
 class MovementOut(BaseModel):

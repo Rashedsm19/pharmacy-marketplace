@@ -79,6 +79,9 @@ async def create_key(
     _not_impersonating: NotImpersonating = None,
 ) -> ApiKeyCreated:
     org_id = await _require_org(current_user, db)
+    from services.entitlement_service import EntitlementService
+
+    await EntitlementService(db).require_feature(org_id, "api_access")
     service = ApiKeyService(db)
 
     try:

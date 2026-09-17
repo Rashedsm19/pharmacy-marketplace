@@ -59,6 +59,7 @@ class ListingOut(ListingBase):
     eligibility_passed: bool
     created_at: datetime
     updated_at: datetime
+    distance_km: float | None = None
 
 
 class EligibilityRuleResult(BaseModel):

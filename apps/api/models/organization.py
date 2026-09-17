@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from models.branch import PharmacyBranch
     from models.inventory import NearExpiryRule
     from models.marketplace import MarketplaceListing
+    from models.rbac import OrgRole
     from models.user import User
 
 
@@ -92,6 +93,11 @@ class PharmacyOrganization(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDelete
     suspension_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     allow_auto_listing: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Set the first time the organization takes a subscription trial; a trial
+    # is once per organization, ever.
+    trial_used_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # ── Relationships ─────────────────────────────────────────────────────
     approved_by: Mapped["User | None"] = relationship(
@@ -142,9 +148,15 @@ class UserOrganizationMembership(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     joined_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # A custom role from org_roles. Empty means "use the legacy `role` above",
+    # which is what every membership created before custom roles has.
+    role_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("org_roles.id"), nullable=True, index=True
+    )
 
     # ── Relationships ─────────────────────────────────────────────────────
     user: Mapped["User"] = relationship("User", back_populates="memberships")
+    custom_role: Mapped["OrgRole | None"] = relationship("OrgRole", lazy="selectin")
     organization: Mapped["PharmacyOrganization"] = relationship(
         "PharmacyOrganization", back_populates="memberships"
     )

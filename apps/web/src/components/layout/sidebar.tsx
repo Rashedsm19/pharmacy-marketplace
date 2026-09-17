@@ -36,7 +36,26 @@ import {
   Gavel,
   ScrollText,
   X,
+  Wallet,
+  CreditCard,
+  Percent,
+  Award,
+  ShieldCheck,
+  Lightbulb,
+  Store,
+  UserCog,
+  Landmark,
+  PiggyBank,
+  Layers,
 } from "lucide-react";
+import { hasPermission } from "@/lib/permissions";
+
+interface NavItem {
+  href: string;
+  icon: typeof LayoutDashboard;
+  label: string;
+  permission?: string;
+}
 
 interface SidebarProps {
   open: boolean;
@@ -52,22 +71,35 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
   // Showing a pharmacy eight links that all return 403 is worse than hiding them.
   const isPlatformAdmin = user?.role === "super_admin";
 
-  const navItems = [
-    { href: `/${locale}/dashboard`, icon: LayoutDashboard, label: t("dashboard") },
-    { href: `/${locale}/inventory/batches`, icon: Package, label: t("inventory") },
-    { href: `/${locale}/inventory/import`, icon: Upload, label: t("importInventory") },
-    { href: `/${locale}/marketplace`, icon: ShoppingCart, label: t("marketplace") },
-    { href: `/${locale}/my/listings`, icon: Pill, label: t("myListings") },
-    { href: `/${locale}/my/offers`, icon: Handshake, label: t("myOffers") },
-    { href: `/${locale}/my/reservations`, icon: CalendarClock, label: t("myReservations") },
-    { href: `/${locale}/my/transactions`, icon: Receipt, label: t("myTransactions") },
-    { href: `/${locale}/inventory/products`, icon: BoxesIcon, label: t("products") },
-    { href: `/${locale}/my/disputes`, icon: AlertTriangle, label: t("disputes") },
-    { href: `/${locale}/reports/near-expiry`, icon: FileBarChart, label: t("reports") },
-    { href: `/${locale}/org/profile`, icon: Building2, label: t("organization") },
-    { href: `/${locale}/org/api-keys`, icon: KeyRound, label: t("apiKeys") },
+  // Each link names the permission that opens its screen. A member whose role
+  // lacks it does not see the link; the server refuses the request either way.
+  const allNavItems: NavItem[] = [
+    { href: `/${locale}/dashboard`, icon: LayoutDashboard, label: t("dashboard"), permission: "dashboard.view" },
+    { href: `/${locale}/inventory/batches`, icon: Package, label: t("inventory"), permission: "inventory.view" },
+    { href: `/${locale}/inventory/import`, icon: Upload, label: t("importInventory"), permission: "inventory.import" },
+    { href: `/${locale}/inventory/restock`, icon: Lightbulb, label: t("restock"), permission: "restock.view" },
+    { href: `/${locale}/pos`, icon: Store, label: t("pos"), permission: "pos.sell" },
+    { href: `/${locale}/marketplace`, icon: ShoppingCart, label: t("marketplace"), permission: "marketplace.view" },
+    { href: `/${locale}/my/listings`, icon: Pill, label: t("myListings"), permission: "marketplace.view" },
+    { href: `/${locale}/my/promotions`, icon: Percent, label: t("promotions"), permission: "promotions.manage" },
+    { href: `/${locale}/my/offers`, icon: Handshake, label: t("myOffers"), permission: "marketplace.view" },
+    { href: `/${locale}/my/reservations`, icon: CalendarClock, label: t("myReservations"), permission: "marketplace.view" },
+    { href: `/${locale}/my/transactions`, icon: Receipt, label: t("myTransactions"), permission: "transactions.view" },
+    { href: `/${locale}/my/insurance`, icon: ShieldCheck, label: t("insurance"), permission: "insurance.manage" },
+    { href: `/${locale}/inventory/products`, icon: BoxesIcon, label: t("products"), permission: "inventory.view" },
+    { href: `/${locale}/my/disputes`, icon: AlertTriangle, label: t("disputes"), permission: "transactions.view" },
+    { href: `/${locale}/wallet`, icon: Wallet, label: t("wallet"), permission: "wallet.view" },
+    { href: `/${locale}/loyalty`, icon: Award, label: t("loyalty"), permission: "wallet.view" },
+    { href: `/${locale}/reports`, icon: FileBarChart, label: t("reports"), permission: "reports.view" },
+    { href: `/${locale}/org/profile`, icon: Building2, label: t("organization"), permission: "org.view" },
+    { href: `/${locale}/org/team`, icon: UserCog, label: t("team"), permission: "team.manage" },
+    { href: `/${locale}/org/subscription`, icon: CreditCard, label: t("subscription"), permission: "subscription.manage" },
+    { href: `/${locale}/org/api-keys`, icon: KeyRound, label: t("apiKeys"), permission: "api_keys.manage" },
     { href: `/${locale}/notifications`, icon: Bell, label: t("notifications") },
   ];
+  const navItems = allNavItems.filter(
+    (item) => !item.permission || hasPermission(user, item.permission)
+  );
 
   // Every admin destination, not just approvals: the other screens existed but
   // nothing linked to them, so they were reachable only by typing the URL.
@@ -83,6 +115,10 @@ export default function Sidebar({ open, onToggle, onNavigate }: SidebarProps) {
     { href: `/${locale}/admin/audit-logs`, icon: ScrollText, label: t("adminAudit") },
     { href: `/${locale}/admin/categories`, icon: Tags, label: t("adminCategories") },
     { href: `/${locale}/admin/disputes`, icon: GavelIcon, label: t("adminDisputes") },
+    { href: `/${locale}/admin/withdrawals`, icon: Landmark, label: t("adminWithdrawals") },
+    { href: `/${locale}/admin/revenue`, icon: PiggyBank, label: t("adminRevenue") },
+    { href: `/${locale}/admin/plans`, icon: Layers, label: t("adminPlans") },
+    { href: `/${locale}/admin/insurance`, icon: ShieldCheck, label: t("adminInsurance") },
     { href: `/${locale}/admin/settings`, icon: Settings, label: t("adminSettings") },
   ];
 

@@ -43,3 +43,25 @@ from models.import_job import ImportJob, ImportStatus, ImportSource  # noqa: F40
 from models.api_key import ApiKey, ApiKeyScope  # noqa: F401
 from models.impersonation import ImpersonationSession  # noqa: F401
 from models.stored_file import StoredFile  # noqa: F401
+from models.rbac import OrgRole, TeamInvite, InviteStatus  # noqa: F401
+# Module imports: each domain registers its own tables when it lands.
+import models.wallet  # noqa: F401,E402
+from models.subscription import (  # noqa: F401,E402
+    AddonStatus,
+    BillingCycle,
+    OrganizationAddon,
+    OrganizationSubscription,
+    PaymentEvent,
+    SubscriptionEvent,
+    SubscriptionInvoice,
+    SubscriptionInvoiceStatus,
+    SubscriptionPlan,
+    SubscriptionStatus,
+    UsageCounter,
+    UsageLedger,
+)
+import models.promotion  # noqa: F401,E402
+import models.loyalty  # noqa: F401,E402
+import models.insurance  # noqa: F401,E402
+import models.restock  # noqa: F401,E402
+import models.pos  # noqa: F401,E402

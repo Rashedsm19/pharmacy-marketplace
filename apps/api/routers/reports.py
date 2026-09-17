@@ -139,6 +139,10 @@ async def report_recoverable_value(db: DbSession, current_user: CurrentUser):
     from models.inventory import InventoryBatch, BatchStatus
 
     org_id = await _get_org_id(current_user, db)
+    if org_id:
+        from services.entitlement_service import EntitlementService
+
+        await EntitlementService(db).require_feature(org_id, "advanced_reports")
     today = date.today()
 
     q = select(InventoryBatch).where(
@@ -231,6 +235,10 @@ async def report_branch_comparison(db: DbSession, current_user: CurrentUser):
     from models.transaction import Transaction, TransactionStatus
 
     org_id = await _get_org_id(current_user, db)
+    if org_id:
+        from services.entitlement_service import EntitlementService
+
+        await EntitlementService(db).require_feature(org_id, "advanced_reports")
     if not org_id:
         return []
 

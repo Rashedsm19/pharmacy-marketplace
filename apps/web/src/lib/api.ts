@@ -391,3 +391,40 @@ export const apiKeysApi = {
     apiClient.post("/api-keys", data),
   revoke: (id: string) => apiClient.delete(`/api-keys/${id}`),
 };
+
+export const restockApi = {
+  list: (params?: Record<string, unknown>) =>
+    apiClient.get("/restock/recommendations", { params }),
+  summary: () => apiClient.get("/restock/recommendations/summary"),
+  refresh: () => apiClient.post("/restock/recommendations/refresh"),
+  get: (id: string) => apiClient.get(`/restock/recommendations/${id}`),
+  dismiss: (id: string) => apiClient.post(`/restock/recommendations/${id}/dismiss`),
+  act: (id: string, data: { action: string; asking_price?: number; quantity?: number }) =>
+    apiClient.post(`/restock/recommendations/${id}/act`, data),
+};
+
+export const subscriptionsApi = {
+  plans: () => apiClient.get("/subscriptions/plans"),
+  current: () => apiClient.get("/subscriptions/current"),
+  startTrial: (plan_id: string) => apiClient.post("/subscriptions/trial", { plan_id }),
+  subscribe: (plan_id: string, billing_cycle: string) =>
+    apiClient.post("/subscriptions/subscribe", { plan_id, billing_cycle }),
+  changePlan: (plan_id: string, billing_cycle?: string) =>
+    apiClient.post("/subscriptions/change-plan", { plan_id, billing_cycle }),
+  cancel: () => apiClient.post("/subscriptions/cancel"),
+  reactivate: (plan_id?: string, billing_cycle?: string) =>
+    apiClient.post("/subscriptions/reactivate", { plan_id, billing_cycle }),
+  invoices: () => apiClient.get("/subscriptions/invoices"),
+  addons: () => apiClient.get("/subscriptions/addons"),
+  purchaseAddon: (code: string, quantity = 1) =>
+    apiClient.post("/subscriptions/addons", { code, quantity }),
+  simulatePayment: (provider_ref: string, status: "paid" | "failed" = "paid") =>
+    apiClient.post("/subscriptions/dev/simulate-payment", { provider_ref, status }),
+  adminCreatePlan: (data: Record<string, unknown>) =>
+    apiClient.post("/subscriptions/admin/plans", data),
+  adminUpdatePlan: (id: string, data: Record<string, unknown>) =>
+    apiClient.patch(`/subscriptions/admin/plans/${id}`, data),
+  adminDeactivatePlan: (id: string) =>
+    apiClient.post(`/subscriptions/admin/plans/${id}/deactivate`),
+  adminSubscriptions: () => apiClient.get("/subscriptions/admin/subscriptions"),
+};

@@ -15,6 +15,7 @@ from repositories.marketplace import ListingRepository
 from schemas.marketplace import ListingCreate
 from services.audit_service import AuditService
 from services.eligibility_service import EligibilityService
+from services.entitlement_service import EntitlementService
 
 
 class ListingService:
@@ -75,6 +76,36 @@ class ListingService:
                 detail=f"Requested quantity {data.quantity_listed} exceeds available {batch.quantity_available}",
             )
 
+        # Subscription gate, after every compliance check: a paid plan never
+        # bypasses eligibility, and eligibility never grants quota. The org's
+        # subscription row is locked so two concurrent creations cannot both
+        # read "under the cap" and both pass.
+        entitlements = EntitlementService(self.db)
+        locked_sub = await entitlements.lock_subscription(org_id)
+        ent = await entitlements.get_entitlements(org_id)
+        if not ent.entitled:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="انتهت صلاحية اشتراك منشأتك — جدد الاشتراك لنشر عروض جديدة",
+            )
+        live_listings = int(
+            await self.db.scalar(
+                _select(_func.count(_Listing.id)).where(
+                    _Listing.seller_organization_id == org_id,
+                    _Listing.status.in_(
+                        [ListingStatus.DRAFT, ListingStatus.ACTIVE, ListingStatus.RESERVED]
+                    ),
+                    _Listing.deleted_at.is_(None),
+                )
+            )
+            or 0
+        )
+        await entitlements.check_resource_limit(org_id, "max_active_listings", live_listings)
+        period_count = await entitlements.current_usage(
+            org_id, "listings_created", sub=locked_sub
+        )
+        await entitlements.check_resource_limit(org_id, "max_listings_per_period", period_count)
+
         listing = MarketplaceListing(
             id=uuid.uuid4(),
             seller_organization_id=org_id,
@@ -100,6 +131,10 @@ class ListingService:
         # Update batch status to LISTED
         batch.status = BatchStatus.LISTED
         await self.db.flush()
+
+        await entitlements.record_usage(
+            org_id, "listings_created", idempotency_key=f"listing:{listing.id}"
+        )
 
         await self.audit.log(
             action="listing_created",

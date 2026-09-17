@@ -12,6 +12,9 @@ export interface AuthUser {
   role: string;
   org_id: string | null;
   is_active: boolean;
+  /** Permission keys granted through the member's role. Absent on sessions
+   *  stored before roles existed; treat that as "everything", the old rule. */
+  permissions?: string[];
 }
 
 interface AuthState {

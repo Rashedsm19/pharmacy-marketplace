@@ -14,7 +14,7 @@ from schemas.auth import (
     ResetPasswordRequest,
 )
 from schemas.common import MessageResponse
-from schemas.user import UserOut
+from schemas.user import MeOut, UserOut
 from services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -60,6 +60,11 @@ async def reset_password(data: ResetPasswordRequest, db: DbSession):
     return MessageResponse(message="Password reset successfully")
 
 
-@router.get("/me", response_model=UserOut)
-async def get_me(current_user: CurrentUser):
-    return current_user
+@router.get("/me", response_model=MeOut)
+async def get_me(current_user: CurrentUser, db: DbSession):
+    from dependencies import resolve_permissions
+
+    granted = await resolve_permissions(db, current_user)
+    out = MeOut.model_validate(current_user)
+    out.permissions = sorted(granted)
+    return out

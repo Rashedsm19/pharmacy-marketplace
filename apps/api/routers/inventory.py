@@ -4,10 +4,13 @@ from __future__ import annotations
 import math
 import uuid
 from datetime import date
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
+from dependencies import CurrentUser, DbSession, OrgAdminOrAbove, require_permission
+from models.inventory import BatchStatus, InventoryMovement, MovementType
+from models.user import User
 from repositories.inventory import InventoryBatchRepository, InventoryMovementRepository, NearExpiryRuleRepository
 from repositories.organization import MembershipRepository
 from schemas.common import PaginatedResponse
@@ -16,13 +19,17 @@ from schemas.inventory import (
     BatchDetail,
     BatchOut,
     BatchUpdate,
+    MovementCreate,
     MovementOut,
     NearExpiryRuleCreate,
     NearExpiryRuleOut,
 )
+from services.audit_service import AuditService
 from services.inventory_service import InventoryService
 
 router = APIRouter(prefix="/inventory", tags=["Inventory"])
+
+InventoryManager = Annotated[User, Depends(require_permission("inventory.manage"))]
 
 
 async def _require_org(current_user, db) -> uuid.UUID:
@@ -343,3 +350,54 @@ async def list_batch_movements(
         total=total, page=page, page_size=page_size,
         pages=math.ceil(total / page_size) if total else 0,
     )
+
+
+@router.post("/movements", response_model=MovementOut, status_code=201)
+async def record_movement(
+    data: MovementCreate,
+    request: Request,
+    db: DbSession,
+    current_user: InventoryManager,
+):
+    """Record a dispensed/adjusted movement — the honest demand signal for restock."""
+    org_id = await _require_org(current_user, db)
+    repo = InventoryBatchRepository(db)
+    batch = await repo.get_by_org(data.batch_id, org_id)
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="الدفعة غير موجودة")
+    if data.quantity > batch.quantity_available:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"الكمية المطلوبة ({data.quantity}) تتجاوز المتاح في الدفعة ({batch.quantity_available})",
+        )
+
+    before = batch.quantity_available
+    batch.quantity_available = before - data.quantity
+    if batch.quantity_available == 0 and batch.status == BatchStatus.LISTED:
+        batch.status = BatchStatus.ACTIVE
+
+    movement = InventoryMovement(
+        id=uuid.uuid4(),
+        organization_id=org_id,
+        batch_id=batch.id,
+        movement_type=MovementType(data.movement_type),
+        quantity_delta=-data.quantity,
+        quantity_before=before,
+        quantity_after=batch.quantity_available,
+        performed_by_id=current_user.id,
+        notes=data.note,
+    )
+    db.add(movement)
+    await db.flush()
+
+    await AuditService(db).log(
+        action=f"inventory_movement_{data.movement_type}",
+        resource_type="inventory_batch",
+        resource_id=batch.id,
+        actor_id=current_user.id,
+        organization_id=org_id,
+        before_state={"quantity_available": before},
+        after_state={"quantity_available": batch.quantity_available},
+        ip_address=request.client.host if request.client else None,
+    )
+    return MovementOut.model_validate(movement)

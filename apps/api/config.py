@@ -87,6 +87,14 @@ class Settings(BaseSettings):
     AWS_SECRET_ACCESS_KEY: str = ""
     MAX_UPLOAD_SIZE_MB: int = 10
 
+    # ── Payments ──────────────────────────────────────────────────────────
+    # "stub" auto-settles a top-up (development and tests). "hyperpay" and
+    # "moyasar" are declared so the switch is an env change, but are not wired.
+    PAYMENT_BACKEND: str = "stub"     # stub | hyperpay | moyasar
+    PAYMENT_API_KEY: str = ""
+    PAYMENT_ENTITY_ID: str = ""
+    PAYMENT_WEBHOOK_SECRET: str = ""
+
     # ── Inventory import ──────────────────────────────────────────────────
     # A spreadsheet of ten thousand medicines is a few megabytes, not ten.
     MAX_IMPORT_SIZE_MB: int = 25

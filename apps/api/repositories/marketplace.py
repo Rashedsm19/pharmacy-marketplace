@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from typing import Sequence
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, func, null, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -23,16 +23,45 @@ class ListingRepository(BaseRepository[MarketplaceListing]):
     def __init__(self, db: AsyncSession) -> None:
         super().__init__(MarketplaceListing, db)
 
-    async def list_active(
+    @staticmethod
+    def _haversine_km(lat: float, lng: float):
+        """SQL expression: great-circle distance (km) from (lat, lng) to the branch."""
+        from models.branch import PharmacyBranch
+
+        earth_radius_km = 6371.0088
+        lat1 = func.radians(lat)
+        lng1 = func.radians(lng)
+        lat2 = func.radians(PharmacyBranch.latitude)
+        lng2 = func.radians(PharmacyBranch.longitude)
+        a = (
+            func.power(func.sin((lat2 - lat1) / 2), 2)
+            + func.cos(lat1) * func.cos(lat2) * func.power(func.sin((lng2 - lng1) / 2), 2)
+        )
+        # asin(sqrt(a)) is numerically safer than atan2 for small distances; clamp
+        # sqrt(a) at 1 so floating error never pushes asin out of its domain.
+        return 2 * earth_radius_km * func.asin(func.least(1.0, func.sqrt(a)))
+
+    async def search(
         self,
         search: str | None = None,
         status: ListingStatus | None = None,
         category_id: uuid.UUID | None = None,
         seller_org_id: uuid.UUID | None = None,
         exclude_org_id: uuid.UUID | None = None,
+        near_lat: float | None = None,
+        near_lng: float | None = None,
+        radius_km: float | None = None,
+        sort: str | None = None,
         offset: int = 0,
         limit: int = 50,
-    ) -> tuple[Sequence[MarketplaceListing], int]:
+    ) -> tuple[list[tuple[MarketplaceListing, float | None]], int]:
+        """Listing search returning (listing, distance_km) pairs.
+
+        distance_km is None unless near_lat/near_lng are given, and None for
+        listings whose branch has no coordinates. When radius_km is given,
+        branches without coordinates are excluded.
+        """
+        from models.branch import PharmacyBranch
         from models.inventory import InventoryBatch
         from models.product import Product
 
@@ -46,7 +75,21 @@ class ListingRepository(BaseRepository[MarketplaceListing]):
         if exclude_org_id:
             clauses.append(MarketplaceListing.seller_organization_id != exclude_org_id)
 
-        q = select(MarketplaceListing).where(and_(*clauses))
+        has_point = near_lat is not None and near_lng is not None
+        distance_expr = None
+        if has_point:
+            distance_expr = self._haversine_km(near_lat, near_lng).label("distance_km")
+            q = select(MarketplaceListing, distance_expr).join(
+                PharmacyBranch, MarketplaceListing.seller_branch_id == PharmacyBranch.id
+            )
+            if radius_km is not None:
+                clauses.append(PharmacyBranch.latitude.is_not(None))
+                clauses.append(PharmacyBranch.longitude.is_not(None))
+                clauses.append(distance_expr <= radius_km)
+        else:
+            q = select(MarketplaceListing, null().label("distance_km"))
+
+        q = q.where(and_(*clauses))
 
         if category_id or search:
             q = q.join(InventoryBatch, MarketplaceListing.batch_id == InventoryBatch.id)
@@ -62,17 +105,40 @@ class ListingRepository(BaseRepository[MarketplaceListing]):
                     )
                 )
 
-        from sqlalchemy import func
         count_q = select(func.count()).select_from(q.subquery())
         total = (await self.db.execute(count_q)).scalar_one()
-        rows = (
-            await self.db.execute(
-                q.order_by(MarketplaceListing.created_at.desc())
-                .offset(offset)
-                .limit(limit)
-            )
-        ).scalars().all()
+
+        if sort == "distance" and has_point:
+            order = (distance_expr.asc().nulls_last(), MarketplaceListing.created_at.desc())
+        else:
+            order = (MarketplaceListing.created_at.desc(),)
+
+        result = await self.db.execute(q.order_by(*order).offset(offset).limit(limit))
+        rows: list[tuple[MarketplaceListing, float | None]] = []
+        for listing, distance in result.all():
+            rows.append((listing, round(float(distance), 1) if distance is not None else None))
         return rows, total
+
+    async def list_active(
+        self,
+        search: str | None = None,
+        status: ListingStatus | None = None,
+        category_id: uuid.UUID | None = None,
+        seller_org_id: uuid.UUID | None = None,
+        exclude_org_id: uuid.UUID | None = None,
+        offset: int = 0,
+        limit: int = 50,
+    ) -> tuple[Sequence[MarketplaceListing], int]:
+        rows, total = await self.search(
+            search=search,
+            status=status,
+            category_id=category_id,
+            seller_org_id=seller_org_id,
+            exclude_org_id=exclude_org_id,
+            offset=offset,
+            limit=limit,
+        )
+        return [listing for listing, _ in rows], total
 
     async def get_by_org(
         self, listing_id: uuid.UUID, org_id: uuid.UUID

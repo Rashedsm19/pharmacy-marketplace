@@ -134,6 +134,9 @@ class NearExpiryRule(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
     notify_owner: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     notify_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # Default search radius (km) applied when a buyer filters the marketplace
+    # by "nearest to branch" without giving an explicit radius.
+    max_delivery_radius_km: Mapped[float | None] = mapped_column(Numeric(6, 1), nullable=True)
 
     # ── Relationships ─────────────────────────────────────────────────────
     organization: Mapped["PharmacyOrganization"] = relationship(

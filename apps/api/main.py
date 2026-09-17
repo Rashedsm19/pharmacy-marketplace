@@ -209,6 +209,14 @@ def _register_routers(app: FastAPI) -> None:
     from routers.support import router as support_router
     from routers.api_keys import router as api_keys_router
     from routers.external import router as external_router
+    from routers.team import router as team_router
+    from routers.wallet import router as wallet_router
+    from routers.subscriptions import router as subscriptions_router
+    from routers.promotions import router as promotions_router
+    from routers.loyalty import router as loyalty_router
+    from routers.insurance import router as insurance_router
+    from routers.restock import router as restock_router
+    from routers.pos import router as pos_router
 
     prefix = "/api/v1"
     app.include_router(auth_router, prefix=prefix)
@@ -234,6 +242,17 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(api_keys_router, prefix=prefix)
     # Authenticated by X-API-Key rather than a session — a customer's own system.
     app.include_router(external_router, prefix=prefix)
+    # Operations added for parity with retail pharmacy platforms, on top of the
+    # exchange marketplace. Each has its own prefix; admin paths inside them
+    # are declared with the full /admin/... path and land after admin_router.
+    app.include_router(team_router, prefix=prefix)
+    app.include_router(wallet_router, prefix=prefix)
+    app.include_router(subscriptions_router, prefix=prefix)
+    app.include_router(promotions_router, prefix=prefix)
+    app.include_router(loyalty_router, prefix=prefix)
+    app.include_router(insurance_router, prefix=prefix)
+    app.include_router(restock_router, prefix=prefix)
+    app.include_router(pos_router, prefix=prefix)
 
 
 _scheduler = None

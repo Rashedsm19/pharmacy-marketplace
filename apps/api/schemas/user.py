@@ -44,6 +44,12 @@ class UserOut(UserBase):
     updated_at: datetime
 
 
+class MeOut(UserOut):
+    """The signed-in user plus what they may do, so screens hide what 403s."""
+
+    permissions: list[str] = []
+
+
 class UserWithOrg(UserOut):
     org_id: uuid.UUID | None = None
     org_name: str | None = None

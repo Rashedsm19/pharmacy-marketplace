@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import uuid
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 
 from dependencies import CurrentUser, DbSession, OrgAdminOrAbove
 from models.user import UserRole
@@ -12,6 +12,8 @@ from repositories.branch import BranchRepository
 from repositories.organization import MembershipRepository
 from schemas.branch import BranchCreate, BranchOut, BranchUpdate
 from schemas.common import PaginatedResponse
+from schemas.marketplace import ListingOut
+from services.geo_service import GeoSearchService
 
 router = APIRouter(prefix="/branches", tags=["Branches"])
 
@@ -65,7 +67,23 @@ async def create_branch(
     if org_id is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="org_id required for super admin")
 
+    from sqlalchemy import func, select
+
     from models.branch import PharmacyBranch, StorageConditionStatus
+    from services.entitlement_service import EntitlementService
+
+    active_count = int(
+        await db.scalar(
+            select(func.count(PharmacyBranch.id)).where(
+                PharmacyBranch.organization_id == org_id,
+                PharmacyBranch.is_active.is_(True),
+                PharmacyBranch.deleted_at.is_(None),
+            )
+        )
+        or 0
+    )
+    await EntitlementService(db).check_resource_limit(org_id, "max_branches", active_count)
+
     branch = PharmacyBranch(
         id=uuid.uuid4(),
         organization_id=org_id,
@@ -79,6 +97,8 @@ async def create_branch(
         manager_name=data.manager_name,
         cold_chain_available=data.cold_chain_available,
         narcotics_license=data.narcotics_license,
+        latitude=data.latitude,
+        longitude=data.longitude,
         storage_condition_status=StorageConditionStatus.UNKNOWN,
     )
     db.add(branch)
@@ -97,6 +117,35 @@ async def get_branch(branch_id: uuid.UUID, db: DbSession, current_user: CurrentU
     if not branch:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     return BranchOut.model_validate(branch)
+
+
+@router.get("/{branch_id}/nearby-listings", response_model=PaginatedResponse[ListingOut])
+async def nearby_listings(
+    branch_id: uuid.UUID,
+    db: DbSession,
+    current_user: CurrentUser,
+    radius_km: float | None = Query(None, gt=0, le=5000),
+    page: int = 1,
+    page_size: int = 20,
+):
+    """Marketplace listings closest to this branch, nearest first."""
+    org_id = await _get_org_id(current_user, db)
+    svc = GeoSearchService(db)
+    rows, total = await svc.search(
+        buyer_org_id=org_id,
+        near_branch_id=branch_id,
+        radius_km=radius_km,
+        sort="distance",
+        offset=(page - 1) * page_size,
+        limit=page_size,
+    )
+    return PaginatedResponse(
+        items=rows,
+        total=total,
+        page=page,
+        page_size=page_size,
+        pages=math.ceil(total / page_size) if total else 0,
+    )
 
 
 @router.patch("/{branch_id}", response_model=BranchOut)

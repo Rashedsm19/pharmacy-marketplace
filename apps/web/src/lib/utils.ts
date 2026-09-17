@@ -72,3 +72,23 @@ export function getPaginationRange(page: number, totalPages: number, delta = 2):
   if (totalPages > 1) range.push(totalPages);
   return [...new Set(range)];
 }
+
+
+export function formatNumber(value: number | string | null | undefined, digits = 0): string {
+  const n = Number(value ?? 0);
+  return n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+export function formatPercent(value: number | string | null | undefined, digits = 0): string {
+  return `${formatNumber(value, digits)}٪`;
+}
+
+export function formatDistanceKm(km: number | string | null | undefined): string {
+  const n = Number(km ?? 0);
+  if (n < 1) return `${Math.round(n * 1000)} م`;
+  return `${formatNumber(n, n < 10 ? 1 : 0)} كم`;
+}
+
+export function formatPoints(points: number | string | null | undefined): string {
+  return `${formatNumber(points)} نقطة`;
+}

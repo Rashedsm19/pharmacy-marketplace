@@ -504,9 +504,193 @@ async def _seed_all(db) -> None:
         ))
     await db.flush()
 
+    # ── Subscription plans + migration-policy subscriptions ────────────────
+    #
+    # The `legacy` plan is the migration policy made concrete: every existing
+    # organization gets a complimentary active subscription with no period end,
+    # so introducing billing locks nobody out. The starter/growth/scale rows
+    # are development fixtures — the prices are placeholders, not approved
+    # pricing, and the names say so.
+    from sqlalchemy import func as sa_func, select as sa_select2
+
+    from models.subscription import SubscriptionPlan
+
+    plans_exist = (
+        await db.execute(sa_select2(sa_func.count()).select_from(SubscriptionPlan))
+    ).scalar_one()
+    if not plans_exist:
+        fixture_note_ar = "أسعار تجريبية غير معتمدة — للبيئة التطويرية فقط."
+        fixture_note_en = "Unapproved placeholder pricing — development fixture only."
+        starter = SubscriptionPlan(
+            id=uuid.uuid4(),
+            code="starter",
+            version=1,
+            name_ar="الأساسية (تجريبي)",
+            name_en="Starter (dev fixture)",
+            description_ar=f"باقة البداية للصيدليات الصغيرة. {fixture_note_ar}",
+            description_en=f"Entry tier for small pharmacies. {fixture_note_en}",
+            monthly_price=99,
+            annual_price=990,
+            trial_days=14,
+            limits={
+                "max_active_listings": 10,
+                "max_branches": 1,
+                "max_team_members": 3,
+                "max_listings_per_period": 20,
+                "advanced_reports": False,
+                "restock_intelligence": False,
+                "api_access": False,
+            },
+            is_active=True,
+            is_public=True,
+            sort_order=1,
+        )
+        growth = SubscriptionPlan(
+            id=uuid.uuid4(),
+            code="growth",
+            version=1,
+            name_ar="النمو (تجريبي)",
+            name_en="Growth (dev fixture)",
+            description_ar=f"للمنشآت متعددة الفروع. {fixture_note_ar}",
+            description_en=f"For multi-branch pharmacies. {fixture_note_en}",
+            monthly_price=299,
+            annual_price=2990,
+            trial_days=0,
+            limits={
+                "max_active_listings": 50,
+                "max_branches": 5,
+                "max_team_members": 15,
+                "max_listings_per_period": 200,
+                "advanced_reports": True,
+                "restock_intelligence": True,
+                "api_access": False,
+            },
+            is_active=True,
+            is_public=True,
+            sort_order=2,
+        )
+        scale = SubscriptionPlan(
+            id=uuid.uuid4(),
+            code="scale",
+            version=1,
+            name_ar="المؤسسات (تجريبي)",
+            name_en="Scale (dev fixture)",
+            description_ar=f"للسلاسل الكبيرة بلا حدود للعروض. {fixture_note_ar}",
+            description_en=f"For large chains with uncapped listings. {fixture_note_en}",
+            monthly_price=899,
+            annual_price=8990,
+            trial_days=0,
+            limits={
+                "max_active_listings": None,
+                "max_branches": 20,
+                "max_team_members": 50,
+                "max_listings_per_period": None,
+                "advanced_reports": True,
+                "restock_intelligence": True,
+                "api_access": True,
+            },
+            is_active=True,
+            is_public=True,
+            sort_order=3,
+        )
+        db.add_all([starter, growth, scale])
+        await db.flush()
+        print("  ✔ 3 dev-fixture subscription plans created")
+
+    migrated = await ensure_legacy_subscriptions(db)
+    if migrated:
+        print(f"  ✔ {migrated} complimentary legacy subscription(s) created")
+
     print("  ✔ 2 super admins, 3 users, 3 orgs, 5 branches created")
     print(f"  ✔ 30 products, {len(batches)} inventory batches created")
     print(f"  ✔ {len(listings)} listings, {len(offers)} offers, 5 transactions created")
+
+
+async def ensure_legacy_subscriptions(db) -> int:
+    """Migration policy: give every organization a complimentary subscription.
+
+    Any org registered before subscriptions existed — or created by a path that
+    does not set one up — receives the non-public `legacy` plan (prices zero,
+    generous limits, every feature on) as an active subscription with no period
+    end. Idempotent: orgs that already hold a subscription are skipped, and the
+    plan row is only created once. Returns how many subscriptions were created.
+    """
+    from sqlalchemy import select
+
+    from models.organization import PharmacyOrganization
+    from models.subscription import (
+        BillingCycle,
+        OrganizationSubscription,
+        SubscriptionPlan,
+        SubscriptionStatus,
+    )
+    from services.subscription_service import plan_snapshot
+
+    legacy = (
+        await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.code == "legacy"))
+    ).scalar_one_or_none()
+    if legacy is None:
+        legacy = SubscriptionPlan(
+            id=uuid.uuid4(),
+            code="legacy",
+            version=1,
+            name_ar="باقة المنشآت الحالية",
+            name_en="Legacy",
+            description_ar="باقة مجانية دائمة للمنشآت المسجلة قبل إطلاق الاشتراكات.",
+            description_en="Complimentary plan for organizations that predate subscriptions.",
+            monthly_price=0,
+            annual_price=0,
+            trial_days=0,
+            limits={
+                "max_active_listings": 500,
+                "max_branches": 50,
+                "max_team_members": 100,
+                "max_listings_per_period": None,
+                "advanced_reports": True,
+                "restock_intelligence": True,
+                "api_access": True,
+            },
+            is_active=True,
+            is_public=False,
+            sort_order=0,
+        )
+        db.add(legacy)
+        await db.flush()
+
+    orgs = list(
+        (
+            await db.execute(
+                select(PharmacyOrganization).where(PharmacyOrganization.deleted_at.is_(None))
+            )
+        )
+        .scalars()
+        .all()
+    )
+    now = datetime.now(timezone.utc)
+    created = 0
+    for org in orgs:
+        exists = (
+            await db.execute(
+                select(OrganizationSubscription.id).where(
+                    OrganizationSubscription.organization_id == org.id
+                )
+            )
+        ).scalar_one_or_none()
+        if exists is not None:
+            continue
+        db.add(OrganizationSubscription(
+            id=uuid.uuid4(),
+            organization_id=org.id,
+            plan_id=legacy.id,
+            plan_snapshot=plan_snapshot(legacy),
+            status=SubscriptionStatus.ACTIVE,
+            billing_cycle=BillingCycle.MONTHLY,
+            current_period_start=now,
+            current_period_end=None,
+        ))
+        created += 1
+    await db.flush()
+    return created
 
 
 if __name__ == "__main__":

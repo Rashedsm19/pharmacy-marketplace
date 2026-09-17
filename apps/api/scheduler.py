@@ -340,4 +340,25 @@ def create_scheduler() -> AsyncIOScheduler:
         max_instances=1,
         coalesce=True,
     )
+    from services.restock_jobs import recompute_restock_recommendations
+    from services.subscription_jobs import process_subscription_cycle
+
+    scheduler.add_job(
+        process_subscription_cycle,
+        trigger=IntervalTrigger(hours=24),
+        id="subscription_cycle",
+        replace_existing=True,
+        misfire_grace_time=3600,
+        max_instances=1,
+        coalesce=True,
+    )
+    scheduler.add_job(
+        recompute_restock_recommendations,
+        trigger=IntervalTrigger(hours=settings.NEAR_EXPIRY_SCAN_INTERVAL_HOURS),
+        id="restock_recompute",
+        replace_existing=True,
+        misfire_grace_time=600,
+        max_instances=1,
+        coalesce=True,
+    )
     return scheduler

@@ -49,7 +49,7 @@ class NotificationService:
         await self.db.flush()
 
         await self._dispatch_email(user_id, notification_type, title_ar or title, body_ar or body)
-        await self._dispatch_whatsapp(user_id, body_ar)
+        await self._dispatch_whatsapp(user_id, notification_type, body_ar or body)
 
         return notif
 
@@ -96,13 +96,26 @@ class NotificationService:
             return
         await email_service.send(user.email, subject, body)
 
-    async def _dispatch_whatsapp(self, user_id: uuid.UUID, body: str) -> None:
-        """WhatsApp remains an explicit integration stub — see Meta Cloud API."""
+    async def _dispatch_whatsapp(
+        self, user_id: uuid.UUID, notification_type: NotificationType, body: str
+    ) -> None:
         from config import settings
+        from models.user import User
+        from services.integrations.whatsapp_service import whatsapp_service
+        from sqlalchemy import select
+
         if settings.WHATSAPP_BACKEND == "stub":
             logger.debug("WHATSAPP STUB: to_user=%s", user_id)
             return
-        logger.warning("WHATSAPP_BACKEND=%s is not implemented yet", settings.WHATSAPP_BACKEND)
+        if not await self._channel_allowed(user_id, notification_type, NotificationChannel.WHATSAPP):
+            return
+
+        user = (
+            await self.db.execute(select(User).where(User.id == user_id))
+        ).scalar_one_or_none()
+        if not user or not user.is_active or not user.phone:
+            return
+        await whatsapp_service.send(user.phone, body)
 
     async def create_near_expiry_notification(
         self,

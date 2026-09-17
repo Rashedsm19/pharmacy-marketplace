@@ -109,6 +109,154 @@ CATALOG: dict[str, SettingSpec] = {
         group_ar="الإشعارات",
         group_en="Notifications",
     ),
+    "billing.grace_period_days": SettingSpec(
+        label_ar="مهلة سداد الاشتراك",
+        label_en="Subscription grace period",
+        description_ar=(
+            "عدد الأيام التي يبقى فيها الاشتراك فعالا بعد فشل عملية الدفع "
+            "قبل أن يتحول إلى منتهي."
+        ),
+        description_en=(
+            "How many days a subscription stays active after a failed payment "
+            "before it expires."
+        ),
+        value_type="number",
+        group_ar="الاشتراكات",
+        group_en="Billing",
+        unit_ar="يوم",
+        minimum=0,
+        maximum=30,
+    ),
+    "billing.proration_policy": SettingSpec(
+        label_ar="سياسة التناسب عند ترقية الباقة",
+        label_en="Proration policy",
+        description_ar=(
+            "كيف تحتسب قيمة الفترة المتبقية عند الترقية الفورية: "
+            "immediate_prorated يحاسب الفرق عن الأيام المتبقية فقط."
+        ),
+        description_en=(
+            "How upgrades bill the remainder of the current period: "
+            "immediate_prorated charges the difference for the days left only."
+        ),
+        value_type="text",
+        group_ar="الاشتراكات",
+        group_en="Billing",
+    ),
+    "restock.demand_window_days": SettingSpec(
+        label_ar="نافذة حساب الطلب",
+        label_en="Demand window",
+        description_ar=(
+            "عدد الأيام التي تحسب منها سرعة الصرف عند توليد توصيات إعادة التوريد."
+        ),
+        description_en=(
+            "How many days of dispense history the velocity calculation uses."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=7,
+        maximum=365,
+    ),
+    "restock.lead_time_days": SettingSpec(
+        label_ar="مهلة توريد افتراضية",
+        label_en="Assumed supplier lead time",
+        description_ar=(
+            "مهلة التوريد المفترضة عند عدم وجود بيانات فعلية من المورد."
+        ),
+        description_en=(
+            "Lead time assumed when no supplier data exists."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=0,
+        maximum=60,
+    ),
+    "restock.safety_stock_days": SettingSpec(
+        label_ar="أيام المخزون الاحترازي",
+        label_en="Safety stock days",
+        description_ar=(
+            "أيام تغطية إضافية فوق مهلة التوريد عند حساب نقطة إعادة الطلب."
+        ),
+        description_en=(
+            "Extra cover days on top of lead time in the reorder-point calculation."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=0,
+        maximum=60,
+    ),
+    "restock.review_period_days": SettingSpec(
+        label_ar="فترة المراجعة الدورية",
+        label_en="Review period",
+        description_ar=(
+            "المدة بين مراجعتين متتاليتين للمخزون، وتدخل في حساب المخزون المستهدف."
+        ),
+        description_en=(
+            "Time between two stock reviews; feeds the target-stock calculation."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=1,
+        maximum=90,
+    ),
+    "restock.min_evidence_days": SettingSpec(
+        label_ar="أقل مدة بيانات للتوصية",
+        label_en="Minimum evidence days",
+        description_ar=(
+            "أقل عدد أيام من سجل الصرف قبل أن تعتبر البيانات كافية لاقتراح كمية."
+        ),
+        description_en=(
+            "Dispense history shorter than this marks the recommendation as "
+            "insufficient evidence and no quantity is suggested."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=1,
+        maximum=90,
+    ),
+    "restock.min_buy_shelf_life_days": SettingSpec(
+        label_ar="أقل صلاحية متبقية للشراء",
+        label_en="Minimum shelf life when buying",
+        description_ar=(
+            "لا تقترح المنصة شراء عرض من السوق إذا كانت صلاحيته المتبقية أقل من هذا العدد."
+        ),
+        description_en=(
+            "A marketplace listing is only suggested for replenishment when at "
+            "least this many days of shelf life remain."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=0,
+        maximum=365,
+    ),
+    "restock.dismiss_cooldown_days": SettingSpec(
+        label_ar="مهلة إعادة توليد التوصية المرفوضة",
+        label_en="Dismiss cooldown",
+        description_ar=(
+            "عدد الأيام التي لا تعاد فيها توليد توصية رفضها المستخدم ما لم تتغير مدخلاتها."
+        ),
+        description_en=(
+            "A dismissed recommendation is not regenerated for this many days "
+            "unless its input signature changes."
+        ),
+        value_type="number",
+        group_ar="إعادة التوريد",
+        group_en="Restock",
+        unit_ar="يوم",
+        minimum=0,
+        maximum=90,
+    ),
 }
 
 FALLBACK_GROUP_AR = "إعدادات أخرى"

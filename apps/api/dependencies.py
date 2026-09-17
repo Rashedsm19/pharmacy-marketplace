@@ -237,6 +237,64 @@ def require_org_admin_or_above(current_user: CurrentUser) -> User:
 OrgAdminOrAbove = Annotated[User, Depends(require_org_admin_or_above)]
 
 
+# ── Permission Guards ─────────────────────────────────────────────────────────
+#
+# A permission is a key such as "wallet.withdraw" carried by the role a member
+# holds in their pharmacy. The platform administrator bypasses this explicitly;
+# everyone else is resolved through their membership. A member without a
+# custom role is judged by the legacy membership role, so nothing changes for
+# accounts that predate custom roles.
+
+async def resolve_permissions(db: AsyncSession, user: User) -> frozenset[str]:
+    from auth.permissions import ALL_KEYS, SYSTEM_ROLE_PERMISSIONS
+    from sqlalchemy import select
+    from models.organization import MembershipRole, UserOrganizationMembership
+
+    if user.role == UserRole.SUPER_ADMIN:
+        return ALL_KEYS
+
+    membership = (
+        await db.execute(
+            select(UserOrganizationMembership)
+            .where(
+                UserOrganizationMembership.user_id == user.id,
+                UserOrganizationMembership.is_active.is_(True),
+            )
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if membership is None:
+        return frozenset()
+    if membership.custom_role is not None:
+        return frozenset(membership.custom_role.permissions or [])
+    try:
+        legacy = MembershipRole(membership.role)
+    except ValueError:
+        return frozenset()
+    return SYSTEM_ROLE_PERMISSIONS.get(legacy, frozenset())
+
+
+def require_permission(*keys: str):
+    """Guard an org-scoped endpoint with the permission its caller must hold.
+
+    Several keys mean "any of these" — a screen readable by both the person who
+    lists and the person who only views passes either key.
+    """
+
+    async def _guard(current_user: CurrentUser, db: DbSession) -> User:
+        if current_user.role == UserRole.SUPER_ADMIN:
+            return current_user
+        granted = await resolve_permissions(db, current_user)
+        if not any(k in granted for k in keys):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="ليس لديك صلاحية لهذا الإجراء. راجع مدير المنشأة.",
+            )
+        return current_user
+
+    return _guard
+
+
 # ── API Key Authentication ────────────────────────────────────────────────────
 #
 # The external endpoints are called by a customer's own system, which has no

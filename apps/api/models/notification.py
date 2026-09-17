@@ -35,6 +35,13 @@ class NotificationType(str, enum.Enum):
     ORG_APPROVED = "org_approved"
     ORG_REJECTED = "org_rejected"
     ORG_SUSPENDED = "org_suspended"
+    TEAM_MEMBER_JOINED = "team_member_joined"
+    RESTOCK_RECOMMENDATION = "restock_recommendation"
+    USAGE_LIMIT_WARNING = "usage_limit_warning"
+    SUBSCRIPTION_TRIAL_ENDING = "subscription_trial_ending"
+    SUBSCRIPTION_PAYMENT_FAILED = "subscription_payment_failed"
+    SUBSCRIPTION_EXPIRED = "subscription_expired"
+    SUBSCRIPTION_RENEWED = "subscription_renewed"
     SYSTEM = "system"
 
 
